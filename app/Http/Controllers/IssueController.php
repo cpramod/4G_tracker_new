@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Comment;
 use App\Models\Issue;
+use App\Models\Reply;
 use Illuminate\Http\Request;
 
 class IssueController extends Controller
@@ -13,10 +14,12 @@ class IssueController extends Controller
         $request->validate([
             'title' => 'required',
             'description' => 'required',
-            'attachments' => 'required',
         ]);
         $file_path = '';
         if ($request->hasFile('attachments')) {
+            $request->validate([
+                'attachments' => 'mimes:jpeg,jpg,png,gif',
+            ]);
             $files = $request->file('attachments');
             foreach ($files as $file) {
                 $name = now()->timestamp . "_{$file->getClientOriginalName()}";
@@ -48,5 +51,24 @@ class IssueController extends Controller
             'issue_id' => $request->issue_id,
             'user_id' => $request->user()->id,
         ]);
+    }
+
+    public function reply_store(Request $request)
+    {
+        $request->validate([
+            'body' => 'required',
+        ]);
+        $reply = Reply::create([
+            'body' => $request->body,
+            'comment_id' => $request->comment_id,
+            'parent_reply_id' => $request->parent_id !== '0' ? $request->parent_id : null,
+            'user_id' => $request->user()->id,
+        ]);
+    }
+
+    public function reply_delete($id)
+    {
+        $reply = Reply::find($id);
+        $reply->delete();
     }
 }

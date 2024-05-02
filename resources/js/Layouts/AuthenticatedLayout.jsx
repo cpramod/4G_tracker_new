@@ -3,6 +3,7 @@ import Dropdown from '@/Components/Dropdown';
 import { Link } from '@inertiajs/react';
 import { Card, List, ListItem, ListItemPrefix, Typography } from '@material-tailwind/react';
 import { AlignJustifyIcon, ChevronDownIcon, GaugeCircleIcon, GlobeIcon, LocateFixedIcon } from 'lucide-react';
+import ApplicationLogo from '@/Components/ApplicationLogo';
 
 export default function Authenticated({ user, header, children }) {
     const currentRoute = route().current();
@@ -17,9 +18,10 @@ export default function Authenticated({ user, header, children }) {
             <div className="header w-full py-4 bg-white border-b-2 sticky top-0">
                 <div className="full flex items-center justify-between px-6">
                     <div className="left">
-                        <Typography variant="h5" color="black" className='text-center'>
-                            Application Logo
-                        </Typography>
+                        <Link href={route('dashboard')}>
+                            <ApplicationLogo className="font-semibold text-3xl tracking-tighter  text-blue-gray-600" />
+                        </Link>
+
                     </div>
                     <div className="right">
                         <div className="hidden lg:block">

@@ -83,10 +83,39 @@ class WirelessSiteController extends Controller
     public function show($id)
     {
         $site = Site::with('location')->where('id', $id)->first();
-        $issues = Issue::with(['user', 'comments', 'comments.user'])->where(['site_id' => $id, "status" => "open"])->get();
+        $depth = 6;
+        $issues = Issue::with([
+            'user',
+            'comments',
+            'comments.user',
+            'comments.replies' => function ($query) use ($depth) {
+                $query->where('parent_reply_id', 0);
+                $this->loadNestedReplies($query, $depth);
+            },
+            'comments.replies.user'
+        ])->where(['site_id' => $id])->get();
+
         return Inertia::render('Wireless/Sites/Show', [
             'site' => $site,
-            'issues' => $issues
+            'issues' => $issues,
         ]);
     }
+    public function loadNestedReplies(&$query, $depth)
+    {
+        if ($depth <= 0) {
+            return;
+        }
+        $query->with([
+            'replies.user',
+            'replies' => function ($query) use ($depth) {
+                $query->with([
+                    'replies.user',
+                    'replies' => function ($query) use ($depth) {
+                        $this->loadNestedReplies($query, $depth - 1);
+                    }
+                ]);
+            },
+        ]);
+    }
+
 }

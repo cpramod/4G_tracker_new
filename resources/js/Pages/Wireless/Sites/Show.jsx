@@ -7,8 +7,9 @@ import { XIcon } from 'lucide-react';
 import React from 'react'
 import { useDropzone } from 'react-dropzone';
 import { formatDistanceToNow } from 'date-fns';
-import Reply from '@/Components/Reply';
-import Comment from '@/Components/Comment';
+import CommentItem from '@/Components/Comments/CommentItem';
+import AddComment from '@/Components/Comments/AddComment';
+import PageLayout from '@/Layouts/PageLayout';
 
 export default function Show() {
     const { site, issues } = usePage().props
@@ -52,7 +53,7 @@ export default function Show() {
     }
 
     return (
-        <>
+        <PageLayout>
             <Head title="Site" />
             <div className="page-content">
                 <div className="container mx-auto py-12">
@@ -60,7 +61,7 @@ export default function Show() {
                         <div className="left relative">
                             <Chip value={site?.status} color={site?.status === 'active' ? 'green' : 'red'} className='w-max' />
                             <Typography variant='h1' color="blue-gray" className='font-bold' >{site.name}</Typography>
-                            <Typography>{`${site?.location.name}, ${site?.location?.address}`}</Typography>
+                            <Typography className='font-normal text-gray-500 text-lg'>{`${site?.location.name}, ${site?.location?.address}`}</Typography>
                         </div>
                         <div className="right">
                             <Button onClick={handleOpen} variant="gradient">Add Issue</Button>
@@ -70,12 +71,12 @@ export default function Show() {
                         {issues.length > 0 && issues.map((issue, index) => {
                             return (
                                 <React.Fragment key={issue.id}>
-                                    <div className='issue-wrapper border-t py-5'>
+                                    <div className='issue-wrapper border mb-4 py-3 px-6 rounded-md'>
                                         <div className="issue-content">
                                             <div className="flex justify-between items-center">
                                                 <div className='flex items-center gap-6'>
                                                     <Typography variant='h4' className='font-bold tracking-tight'>{issue?.title}</Typography>
-                                                    <Chip size='sm' value={issue?.status} color={issue?.status === 'open' ? 'red' : 'green'} className='w-max' />
+                                                    <Chip size='sm' value={issue?.status} color={issue?.status === 'open' ? 'green' : 'red'} className='w-max' />
                                                 </div>
                                                 <Typography className='font-normal text-sm text-gray-600'> {issue?.user.name} | {formatDistanceToNow(new Date(issue?.created_at), { addSuffix: true })}</Typography>
                                             </div>
@@ -91,15 +92,13 @@ export default function Show() {
                                                     {issue?.comments.map((comment, index) => {
                                                         return (
                                                             <React.Fragment key={index}>
-                                                                <Comment comment={comment} />
+                                                                <CommentItem comment={comment} />
                                                             </React.Fragment>
                                                         )
                                                     })}
                                                 </div>
                                             )}
-
-
-                                            <Reply issueId={issue?.id} />
+                                            {issue?.status === 'open' && <AddComment issueId={issue?.id} />}
                                         </div>
                                     </div>
                                 </React.Fragment>
@@ -169,6 +168,6 @@ export default function Show() {
                     </form>
                 </DialogBody>
             </Dialog>
-        </>
+        </PageLayout>
     )
 }
