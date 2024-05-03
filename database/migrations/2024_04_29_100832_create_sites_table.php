@@ -12,13 +12,24 @@ return new class extends Migration {
     {
         Schema::create('sites', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('status');
-            $table->string('issue');
-            $table->unsignedBigInteger('location_id');
-            $table->foreign('location_id')->references('id')->on('locations')->onDelete('cascade');
-            $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->string('loc_id')->nullable();
+            $table->string('wntd')->nullable();
+            $table->string('imsi')->nullable();
+            $table->string('version')->nullable();
+            $table->string('avc')->nullable();
+            $table->string('bw_profile')->nullable();
+            $table->string('lon')->nullable();
+            $table->string('lat')->nullable();
+            $table->string('site_name')->nullable();
+            $table->string('home_cell')->nullable();
+            $table->string('home_pci')->nullable();
+            $table->string('traffic_profile')->nullable();
+            $table->string('start_date')->nullable();
+            $table->string('end_date')->nullable();
+            $table->string('solution_type')->nullable();
+            $table->string('status')->nullable();
+            $table->string('remarks')->nullable();
+            $table->json('artifacts')->nullable();
             $table->timestamps();
         });
     }

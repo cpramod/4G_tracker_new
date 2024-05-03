@@ -15,10 +15,9 @@ Route::controller(PageController::class)->middleware('auth')->group(function () 
 
 Route::controller(WirelessSiteController::class)->middleware('auth')->group(function () {
     Route::get('/dashboard/wireless-sites', 'index')->name('wireless.sites.index');
-    Route::post('/dashboard/wireless-sites', 'store')->name('wireless.sites.store');
-    Route::get('/sites/{id}', 'show')->name('wireless.sites.show');
-    Route::post('/dashboard/wireless-sites/{id}', 'update')->name('wireless.sites.update');
-    Route::delete('/dashboard/wireless-sites/{id}', 'delete')->name('wireless.sites.delete');
+    Route::post('/dashboard/wireless-sites/{id}', 'save_item')->name('wireless.sites.update.item');
+    Route::post('/dashboard/wireless-sites/artifacts/{id}', 'save_artifacts')->name('wireless.sites.update.artifacts');
+
 });
 
 Route::controller(IssueController::class)->middleware('auth')->group(function () {

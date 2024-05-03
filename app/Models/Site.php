@@ -10,11 +10,25 @@ class Site extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name',
+        'loc_id',
+        'wntd',
+        'imsi',
+        'version',
+        'avc',
+        'bw',
+        'profile',
+        'lon',
+        'lat',
+        'site_name',
+        'home_cell',
+        'home_pci',
+        'traffic_profile',
+        'start_date',
+        'end_date',
+        'solution_type',
         'status',
-        'issue',
-        'location_id',
-        'user_id'
+        'remarks',
+        'artifacts',
     ];
     public function location()
     {
