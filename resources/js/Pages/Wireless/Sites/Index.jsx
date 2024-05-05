@@ -1,3 +1,4 @@
+import Pagination from '@/Components/Pagination';
 import TextInput from '@/Components/TextInput';
 import Authenticated from '@/Layouts/AuthenticatedLayout'
 import { Head, Link, router, useForm } from '@inertiajs/react'
@@ -33,7 +34,7 @@ export default function Index({ auth, sites }) {
     ];
     const hiddenFileInput = useRef(null);
     const [searchText, setSearchText] = useState('');
-    const [siteItems, setSiteItems] = useState(sites);
+    const [siteItems, setSiteItems] = useState(sites?.data);
 
 
     const ItemField = ({ name, value, itemId = 0, read = true }) => {
@@ -278,13 +279,13 @@ export default function Index({ auth, sites }) {
                     <div className="search-wrapper w-1/3 flex relative">
                         <TextInput
                             placeholder="Search..."
-                            className="w-full text-sm rounded-md rounded-r-none focus:ring-0 h-8"
+                            className="w-full text-sm rounded-md rounded-r-none border-r-0 focus:ring-0 h-8"
                             value={searchText}
                             onChange={(e) => setSearchText(e.target.value)}
                         />
                         <div className="search-icon">
                             <IconButton size='sm' className='rounded-l-none' onClick={handleSearch}>
-                                <SearchIcon color='silver' size={18} />
+                                <SearchIcon color='white' size={18} />
                             </IconButton>
                         </div>
                     </div>
@@ -402,6 +403,7 @@ export default function Index({ auth, sites }) {
                         </tbody>
                     </table>
                     {siteItems.length === 0 && <Typography variant="h6" color="blue-gray" className='text-center py-6' >No data found</Typography>}
+                    <Pagination class="mt-6" links={sites.links} />
                 </Card>
             </div>
         </Authenticated>

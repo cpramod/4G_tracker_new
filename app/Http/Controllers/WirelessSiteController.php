@@ -13,7 +13,7 @@ class WirelessSiteController extends Controller
 {
     public function index()
     {
-        $sites = Site::all();
+        $sites = Site::latest()->paginate(10);
         return Inertia::render('Wireless/Sites/Index', [
             'sites' => $sites,
         ]);
@@ -52,7 +52,7 @@ class WirelessSiteController extends Controller
     public function import_from_csv(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'import_file' => 'required|file|mimes:csv', // max 10MB
+            'import_file' => 'required|file|mimes:csv',
         ]);
         if ($validator->fails()) {
             return response()->json(['error' => array('message' => 'Only CSV file is allowed.')], 422);
@@ -62,9 +62,7 @@ class WirelessSiteController extends Controller
         $csv = Reader::createFromPath(storage_path('app/' . $filePath), 'r');
         $csv->setHeaderOffset(0);
         foreach ($csv as $row) {
-
             $existingLoc = Site::where('loc_id', $row['LOCID'])->first();
-
             if (!$existingLoc) {
                 Site::create([
                     'loc_id' => $row['LOCID'],
