@@ -1,16 +1,40 @@
 import TextInput from '@/Components/TextInput';
 import Authenticated from '@/Layouts/AuthenticatedLayout'
 import { Head, Link, router, useForm } from '@inertiajs/react'
-import { Button, Card, Dialog, DialogBody, DialogFooter, DialogHeader, Tooltip, Typography } from '@material-tailwind/react'
+import { Button, Card, Dialog, DialogBody, DialogFooter, DialogHeader, IconButton, Tooltip, Typography } from '@material-tailwind/react'
 import axios from 'axios';
-import { FileBarChartIcon, ImageIcon } from 'lucide-react';
-import React, { useState } from 'react'
+import { ChevronDownIcon, ChevronUpIcon, FileBarChartIcon, ImageIcon, SearchIcon } from 'lucide-react';
+import React, { useRef, useState } from 'react'
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useDropzone } from 'react-dropzone';
+import toast from 'react-hot-toast';
 
 export default function Index({ auth, sites }) {
-    const TABLE_HEAD = ["LOCID", "WNTD", "IMSI", "VERSION", "AVC", "BW Profile", 'Lon', "Lat", "SiteName", "HomeCell", "HomePCI", "Traffic Profile", "Start Date", "End Date", "Solution Type", "Status", "Remarks", "Artifacts"];
+    const TABLE_HEAD = [
+        { name: 'LOCID', sortable: true, sortKey: 'loc_id' },
+        { name: 'WNTD', sortable: true, sortKey: 'wntd' },
+        { name: 'IMSI', sortable: true, sortKey: 'imsi' },
+        { name: 'VERSION', sortable: true, sortKey: 'version' },
+        { name: 'AVC', sortable: true, sortKey: 'avc' },
+        { name: 'BW Profile', sortable: true, sortKey: 'bw_profile' },
+        { name: 'Lon', sortable: true, sortKey: 'lon' },
+        { name: 'Lat', sortable: true, sortKey: 'lat' },
+        { name: 'SiteName', sortable: true, sortKey: 'site_name' },
+        { name: 'HomeCell', sortable: true, sortKey: 'home_cell' },
+        { name: 'HomePCI', sortable: true, sortKey: 'home_pci' },
+        { name: 'Traffic Profile', sortable: true, sortKey: 'traffic_profile' },
+        { name: 'Start Date', sortable: false, sortKey: 'start_date' },
+        { name: 'End Date', sortable: false, sortKey: 'end_date' },
+        { name: 'Solution Type', sortable: false, sortKey: 'solution_type' },
+        { name: 'Status', sortable: false, sortKey: 'status' },
+        { name: 'Remarks', sortable: false, sortKey: 'remarks' },
+        { name: 'Artifacts', sortable: false, sortKey: 'artifacts' },
+    ];
+    const hiddenFileInput = useRef(null);
+    const [searchText, setSearchText] = useState('');
+    const [siteItems, setSiteItems] = useState(sites);
+
 
     const ItemField = ({ name, value, itemId = 0, read = true }) => {
         let timeoutId;
@@ -198,8 +222,41 @@ export default function Index({ auth, sites }) {
             </div>
         )
     }
+    const handleClick = event => {
+        hiddenFileInput.current.click();
+    };
+    const handleChangeUpload = async (event) => {
+        const form_input = new FormData();
+        form_input.append('import_file', event.target.files[0]);
+        try {
+            const res = await axios.post(route('wireless.sites.import'), form_input);
+            router.visit(route('wireless.sites.index'));
+        } catch (error) {
+            toast.error(`${error?.response?.data?.error?.message}`);
+        }
+    };
 
+    const handleSearch = async () => {
+        if (searchText) {
+            const res = await axios.post(route('wireless.sites.search'), { search: searchText });
+            if (res?.data) {
+                setSiteItems(res?.data);
+            }
+        }
+    }
 
+    const sortData = (key, order) => {
+        const sortedData = [...siteItems].sort((a, b) => {
+            let comparison = 0;
+            if (typeof a[key] === 'string') {
+                comparison = a[key].localeCompare(b[key]);
+            } else {
+                comparison = a[key] - b[key];
+            }
+            return order === 'asc' ? comparison : -comparison;
+        });
+        setSiteItems(sortedData);
+    };
 
     return (
         <Authenticated user={auth?.user}>
@@ -214,125 +271,99 @@ export default function Index({ auth, sites }) {
                             <li><Link href={route('wireless.sites.index')}>Wireless Sites</Link></li>
                         </ul>
                     </div>
-                    {/* <Button variant="gradient" className='capitalize' size='sm'>Import</Button> */}
                 </div>
             </div>
-            <div className="content mt-8">
+            <div className="filter-wrapper px-4">
+                <div className="flex justify-end gap-3">
+                    <div className="search-wrapper w-1/3 flex relative">
+                        <TextInput
+                            placeholder="Search..."
+                            className="w-full text-sm rounded-md rounded-r-none focus:ring-0 h-8"
+                            value={searchText}
+                            onChange={(e) => setSearchText(e.target.value)}
+                        />
+                        <div className="search-icon">
+                            <IconButton size='sm' className='rounded-l-none' onClick={handleSearch}>
+                                <SearchIcon color='silver' size={18} />
+                            </IconButton>
+                        </div>
+                    </div>
+                    <div>
+                        <Button variant="gradient" className='capitalize' size='sm' onClick={handleClick}>Import from CSV</Button>
+                        <input
+                            type="file"
+                            onChange={handleChangeUpload}
+                            ref={hiddenFileInput}
+                            style={{ display: 'none' }}
+                        />
+                    </div>
+                </div>
+            </div>
+            <div className="content mt-6">
                 <Card className="h-full w-full rounded-none">
                     <table className="w-full min-w-max table-auto text-left">
                         <thead>
                             <tr>
                                 {TABLE_HEAD.map((head) => (
-                                    <th key={head} className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-2 border-l">
-                                        <Typography variant="small" className="leading-none text-gray-800 font-medium text-sm">
-                                            {head}
-                                        </Typography>
+                                    <th key={head.name} className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-2 border-l cursor-pointer">
+                                        <div className="flex justify-between">
+                                            <Typography variant="small" className="leading-none text-gray-800 font-medium text-sm">{head.name}</Typography>
+                                            {head?.sortable && (
+                                                <div className="relative mt-1">
+                                                    <span className='absolute -top-2 right-0 hover:bg-blue-gray-100 rounded-sm'><ChevronUpIcon size={12} strokeWidth={2} onClick={() => { sortData(head.sortKey, 'asc') }} /></span>
+                                                    <span className='absolute -bottom-1 right-0 hover:bg-blue-gray-100 rounded-sm'><ChevronDownIcon size={12} strokeWidth={2} onClick={() => { sortData(head.sortKey, 'desc') }} /></span>
+                                                </div>
+                                            )}
+                                        </div>
+
                                     </th>
                                 ))}
                             </tr>
                         </thead>
                         <tbody>
-                            {sites.map((site, index) => (
+                            {siteItems.map((site, index) => (
                                 <tr key={site.id} className="even:bg-blue-gray-50/50">
                                     <td className="border-l h-10">
-                                        <ItemField
-                                            value={site?.loc_id}
-                                            name='loc_id'
-                                            itemId={site?.id}
-                                        />
+                                        <ItemField value={site?.loc_id} name='loc_id' itemId={site?.id} />
                                     </td>
                                     <td className="border-l h-10">
-                                        <ItemField
-                                            value={site?.wntd}
-                                            name='wntd'
-                                            itemId={site?.id}
-                                        />
+                                        <ItemField value={site?.wntd} name='wntd' itemId={site?.id} />
                                     </td>
                                     <td className="border-l h-10">
-                                        <ItemField
-                                            value={site?.imsi}
-                                            name='imsi'
-                                            itemId={site?.id}
-                                        />
+                                        <ItemField value={site?.imsi} name='imsi' itemId={site?.id} />
                                     </td>
                                     <td className="border-l h-10">
-                                        <ItemField
-                                            value={site?.version}
-                                            name='version'
-                                            itemId={site?.id}
-                                        />
+                                        <ItemField value={site?.version} name='version' itemId={site?.id} />
                                     </td>
                                     <td className="border-l h-10">
-                                        <ItemField
-                                            value={site?.avc}
-                                            name='avc'
-                                            itemId={site?.id}
-                                        />
+                                        <ItemField value={site?.avc} name='avc' itemId={site?.id} />
                                     </td>
                                     <td className="border-l h-10">
-                                        <ItemField
-                                            value={site?.bw_profile}
-                                            name='bw_profile'
-                                            itemId={site?.id}
-                                        />
+                                        <ItemField value={site?.bw_profile} name='bw_profile' itemId={site?.id} />
                                     </td>
                                     <td className="border-l h-10">
-                                        <ItemField
-                                            value={site?.lon}
-                                            name='lon'
-                                            itemId={site?.id}
-                                        />
+                                        <ItemField value={site?.lon} name='lon' itemId={site?.id} />
                                     </td>
                                     <td className="border-l h-10">
-                                        <ItemField
-                                            value={site?.lat}
-                                            name='lat'
-                                            itemId={site?.id}
-                                        />
+                                        <ItemField value={site?.lat} name='lat' itemId={site?.id} />
                                     </td>
                                     <td className="border-l h-10">
-                                        <ItemField
-                                            value={site?.site_name}
-                                            name='site_name'
-                                            itemId={site?.id}
-                                        />
+                                        <ItemField value={site?.site_name} name='site_name' itemId={site?.id} />
                                     </td>
                                     <td className="border-l h-10">
-                                        <ItemField
-                                            value={site?.home_cell}
-                                            name='home_cell'
-                                            itemId={site?.id}
-                                        />
+                                        <ItemField value={site?.home_cell} name='home_cell' itemId={site?.id} />
                                     </td>
                                     <td className="border-l h-10">
-                                        <ItemField
-                                            value={site?.home_pci}
-                                            name='home_pci'
-                                            itemId={site?.id}
-                                        />
+                                        <ItemField value={site?.home_pci} name='home_pci' itemId={site?.id} />
                                     </td>
                                     <td className="border-l h-10">
-                                        <ItemField
-                                            value={site?.traffic_profile}
-                                            name='traffic_profile'
-                                            itemId={site?.id}
-                                        />
+                                        <ItemField value={site?.traffic_profile} name='traffic_profile' itemId={site?.id} />
                                     </td>
                                     <td className="border-l h-10">
-                                        <DateItemField
-                                            value={site?.start_date}
-                                            name='start_date'
-                                            itemId={site?.id}
-                                            read={false}
-                                        />
+                                        <DateItemField value={site?.start_date} name='start_date' itemId={site?.id} read={false} />
                                     </td>
                                     <td className="border-l h-10">
-                                        <DateItemField
-                                            value={site?.end_date}
-                                            name='end_date'
-                                            itemId={site?.id}
-                                            read={false}
-                                        />
+                                        <DateItemField value={site?.end_date} name='end_date' itemId={site?.id} read={false} />
                                     </td>
                                     <td className="border-l h-10">
                                         <SelectItemField
@@ -361,25 +392,16 @@ export default function Index({ auth, sites }) {
                                         />
                                     </td>
                                     <td className="border-l h-10">
-                                        <ItemField
-                                            value={site?.remarks}
-                                            name='remarks'
-                                            itemId={site?.id}
-                                            read={false}
-                                        />
+                                        <ItemField value={site?.remarks} name='remarks' itemId={site?.id} read={false} />
                                     </td>
                                     <td className="border-l h-10">
-                                        <UploadItemField
-                                            value={site?.artifacts}
-                                            name='artifacts'
-                                            itemId={site?.id}
-                                            read={false}
-                                        />
+                                        <UploadItemField value={site?.artifacts} name='artifacts' itemId={site?.id} read={false} />
                                     </td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
+                    {siteItems.length === 0 && <Typography variant="h6" color="blue-gray" className='text-center py-6' >No data found</Typography>}
                 </Card>
             </div>
         </Authenticated>

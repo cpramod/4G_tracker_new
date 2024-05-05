@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\Site;
 use Inertia\Inertia;
+use League\Csv\Reader;
 use Illuminate\Http\Request;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\Validator;
 
 class WirelessSiteController extends Controller
 {
@@ -45,5 +47,60 @@ class WirelessSiteController extends Controller
             ]);
         }
         return to_route('wireless.sites.index');
+    }
+
+    public function import_from_csv(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'import_file' => 'required|file|mimes:csv', // max 10MB
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['error' => array('message' => 'Only CSV file is allowed.')], 422);
+        }
+        $file = $request->file('import_file');
+        $filePath = $file->storeAs('import', now()->timestamp . "_{$file->getClientOriginalName()}");
+        $csv = Reader::createFromPath(storage_path('app/' . $filePath), 'r');
+        $csv->setHeaderOffset(0);
+        foreach ($csv as $row) {
+
+            $existingLoc = Site::where('loc_id', $row['LOCID'])->first();
+
+            if (!$existingLoc) {
+                Site::create([
+                    'loc_id' => $row['LOCID'],
+                    'wntd' => $row['WNTD'],
+                    'imsi' => $row['IMSI'],
+                    'version' => $row['VERSION'],
+                    'avc' => $row['AVC'],
+                    'bw_profile' => $row['BW_PROFILE'],
+                    'lon' => $row['LON'],
+                    'lat' => $row['LAT'],
+                    'site_name' => $row['SITE_NAME'],
+                    'home_cell' => $row['HOME_CELL'],
+                    'home_pci' => $row['HOME_PCI'],
+                    'traffic_profile' => $row['TRAFFIC_PROFILE'],
+                ]);
+            } else {
+                return response()->json([
+                    'error' => array(
+                        'message' => 'Site with LOCID ' . $row['LOCID'] . ' already exists',
+                    )
+                ], 422);
+            }
+        }
+        return response()->json(['success' => 'Data inserted successfully'], 200);
+    }
+
+    public function search_sites(Request $request)
+    {
+        $search_txt = $request->input('search');
+        $tableName = (new Site)->getTable();
+        $columns = \Schema::getColumnListing($tableName);
+        $results = Site::where(function ($query) use ($search_txt, $columns) {
+            foreach ($columns as $column) {
+                $query->orWhere($column, 'LIKE', '%' . $search_txt . '%');
+            }
+        })->get();
+        return $results;
     }
 }

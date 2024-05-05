@@ -3,6 +3,7 @@ import Dropdown from '@/Components/Dropdown';
 import { Link } from '@inertiajs/react';
 import { Card, List, ListItem, ListItemPrefix, Typography } from '@material-tailwind/react';
 import { AlignJustifyIcon, ChevronDownIcon, GaugeCircleIcon, GlobeIcon, LocateFixedIcon } from 'lucide-react';
+import { Toaster } from 'react-hot-toast';
 
 export default function Authenticated({ user, header, children }) {
     const currentRoute = route().current();
@@ -47,8 +48,8 @@ export default function Authenticated({ user, header, children }) {
                 </div>
             </div>
             <div className="page-content">
-                <aside className={`fixed w-full max-w-[18rem] bg-[#1e293b] transition-all ease-in-out duration-300 z-50 ${showSidebar ? "left-0" : "-left-full"}`}>
-                    <Card className="h-screen bg-[#000] rounded-none">
+                <aside className={`fixed w-full max-w-[18rem] transition-all ease-in-out duration-300 z-50 ${showSidebar ? "left-0" : "-left-full"}`}>
+                    <Card className="h-screen bg-gradient-to-tr from-gray-900 to-gray-800 rounded-none">
                         <List className='text-white'>
                             <Link href='/dashboard' className={`${currentRoute === "dashboard" ? "bg-blue-gray-50/50 rounded-lg" : ""}`}>
                                 <ListItem>
@@ -73,6 +74,7 @@ export default function Authenticated({ user, header, children }) {
                 </aside>
                 <main className='main-content lg:w-full lg:max-w-[calc(100%)]'>{children}</main>
             </div>
+            <Toaster />
         </div>
     );
 }

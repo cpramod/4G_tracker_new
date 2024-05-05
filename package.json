@@ -24,6 +24,7 @@
         "date-fns": "^3.6.0",
         "lucide-react": "^0.376.0",
         "react-datepicker": "^6.9.0",
-        "react-dropzone": "^14.2.3"
+        "react-dropzone": "^14.2.3",
+        "react-hot-toast": "^2.4.1"
     }
 }
