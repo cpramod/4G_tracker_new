@@ -25,7 +25,11 @@ Route::controller(WirelessSiteController::class)->middleware('auth')->group(func
 Route::controller(IssueController::class)->middleware('auth')->group(function () {
     Route::post('/issues/store', 'store')->name('issues.store');
     Route::post('/issues/comment', 'comment_store')->name('issues.comment.store');
+
+    Route::post('/reply/store', 'reply_store')->name('issues.reply.store');
+    Route::delete('/reply/store', 'reply_delete')->name('issues.reply.delete');
 });
+
 
 
 

@@ -1,11 +1,12 @@
+import PageLayout from '@/Layouts/PageLayout';
 import { Link, Head, usePage } from '@inertiajs/react';
-import { Button, Card, CardBody, CardFooter, CardHeader, Chip, Typography } from '@material-tailwind/react';
+import { Card, CardBody, Typography } from '@material-tailwind/react';
 import React from 'react';
 
 export default function HomePage({ auth }) {
     const { sites } = usePage().props
     return (
-        <>
+        <PageLayout>
             <Head title="Welcome" />
             <header>
                 <nav>
@@ -32,9 +33,8 @@ export default function HomePage({ auth }) {
             </header>
             <div className="page-content">
                 <div className="container mx-auto">
-
                 </div>
             </div>
-        </>
+        </PageLayout>
     );
 }

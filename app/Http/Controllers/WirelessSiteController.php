@@ -101,4 +101,5 @@ class WirelessSiteController extends Controller
         })->get();
         return $results;
     }
+
 }
