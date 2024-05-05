@@ -8,24 +8,31 @@ export default function HomePage({ auth }) {
     return (
         <PageLayout>
             <Head title="Welcome" />
-            <div className="page-content h-[calc(100vh-180px)]">
+            <header>
+                <nav>
+                    {auth.user ? (
+                        <>
+                            <Link href={route('dashboard')} className='mr-3'>
+                                Dashboard
+                            </Link>
+                            <Link href={route('logout')} method="post" as="button">
+                                Log Out
+                            </Link>
+                        </>
+                    ) : (
+                        <>
+                            <Link href={route('login')}>
+                                Log in
+                            </Link>
+                            <Link href={route('register')}>
+                                Register
+                            </Link>
+                        </>
+                    )}
+                </nav>
+            </header>
+            <div className="page-content">
                 <div className="container mx-auto">
-                    <Typography variant="h1" color="black" className='text-center tracking-tight py-16' >4G Wireless Sites</Typography>
-                    <div className="grid grid-cols-3 gap-6">
-                        {sites.map((site, index) => (
-                            <React.Fragment key={index}>
-                                <Card>
-                                    <Link href={route('wireless.sites.show', site.id)}>
-                                        <CardBody>
-                                            <Typography variant="h5" color="blue-gray" className="mb-2">{site.name}</Typography>
-                                            <Typography>{site?.location?.name}, {site?.location?.address}</Typography>
-                                        </CardBody>
-                                    </Link>
-                                </Card>
-
-                            </React.Fragment>
-                        ))}
-                    </div>
                 </div>
             </div>
         </PageLayout>

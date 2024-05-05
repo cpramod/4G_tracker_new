@@ -2,120 +2,104 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Issue;
+use Carbon\Carbon;
 use App\Models\Site;
-use App\Models\User;
 use Inertia\Inertia;
-use App\Models\Location;
+use League\Csv\Reader;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class WirelessSiteController extends Controller
 {
     public function index()
     {
-        $users = User::all();
-        $locations = Location::all();
-        $sites = Site::with([
-            'location' => function ($query) {
-                $query->select('id', 'name');
-            },
-            'user' => function ($query) {
-                $query->select('id', 'name');
-            }
-        ])->get();
+        $sites = Site::latest()->paginate(10);
         return Inertia::render('Wireless/Sites/Index', [
-            'users' => $users,
-            'locations' => $locations,
             'sites' => $sites,
         ]);
     }
 
-    public function store(Request $request)
+    public function save_item(Request $request, $id)
     {
-        $request->validate([
-            'name' => 'required',
-            'status' => 'required',
-            'issue' => 'required',
-            'location_id' => 'required',
-            'user_id' => 'required',
-        ]);
-        $site = Site::create([
-            'name' => $request->name,
-            'status' => $request->status,
-            'issue' => $request->issue,
-            'location_id' => $request->location_id,
-            'user_id' => $request->user_id
-        ]);
+        $site = Site::find($id);
         if ($site) {
-            return to_route('wireless.sites.index');
+            $site->update([
+                $request->field_name => $request->field_value,
+            ]);
         }
     }
 
-    public function update(Request $request, $id)
+    public function save_artifacts(Request $request, $id)
     {
-        $request->validate([
-            'name' => 'required',
-            'status' => 'required',
-            'issue' => 'required',
-            'location_id' => 'required',
-            'user_id' => 'required',
-        ]);
-        $site = Site::find($id);
-        $site->update([
-            'name' => $request->name,
-            'status' => $request->status,
-            'issue' => $request->issue,
-            'location_id' => $request->location_id,
-            'user_id' => $request->user_id
-        ]);
-        if ($site) {
-            return to_route('wireless.sites.index');
+        $paths_array = [];
+        if ($request->hasFile('artifacts')) {
+            $files = $request->file('artifacts');
+            foreach ($files as $file) {
+                $name = now()->timestamp . "_{$file->getClientOriginalName()}";
+                $path = $file->storeAs('artifacts', $name, 'public');
+                $paths_array[] = "/storage/{$path}";
+            }
         }
-    }
-
-    public function delete($id)
-    {
         $site = Site::find($id);
-        $site->delete();
+        if (count($paths_array) > 0) {
+            $site->update([
+                'artifacts' => $paths_array,
+            ]);
+        }
         return to_route('wireless.sites.index');
     }
 
-    public function show($id)
+    public function import_from_csv(Request $request)
     {
-        $site = Site::with('location')->where('id', $id)->first();
-        $depth = 6;
-        $issues = Issue::with([
-            'user',
-            'comments',
-            'comments.user',
-            'comments.replies' => function ($query) use ($depth) {
-                $query->where('parent_reply_id', 0);
-                $this->loadNestedReplies($query, $depth);
-            },
-            'comments.replies.user'
-        ])->where(['site_id' => $id])->get();
-
-        return Inertia::render('Wireless/Sites/Show', [
-            'site' => $site,
-            'issues' => $issues,
+        $validator = Validator::make($request->all(), [
+            'import_file' => 'required|file|mimes:csv',
         ]);
-    }
-    public function loadNestedReplies(&$query, $depth)
-    {
-        if ($depth <= 0) {
-            return;
+        if ($validator->fails()) {
+            return response()->json(['error' => array('message' => 'Only CSV file is allowed.')], 422);
         }
-        $query->with([
-            'replies.user',
-            'replies' => function ($query) use ($depth) {
-                $query->with([
-                    'replies.user',
-                    'replies' => function ($query) use ($depth) {
-                        $this->loadNestedReplies($query, $depth - 1);
-                    }
+        $file = $request->file('import_file');
+        $filePath = $file->storeAs('import', now()->timestamp . "_{$file->getClientOriginalName()}");
+        $csv = Reader::createFromPath(storage_path('app/' . $filePath), 'r');
+        $csv->setHeaderOffset(0);
+        foreach ($csv as $row) {
+            $existingLoc = Site::where('loc_id', $row['LOCID'])->first();
+            if (!$existingLoc) {
+                Site::create([
+                    'loc_id' => $row['LOCID'],
+                    'wntd' => $row['WNTD'],
+                    'imsi' => $row['IMSI'],
+                    'version' => $row['VERSION'],
+                    'avc' => $row['AVC'],
+                    'bw_profile' => $row['BW_PROFILE'],
+                    'lon' => $row['LON'],
+                    'lat' => $row['LAT'],
+                    'site_name' => $row['SITE_NAME'],
+                    'home_cell' => $row['HOME_CELL'],
+                    'home_pci' => $row['HOME_PCI'],
+                    'traffic_profile' => $row['TRAFFIC_PROFILE'],
                 ]);
-            },
-        ]);
+            } else {
+                return response()->json([
+                    'error' => array(
+                        'message' => 'Site with LOCID ' . $row['LOCID'] . ' already exists',
+                    )
+                ], 422);
+            }
+        }
+        return response()->json(['success' => 'Data inserted successfully'], 200);
+    }
+
+    public function search_sites(Request $request)
+    {
+        $search_txt = $request->input('search');
+        $tableName = (new Site)->getTable();
+        $columns = \Schema::getColumnListing($tableName);
+        $results = Site::where(function ($query) use ($search_txt, $columns) {
+            foreach ($columns as $column) {
+                $query->orWhere($column, 'LIKE', '%' . $search_txt . '%');
+            }
+        })->get();
+        return $results;
     }
 
 }
