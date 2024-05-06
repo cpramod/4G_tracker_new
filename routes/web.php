@@ -19,6 +19,7 @@ Route::controller(WirelessSiteController::class)->middleware('auth')->group(func
     Route::post('/dashboard/wireless-sites/artifacts/{id}', 'save_artifacts')->name('wireless.sites.update.artifacts');
     Route::post('/dashboard/wireless-sites/import/csv/', 'import_from_csv')->name('wireless.sites.import');
     Route::post('/dashboard/wireless-sites/search/sites/', 'search_sites')->name('wireless.sites.search');
+    Route::get('/dashboard/wireless-sites/sort/{key}/{order}', 'sort_sites')->name('wireless.sites.sort');
 
 });
 
