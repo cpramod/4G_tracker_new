@@ -101,7 +101,7 @@ class WirelessSiteController extends Controller
         })->get();
         return $results;
     }
-
+  
     public function sort_sites($key, $order)
     {
         $sites = Site::orderBy($key, $order)->paginate(10);
