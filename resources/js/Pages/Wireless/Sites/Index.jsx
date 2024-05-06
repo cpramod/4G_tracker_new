@@ -34,7 +34,7 @@ export default function Index({ auth, sites }) {
     ];
     const hiddenFileInput = useRef(null);
     const [searchText, setSearchText] = useState('');
-    const [siteItems, setSiteItems] = useState(sites?.data);
+    const [siteItems, setSiteItems] = useState(sites);
 
 
     const ItemField = ({ name, value, itemId = 0, read = true }) => {
@@ -246,17 +246,8 @@ export default function Index({ auth, sites }) {
         }
     }
 
-    const sortData = (key, order) => {
-        const sortedData = [...siteItems].sort((a, b) => {
-            let comparison = 0;
-            if (typeof a[key] === 'string') {
-                comparison = a[key].localeCompare(b[key]);
-            } else {
-                comparison = a[key] - b[key];
-            }
-            return order === 'asc' ? comparison : -comparison;
-        });
-        setSiteItems(sortedData);
+    const sortData = async (key, order) => {
+        router.get(route('wireless.sites.sort', { 'key': key, 'order': order }))
     };
 
     return (
@@ -322,7 +313,7 @@ export default function Index({ auth, sites }) {
                             </tr>
                         </thead>
                         <tbody>
-                            {siteItems.map((site, index) => (
+                            {siteItems?.data.map((site, index) => (
                                 <tr key={site.id} className="even:bg-blue-gray-50/50">
                                     <td className="border-l h-10">
                                         <ItemField value={site?.loc_id} name='loc_id' itemId={site?.id} />
@@ -402,8 +393,8 @@ export default function Index({ auth, sites }) {
                             ))}
                         </tbody>
                     </table>
-                    {siteItems.length === 0 && <Typography variant="h6" color="blue-gray" className='text-center py-6' >No data found</Typography>}
-                    <Pagination class="mt-6" links={sites.links} />
+                    {siteItems?.data?.length === 0 && <Typography variant="h6" color="blue-gray" className='text-center py-6' >No data found</Typography>}
+                    <Pagination class="mt-6" links={siteItems.links} />
                 </Card>
             </div>
         </Authenticated>
