@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Site extends Model
 {
@@ -29,13 +30,9 @@ class Site extends Model
         'remarks',
         'artifacts',
     ];
-    public function location()
-    {
-        return $this->belongsTo(Location::class);
-    }
 
-    public function user()
+    public function tracking()
     {
-        return $this->belongsTo(User::class);
+        return $this->hasMany(LocTracking::class);
     }
 }
