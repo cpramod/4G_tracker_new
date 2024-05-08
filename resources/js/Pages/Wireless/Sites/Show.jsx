@@ -130,35 +130,15 @@ export default function Show({ auth, site, trackings }) {
                                 <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.home_cell}</td>
                                 <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.home_pci}</td>
                                 <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.traffic_profile}</td>
-                                <td className="border-l h-10">
-                                    <DateItemField value={getTrackingValue(site?.tracking, 'start_date')} name='start_date' locId={site.loc_id} siteId={site.id} />
+                                <td className="border-l h-10 text-[12px] font-medium ps-2">{getTrackingValue(site?.tracking, 'start_date')}</td>
+                                <td className="border-l h-10 text-[12px] font-medium ps-2">{getTrackingValue(site?.tracking, 'end_date')}</td>
+                                <td className="border-l h-10 text-[12px] font-medium ps-2 capitalize">{getTrackingValue(site?.tracking, 'solution_type')}</td>
+                                <td className="border-l h-10 text-[12px] font-medium ps-2 capitalize">{getTrackingValue(site?.tracking, 'status')}</td>
+                                <td className="border-l h-10 text-[12px] font-medium ps-2 capitalize">
+                                    {getTrackingValue(site?.tracking, 'remarks')}
                                 </td>
                                 <td className="border-l h-10">
-                                    <DateItemField value={getTrackingValue(site?.tracking, 'end_date')} name='end_date' locId={site.loc_id} siteId={site.id} />
-                                </td>
-                                <td className="border-l h-10">
-                                    <SelectItemField value={getTrackingValue(site?.tracking, 'solution_type')} name='solution_type' locId={site.loc_id} siteId={site.id}
-                                        options={[
-                                            { label: 'Device Upgrade', value: 'device_upgrade' },
-                                            { label: 'Reparent', value: 'reparent' },
-                                            { label: 'Repan', value: 'repan' },
-                                        ]}
-                                    />
-                                </td>
-                                <td className="border-l h-10">
-                                    <SelectItemField value={getTrackingValue(site?.tracking, 'status')} name='status' locId={site.loc_id} siteId={site.id}
-                                        options={[
-                                            { label: 'In Progress', value: 'in_progress' },
-                                            { label: 'Not Started', value: 'not_started' },
-                                            { label: 'Completed', value: 'completed' },
-                                        ]}
-                                    />
-                                </td>
-                                <td className="border-l h-10">
-                                    <InputItemField value={getTrackingValue(site?.tracking, 'remarks')} name='remarks' locId={site.loc_id} siteId={site.id} />
-                                </td>
-                                <td className="border-l h-10">
-                                    <UploadItemField value={getTrackingValue(site?.tracking, 'artifacts')} name='artifacts' locId={site.loc_id} siteId={site.id} />
+                                    <UploadItemField value={getTrackingValue(site?.tracking, 'artifacts')} name='artifacts' locId={site.loc_id} siteId={site.id} single={true} />
                                 </td>
                             </tr>
                         </tbody>

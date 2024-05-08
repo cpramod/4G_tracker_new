@@ -4,7 +4,7 @@ import { FileBarChartIcon, ImageIcon } from 'lucide-react';
 import React from 'react'
 import { useDropzone } from 'react-dropzone';
 
-export default function UploadItemField({ locId, siteId, name, value }) {
+export default function UploadItemField({ locId, siteId, name, value, single = false }) {
 
     const handleOpen = () => setOpen(!open);
     const [open, setOpen] = React.useState(false);
@@ -56,12 +56,12 @@ export default function UploadItemField({ locId, siteId, name, value }) {
             }
 
             return (
-                <div className="flex">
+                <div className="flex ps-2">
                     {existingFiles.map((file, index) => (
-                        <React.Fragment key={index}>
+                        <div key={index} className="pt-2">
                             {getFileExtension(file) === 'csv' && (
                                 <Tooltip content={getFileName(file)}>
-                                    <FileBarChartIcon />
+                                    <FileBarChartIcon size={18} />
                                 </Tooltip>
                             )}
                             {getFileExtension(file) === 'txt' && (
@@ -72,7 +72,7 @@ export default function UploadItemField({ locId, siteId, name, value }) {
                                     <ImageIcon />
                                 </Tooltip>
                             )}
-                        </React.Fragment>
+                        </div>
                     ))}
                 </div>
             )
@@ -81,7 +81,7 @@ export default function UploadItemField({ locId, siteId, name, value }) {
 
     return (
         <div className='w-full h-full'>
-            <button className='font-medium text-[12px] opacity-0' onClick={handleOpen}>Uplaod</button>
+            {!single && <button className='font-medium text-[12px] opacity-0' onClick={handleOpen}>Uplaod</button>}
             {value && <ShowFileIcons files={value ? value : ''} />}
             <Dialog open={open} handler={handleOpen} size='xs'>
                 <DialogHeader>Upload Artifacts</DialogHeader>
