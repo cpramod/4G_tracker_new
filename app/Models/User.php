@@ -53,4 +53,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Issue::class);
     }
+
+    public function tracking()
+    {
+        return $this->hasMany(LocTracking::class);
+    }
 }

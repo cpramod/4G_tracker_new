@@ -22,8 +22,8 @@ export default function Authenticated({ user, header, children }) {
                             <div className="ham flex items-center">
                                 <button onClick={handleHamburgerIcon}><AlignJustifyIcon size={24} color='gray' strokeWidth={1.5} /></button>
                             </div>
-                            <Typography variant="h5" color="black" className='text-center'>
-                                Application Logo
+                            <Typography variant="h5" color="blue-gray" className='text-center'>
+                                Wave Portal
                             </Typography>
                         </div>
                     </div>

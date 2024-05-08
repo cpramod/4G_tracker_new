@@ -15,11 +15,14 @@ Route::controller(PageController::class)->middleware('auth')->group(function () 
 
 Route::controller(WirelessSiteController::class)->middleware('auth')->group(function () {
     Route::get('/dashboard/wireless-sites', 'index')->name('wireless.sites.index');
-    Route::post('/dashboard/wireless-sites/{id}', 'save_item')->name('wireless.sites.update.item');
-    Route::post('/dashboard/wireless-sites/artifacts/{id}', 'save_artifacts')->name('wireless.sites.update.artifacts');
     Route::post('/dashboard/wireless-sites/import/csv/', 'import_from_csv')->name('wireless.sites.import');
-    Route::post('/dashboard/wireless-sites/search/sites/', 'search_sites')->name('wireless.sites.search');
+    Route::get('/dashboard/wireless-sites/{search}/', 'search_sites')->name('wireless.sites.search');
     Route::get('/dashboard/wireless-sites/sort/{key}/{order}', 'sort_sites')->name('wireless.sites.sort');
+
+    Route::post('/dashboard/wireless-sites/artifacts/', 'save_artifacts')->name('wireless.sites.update.artifacts');
+    Route::post('/dashboard/wireless-sites/', 'save_item')->name('wireless.sites.save.item');
+
+    Route::get('/dashboard/wireless-sites/show/{id}', 'location_site')->name('wireless.show.location.index');
 
 });
 
