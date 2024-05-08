@@ -58,7 +58,7 @@ export default function UploadItemField({ locId, siteId, name, value, single = f
             return (
                 <div className="flex ps-2">
                     {existingFiles.map((file, index) => (
-                        <div key={index} className="pt-2">
+                        <div key={index} className={`${!single ? '' : 'pt-2'}`}>
                             {getFileExtension(file) === 'csv' && (
                                 <Tooltip content={getFileName(file)}>
                                     <FileBarChartIcon size={18} />
