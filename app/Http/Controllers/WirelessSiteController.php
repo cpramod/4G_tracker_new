@@ -6,30 +6,44 @@ use Carbon\Carbon;
 use App\Models\Site;
 use Inertia\Inertia;
 use League\Csv\Reader;
+use App\Models\LocTracking;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class WirelessSiteController extends Controller
 {
     public function index()
     {
-        $sites = Site::latest()->paginate(10);
+        // $sites = Site::latest()->with([
+        //     'tracking' => function ($query) {
+        //         $query->whereIn('key', ['remarks', 'start_date', 'end_date', 'solution_type', 'status', 'artifacts'])->latest();
+        //     }
+        // ])->paginate(10);
+
+        $sites = Site::paginate(10);
+        $desiredKeys = ['remarks', 'start_date', 'end_date', 'solution_type', 'status', 'artifacts'];
+        foreach ($sites as $site) {
+            $locTrackingData = LocTracking::where('site_id', $site->id)->whereIn('key', $desiredKeys)->get()->keyBy('key')->toArray();
+            $site->tracking = $locTrackingData;
+        }
         return Inertia::render('Wireless/Sites/Index', [
             'sites' => $sites,
         ]);
     }
 
-    public function save_item(Request $request, $id)
+    public function save_item(Request $request)
     {
-        $site = Site::find($id);
-        if ($site) {
-            $site->update([
-                $request->field_name => $request->field_value,
-            ]);
-        }
+        $tracking = LocTracking::create([
+            'site_id' => $request->site_id,
+            'loc_id' => $request->location_id,
+            'user_id' => Auth::id(),
+            'key' => $request->field_name,
+            'value' => $request->field_value,
+        ]);
     }
 
-    public function save_artifacts(Request $request, $id)
+    public function save_artifacts(Request $request)
     {
         $paths_array = [];
         if ($request->hasFile('artifacts')) {
@@ -40,10 +54,13 @@ class WirelessSiteController extends Controller
                 $paths_array[] = "/storage/{$path}";
             }
         }
-        $site = Site::find($id);
         if (count($paths_array) > 0) {
-            $site->update([
-                'artifacts' => $paths_array,
+            $tracking = LocTracking::create([
+                'site_id' => $request->site_id,
+                'loc_id' => $request->location_id,
+                'user_id' => Auth::id(),
+                'key' => $request->field_name,
+                'value' => json_encode($paths_array),
             ]);
         }
         return to_route('wireless.sites.index');
@@ -89,19 +106,20 @@ class WirelessSiteController extends Controller
         return response()->json(['success' => 'Data inserted successfully'], 200);
     }
 
-    public function search_sites(Request $request)
+    public function search_sites($search_txt)
     {
-        $search_txt = $request->input('search');
         $tableName = (new Site)->getTable();
         $columns = \Schema::getColumnListing($tableName);
         $results = Site::where(function ($query) use ($search_txt, $columns) {
             foreach ($columns as $column) {
                 $query->orWhere($column, 'LIKE', '%' . $search_txt . '%');
             }
-        })->get();
-        return $results;
+        })->paginate(10);
+        return Inertia::render('Wireless/Sites/Index', [
+            'sites' => $results,
+        ]);
     }
-  
+
     public function sort_sites($key, $order)
     {
         $sites = Site::orderBy($key, $order)->paginate(10);
