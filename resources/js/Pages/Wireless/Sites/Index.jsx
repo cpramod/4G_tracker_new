@@ -115,6 +115,18 @@ export default function Index({ auth, sites }) {
                         </select>
                     </div>
                     <div>
+                        <select
+                            className='w-52 text-sm rounded-md focus:ring-0 h-8 border-gray-300 py-1 text-gray-600 font-medium'
+                            onChange={(e) => onChangeFilter('solution_type', e.target.value)}
+                            value={get_data?.filter_by === 'solution_type' ? get_data?.value : ''}
+                        >
+                            <option value="">Filter by Solution Type</option>
+                            <option value="device_upgrade">Device Upgrade</option>
+                            <option value="reparent">Reparent</option>
+                            <option value="repan">Repan</option>
+                        </select>
+                    </div>
+                    <div>
                         <Button variant="gradient" className='capitalize' size='sm' onClick={handleClick}>Import from CSV</Button>
                         <input
                             type="file"

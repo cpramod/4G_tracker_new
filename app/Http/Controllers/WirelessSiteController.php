@@ -38,7 +38,7 @@ class WirelessSiteController extends Controller
                 ->toArray();
             $site->tracking = $locTrackingData;
         }
-        if ($request->input('filter_by')) {
+        if ($request->input('filter_by') && $request->input('value')) {
             $filterBy = $request->input('filter_by');
             $sitesArray = $sites->items();
             $filteredSites = array_filter($sitesArray, function ($site) use ($filterBy, $request) {
