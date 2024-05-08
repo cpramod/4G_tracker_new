@@ -11,4 +11,9 @@ class LocTracking extends Model
 
     protected $fillable = ["site_id", "loc_id", "user_id", "key", "value"];
 
+    public function user()
+    {
+        return $this->belongsTo(User::class, "user_id");
+    }
+
 }

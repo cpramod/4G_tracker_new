@@ -133,7 +133,11 @@ export default function Index({ auth, sites }) {
                         <tbody>
                             {siteItems?.data.map((site, index) => (
                                 <tr key={site.id} className="even:bg-blue-gray-50/50">
-                                    <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.loc_id}</td>
+                                    <td className="border-l h-10 text-[12px] font-medium ps-2">
+                                        <Link href={route('wireless.show.location.index', site?.loc_id)} className='font-semibold underline'>
+                                            {site?.loc_id}
+                                        </Link>
+                                    </td>
                                     <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.wntd}</td>
                                     <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.imsi}</td>
                                     <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.version}</td>

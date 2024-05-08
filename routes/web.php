@@ -22,6 +22,8 @@ Route::controller(WirelessSiteController::class)->middleware('auth')->group(func
     Route::post('/dashboard/wireless-sites/artifacts/', 'save_artifacts')->name('wireless.sites.update.artifacts');
     Route::post('/dashboard/wireless-sites/', 'save_item')->name('wireless.sites.save.item');
 
+    Route::get('/dashboard/wireless-sites/show/{id}', 'location_site')->name('wireless.show.location.index');
+
 });
 
 Route::controller(IssueController::class)->middleware('auth')->group(function () {

@@ -1,173 +1,178 @@
-import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import TextInput from '@/Components/TextInput';
-import { Head, useForm, usePage } from '@inertiajs/react'
-import { Button, Chip, Dialog, DialogBody, DialogHeader, IconButton, Typography } from '@material-tailwind/react';
-import { XIcon } from 'lucide-react';
+import { Head, Link } from '@inertiajs/react'
 import React from 'react'
-import { useDropzone } from 'react-dropzone';
-import { formatDistanceToNow } from 'date-fns';
-import CommentItem from '@/Components/Comments/CommentItem';
-import AddComment from '@/Components/Comments/AddComment';
-import PageLayout from '@/Layouts/PageLayout';
+import Authenticated from '@/Layouts/AuthenticatedLayout';
+import { Card, Timeline, TimelineBody, TimelineConnector, TimelineHeader, TimelineIcon, TimelineItem, Tooltip, Typography } from '@material-tailwind/react';
+import DateItemField from './Components/DateItemField';
+import SelectItemField from './Components/SelectItemField';
+import InputItemField from './Components/InputItemField';
+import UploadItemField from './Components/UploadItemField';
+import { format } from 'date-fns';
+import { FileBarChartIcon, ImageIcon } from 'lucide-react';
 
-export default function Show() {
-    const { site, issues } = usePage().props
-    const [open, setOpen] = React.useState(false);
-    const { data, setData, post, processing, errors, reset, delete: destroy } = useForm({
-        title: '',
-        description: '',
-        attachments: '',
-        site_id: site?.id,
-        status: 'open'
-    });
-
-    const handleOpen = () => setOpen(!open);
-    const { acceptedFiles, getRootProps, getInputProps } = useDropzone({
-        accept: { 'image/*': [] },
-        maxFiles: 1,
-        onDrop: acceptedFiles => {
-            setData('attachments', [
-                ...data?.attachments,
-                ...acceptedFiles.map(file => Object.assign(file, {
-                    preview: URL.createObjectURL(file)
-                }))
-            ]);
+export default function Show({ auth, site, trackings }) {
+    console.log(trackings);
+    const TABLE_HEAD = [
+        'LOCID',
+        'WNTD',
+        'IMSI',
+        'VERSION',
+        'AVC',
+        'BW Profile',
+        'Lon',
+        'Lat',
+        'SiteName',
+        'HomeCell',
+        'HomePCI',
+        'Traffic Profile',
+        'Start Date',
+        'End Date',
+        'Solution Type',
+        'Status',
+        'Remarks',
+        'Artifacts',
+    ];
+    const getTrackingValue = (tracking, key) => {
+        if (tracking) {
+            return tracking[key]?.value
         }
-    });
-    const files = acceptedFiles.map(file => (
-        <li key={file.path}>
-            {file.path} - {file.size} bytes
-        </li>
-    ));
-
-    const formSubmit = (e) => {
-        e.preventDefault();
-        post(route('issues.store'), {
-            preserveScroll: true,
-            onSuccess: () => {
-                reset();
-                setOpen(false)
-            }
-        })
     }
 
+    const ShowFileIcons = ({ files }) => {
+        if (files) {
+            const existingFiles = JSON.parse(files)
+            const getFileExtension = (filename) => {
+                return filename.split('.').pop();
+            };
+
+            const getFileName = (filePath) => {
+                const parts = filePath.split('/');
+                let fileName = parts[parts.length - 1];
+                fileName = fileName.replace(/^\d+_/, '');
+                return fileName;
+            }
+
+            const handleDownload = (fileUrl, fileName) => {
+                const link = document.createElement('a');
+                link.href = fileUrl;
+                link.download = fileName;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            };
+
+            return (
+                <div className="flex mt-3">
+                    {existingFiles.map((file, index) => (
+                        <React.Fragment key={index}>
+                            {getFileExtension(file) === 'csv' && (
+                                <Tooltip content={getFileName(file)}>
+                                    <FileBarChartIcon onClick={() => handleDownload(file, getFileName(file))} className='cursor-pointer' />
+                                </Tooltip>
+                            )}
+                            {getFileExtension(file) === 'txt' && (
+                                <img src="txt-icon.png" alt="Text File Icon" />
+                            )}
+                            {getFileExtension(file) === 'pdf' && (
+                                <Tooltip content={getFileName(file)}>
+                                    <ImageIcon />
+                                </Tooltip>
+                            )}
+                        </React.Fragment>
+                    ))}
+                </div>
+            )
+        }
+    }
     return (
-        <PageLayout>
+        <Authenticated user={auth?.user}>
             <Head title="Site" />
-            <div className="page-content">
-                <div className="container mx-auto py-12">
-                    <div className="flex justify-between items-center mb-12">
-                        <div className="left relative">
-                            <Chip value={site?.status} color={site?.status === 'active' ? 'green' : 'red'} className='w-max' />
-                            <Typography variant='h1' color="blue-gray" className='font-bold' >{site.name}</Typography>
-                            <Typography className='font-normal text-gray-500 text-lg'>{`${site?.location.name}, ${site?.location?.address}`}</Typography>
-                        </div>
-                        <div className="right">
-                            <Button onClick={handleOpen} variant="gradient">Add Issue</Button>
-                        </div>
-                    </div>
-                    <div className='py-6'>
-                        {issues.length > 0 && issues.map((issue, index) => {
-                            return (
-                                <React.Fragment key={issue.id}>
-                                    <div className='issue-wrapper border mb-4 py-3 px-6 rounded-md'>
-                                        <div className="issue-content">
-                                            <div className="flex justify-between items-center">
-                                                <div className='flex items-center gap-6'>
-                                                    <Typography variant='h4' className='font-bold tracking-tight'>{issue?.title}</Typography>
-                                                    <Chip size='sm' value={issue?.status} color={issue?.status === 'open' ? 'green' : 'red'} className='w-max' />
-                                                </div>
-                                                <Typography className='font-normal text-sm text-gray-600'> {issue?.user.name} | {formatDistanceToNow(new Date(issue?.created_at), { addSuffix: true })}</Typography>
-                                            </div>
-                                            <Typography className='font-normal pt-2 text-sm' color="blue-gray">{issue?.description}</Typography>
-                                            {issue?.attachments && (
-                                                <div className='mt-3 bg-gray-100 w-max rounded-md'>
-                                                    <img src={issue?.attachments} className='w-24 h-24 object-cover rounded-md' />
-                                                </div>
-                                            )}
-                                            {issue?.comments.length > 0 && (
-                                                <div className="comments-wrapper mt-6 border rounded py-3">
-                                                    <Typography variant='h5' className='tracking-tight mb-3 px-4'>Comments</Typography>
-                                                    {issue?.comments.map((comment, index) => {
-                                                        return (
-                                                            <React.Fragment key={index}>
-                                                                <CommentItem comment={comment} />
-                                                            </React.Fragment>
-                                                        )
-                                                    })}
-                                                </div>
-                                            )}
-                                            {issue?.status === 'open' && <AddComment issueId={issue?.id} />}
-                                        </div>
-                                    </div>
-                                </React.Fragment>
-                            )
-                        })}
+            <div className="top-section p-4">
+                <div className='flex items-center justify-between'>
+                    <div className="">
+                        <Typography variant={'h3'} className='tracking-tight'>{site?.loc_id}</Typography>
+                        <ul className='flex gap-1 text-gray-600 text-sm'>
+                            <li><Link href={route('dashboard')}>Dashboard</Link></li>
+                            <li>/</li>
+                            <li><Link href={route('wireless.sites.index')}>Wireless Sites</Link></li>
+                        </ul>
                     </div>
                 </div>
             </div>
-            <Dialog open={open} handler={handleOpen} size='xs'>
-                <DialogHeader className="justify-between">
-                    <Typography variant="h3" className='tracking-tighter'>Add Issue</Typography>
-                    <IconButton size="sm" variant="text" onClick={handleOpen}><XIcon /></IconButton>
-                </DialogHeader>
-                <DialogBody>
-                    <form>
-                        <div className="form-item mb-4">
-                            <InputLabel value="Title" className='mb-2' />
-                            <TextInput
-                                className="w-full font-normal text-gray-700"
-                                placeholder="Title..."
-                                value={data.title}
-                                onChange={(e) => setData('title', e.target.value)}
-                            />
-                            <InputError message={errors.title} className='mt-2' />
-                        </div>
-                        <div className="form-item mb-4">
-                            <InputLabel value="Description" className='mb-2' />
-                            <textarea
-                                className="w-full font-normal text-gray-700 border-gray-300 rounded-md shadow-sm"
-                                placeholder="Description..."
-                                rows={6}
-                                value={data.description}
-                                onChange={(e) => setData('description', e.target.value)}
-                            />
-                            <InputError message={errors.description} className='mt-2' />
-                        </div>
-                        <div className="form-item mb-4">
-                            <InputLabel value="Image" className='mb-2' />
-                            <div>
-                                <div {...getRootProps({ className: 'dropzone' })} className='border-2 border-gray-300 border-dashed rounded-md text-center py-16'>
-                                    <input {...getInputProps()} />
-                                    <p>Drag 'n' drop some files here, or click to select files</p>
-                                </div>
-
-                                {acceptedFiles.length > 0 && (
-                                    <aside className='mt-2'>
-                                        <h4>Files</h4>
-                                        <ul className='text-sm text-black font-normal font-poppins'>{files}</ul>
-                                    </aside>
-                                )}
-                            </div>
-                            <InputError message={errors.attachments} className='mt-2' />
-                        </div>
-
-                        <div className="form-item mb-4">
-                            <div className="text-right">
-                                <Button
-                                    variant="gradient"
-                                    color="green"
-                                    loading={processing}
-                                    onClick={formSubmit}
-                                >
-                                    <span>Submit</span>
-                                </Button>
-                            </div>
-                        </div>
-                    </form>
-                </DialogBody>
-            </Dialog>
-        </PageLayout>
+            <div className="content mt-6">
+                <Card className="h-full w-full rounded-none">
+                    <table className="w-full min-w-max table-auto text-left">
+                        <thead>
+                            <tr>
+                                {TABLE_HEAD.map((head) => (
+                                    <th key={head.name} className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-2 border-l cursor-pointer">
+                                        <div className="flex justify-between">
+                                            <Typography variant="small" className="leading-none text-gray-800 font-medium text-sm">{head}</Typography>
+                                        </div>
+                                    </th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr key={site.id} className="even:bg-blue-gray-50/50">
+                                <td className="border-l h-10 text-[12px] font-medium ps-2">
+                                    <Link href={route('wireless.show.location.index', site?.loc_id)}>
+                                        {site?.loc_id}
+                                    </Link>
+                                </td>
+                                <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.wntd}</td>
+                                <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.imsi}</td>
+                                <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.version}</td>
+                                <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.avc}</td>
+                                <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.bw_profile}</td>
+                                <td className="border-l h-10 text-[12px] font-medium ps-2 w-20">{site?.lon}</td>
+                                <td className="border-l h-10 text-[12px] font-medium ps-2 w-20">{site?.lat}</td>
+                                <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.site_name}</td>
+                                <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.home_cell}</td>
+                                <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.home_pci}</td>
+                                <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.traffic_profile}</td>
+                                <td className="border-l h-10 text-[12px] font-medium ps-2">{getTrackingValue(site?.tracking, 'start_date')}</td>
+                                <td className="border-l h-10 text-[12px] font-medium ps-2">{getTrackingValue(site?.tracking, 'end_date')}</td>
+                                <td className="border-l h-10 text-[12px] font-medium ps-2 capitalize">{getTrackingValue(site?.tracking, 'solution_type')}</td>
+                                <td className="border-l h-10 text-[12px] font-medium ps-2 capitalize">{getTrackingValue(site?.tracking, 'status')}</td>
+                                <td className="border-l h-10 text-[12px] font-medium ps-2 capitalize">
+                                    {getTrackingValue(site?.tracking, 'remarks')}
+                                </td>
+                                <td className="border-l h-10">
+                                    <UploadItemField value={getTrackingValue(site?.tracking, 'artifacts')} name='artifacts' locId={site.loc_id} siteId={site.id} single={true} />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </Card>
+            </div>
+            <div>
+                <div className="py-12 px-12 relative z-10">
+                    <Timeline>
+                        {trackings.map((tracking, index) => {
+                            return (
+                                <TimelineItem key={index}>
+                                    <TimelineConnector />
+                                    <TimelineHeader className="h-3">
+                                        <TimelineIcon />
+                                        <Typography variant="h6" color="blue-gray" className="leading-none">{format(new Date(tracking.created_at), 'MMMM dd, yyyy HH:mm:ss')}</Typography>
+                                    </TimelineHeader>
+                                    <TimelineBody className="pb-8">
+                                        {tracking.key === 'artifacts' ? (
+                                            <Typography variant="small" color="gray" className="font-normal text-gray-600"><span className='font-semibold'>{tracking?.user.name}</span> Uploaded New  <span className='capitalize font-semibold'>{tracking.key ? tracking.key.replace(/_/g, ' ') : ''}</span>
+                                                {tracking?.value && <ShowFileIcons files={tracking?.value} />}
+                                            </Typography>
+                                        ) :
+                                            <Typography variant="small" color="gray" className="font-normal text-gray-600"><span className='font-semibold'>{tracking?.user.name}</span> changed value of <span className='capitalize font-semibold'>{tracking.key ? tracking.key.replace(/_/g, ' ') : ''}</span> to
+                                                <span className='capitalize block'>{tracking.value}</span>
+                                            </Typography>
+                                        }
+                                    </TimelineBody>
+                                </TimelineItem>
+                            )
+                        })}
+                    </Timeline>
+                </div>
+            </div>
+        </Authenticated>
     )
 }
