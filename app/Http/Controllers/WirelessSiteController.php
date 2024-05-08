@@ -13,16 +13,44 @@ use Illuminate\Support\Facades\Validator;
 
 class WirelessSiteController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $sites = Site::paginate(10);
+        $order = $request->input('order');
+        $order_by = $request->input('order_by');
+        $search_query = $request->input('search');
+        if ($search_query) {
+            $tableName = (new Site)->getTable();
+            $columns = \Schema::getColumnListing($tableName);
+            $sites = Site::where(function ($query) use ($search_query, $columns) {
+                foreach ($columns as $column) {
+                    $query->orWhere($column, 'LIKE', '%' . $search_query . '%');
+                }
+            })->orderBy($order_by, $order ? $order : 'asc')->paginate(10);
+        } else {
+            $sites = Site::orderBy($order_by, $order ? $order : 'asc')->paginate(10);
+        }
         $desiredKeys = ['remarks', 'start_date', 'end_date', 'solution_type', 'status', 'artifacts'];
         foreach ($sites as $site) {
-            $locTrackingData = LocTracking::where('site_id', $site->id)->whereIn('key', $desiredKeys)->get()->keyBy('key')->toArray();
+            $locTrackingData = LocTracking::where('site_id', $site->id)
+                ->whereIn('key', $desiredKeys)
+                ->get()
+                ->keyBy('key')
+                ->toArray();
             $site->tracking = $locTrackingData;
+        }
+        if ($request->input('filter_by')) {
+            $filterBy = $request->input('filter_by');
+            $sitesArray = $sites->items();
+            $filteredSites = array_filter($sitesArray, function ($site) use ($filterBy, $request) {
+                return isset ($site->tracking[$filterBy]) &&
+                    isset ($site->tracking[$filterBy]['value']) &&
+                    $site->tracking[$filterBy]['value'] === $request->input('value');
+            });
+            $sites->setCollection(collect($filteredSites));
         }
         return Inertia::render('Wireless/Sites/Index', [
             'sites' => $sites,
+            'get_data' => $request->all()
         ]);
     }
 
@@ -100,27 +128,35 @@ class WirelessSiteController extends Controller
         return response()->json(['success' => 'Data inserted successfully'], 200);
     }
 
-    public function search_sites($search_txt)
-    {
-        $tableName = (new Site)->getTable();
-        $columns = \Schema::getColumnListing($tableName);
-        $results = Site::where(function ($query) use ($search_txt, $columns) {
-            foreach ($columns as $column) {
-                $query->orWhere($column, 'LIKE', '%' . $search_txt . '%');
-            }
-        })->paginate(10);
-        return Inertia::render('Wireless/Sites/Index', [
-            'sites' => $results,
-        ]);
-    }
+    // public function search_sites($search_txt)
+    // {
+    //     $tableName = (new Site)->getTable();
+    //     $columns = \Schema::getColumnListing($tableName);
+    //     $results = Site::where(function ($query) use ($search_txt, $columns) {
+    //         foreach ($columns as $column) {
+    //             $query->orWhere($column, 'LIKE', '%' . $search_txt . '%');
+    //         }
+    //     })->paginate(10);
+    //     return Inertia::render('Wireless/Sites/Index', [
+    //         'sites' => $results,
+    //     ]);
+    // }
 
-    public function sort_sites($key, $order)
-    {
-        $sites = Site::orderBy($key, $order)->paginate(10);
-        return Inertia::render('Wireless/Sites/Index', [
-            'sites' => $sites,
-        ]);
-    }
+    // public function sort_sites()
+    // {
+    //     print_r('here');
+    //     exit;
+    //     // $sites = Site::orderBy($key, $order)->paginate(10);
+    //     // $desiredKeys = ['remarks', 'start_date', 'end_date', 'solution_type', 'status', 'artifacts'];
+    //     // foreach ($sites as $site) {
+    //     //     $locTrackingData = LocTracking::where('site_id', $site->id)->whereIn('key', $desiredKeys)->get()->keyBy('key')->toArray();
+    //     //     $site->tracking = $locTrackingData;
+    //     // }
+
+    //     // return Inertia::render('Wireless/Sites/Index', [
+    //     //     'sites' => $sites,
+    //     // ]);
+    // }
 
     public function location_site($id)
     {
