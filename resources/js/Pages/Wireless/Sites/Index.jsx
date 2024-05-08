@@ -1,14 +1,12 @@
 import Pagination from '@/Components/Pagination';
 import TextInput from '@/Components/TextInput';
 import Authenticated from '@/Layouts/AuthenticatedLayout'
-import { Head, Link, router, useForm } from '@inertiajs/react'
-import { Button, Card, Dialog, DialogBody, DialogFooter, DialogHeader, IconButton, Tooltip, Typography } from '@material-tailwind/react'
+import { Head, Link, router } from '@inertiajs/react'
+import { Button, Card, IconButton, Typography } from '@material-tailwind/react'
 import axios from 'axios';
-import { ChevronDownIcon, ChevronUpIcon, FileBarChartIcon, ImageIcon, SearchIcon } from 'lucide-react';
+import { ChevronDownIcon, ChevronUpIcon, SearchIcon } from 'lucide-react';
 import React, { useRef, useState } from 'react'
-import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { useDropzone } from 'react-dropzone';
 import toast from 'react-hot-toast';
 import InputItemField from './Components/InputItemField';
 import DateItemField from './Components/DateItemField';
@@ -16,8 +14,6 @@ import SelectItemField from './Components/SelectItemField';
 import UploadItemField from './Components/UploadItemField';
 
 export default function Index({ auth, sites }) {
-
-    console.log(sites);
 
     const TABLE_HEAD = [
         { name: 'LOCID', sortable: true, sortKey: 'loc_id' },
@@ -68,11 +64,10 @@ export default function Index({ auth, sites }) {
     };
 
     const getTrackingValue = (tracking, key) => {
-        if (tracking?.length > 0) {
-            return tracking?.find((item) => item?.key === key)?.value
+        if (tracking) {
+            return tracking[key]?.value
         }
     }
-
     return (
         <Authenticated user={auth?.user}>
             <Head title='Wireless Sites' />

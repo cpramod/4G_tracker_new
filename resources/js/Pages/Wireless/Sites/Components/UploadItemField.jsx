@@ -1,9 +1,11 @@
 import { useForm } from '@inertiajs/react';
-import { Button, Dialog, DialogBody, DialogFooter, DialogHeader } from '@material-tailwind/react';
+import { Button, Dialog, DialogBody, DialogFooter, DialogHeader, Tooltip } from '@material-tailwind/react';
+import { FileBarChartIcon, ImageIcon } from 'lucide-react';
 import React from 'react'
 import { useDropzone } from 'react-dropzone';
 
 export default function UploadItemField({ locId, siteId, name, value }) {
+
     const handleOpen = () => setOpen(!open);
     const [open, setOpen] = React.useState(false);
 
@@ -76,11 +78,11 @@ export default function UploadItemField({ locId, siteId, name, value }) {
             )
         }
     }
-    
+
     return (
         <div className='w-full h-full'>
             <button className='font-medium text-[12px] opacity-0' onClick={handleOpen}>Uplaod</button>
-            {value && <ShowFileIcons files={value ? '' : ''} />}
+            {value && <ShowFileIcons files={value ? value : ''} />}
             <Dialog open={open} handler={handleOpen} size='xs'>
                 <DialogHeader>Upload Artifacts</DialogHeader>
                 <DialogBody>
