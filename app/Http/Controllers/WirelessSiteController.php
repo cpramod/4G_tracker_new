@@ -15,12 +15,6 @@ class WirelessSiteController extends Controller
 {
     public function index()
     {
-        // $sites = Site::latest()->with([
-        //     'tracking' => function ($query) {
-        //         $query->whereIn('key', ['remarks', 'start_date', 'end_date', 'solution_type', 'status', 'artifacts'])->latest();
-        //     }
-        // ])->paginate(10);
-
         $sites = Site::paginate(10);
         $desiredKeys = ['remarks', 'start_date', 'end_date', 'solution_type', 'status', 'artifacts'];
         foreach ($sites as $site) {
@@ -125,6 +119,20 @@ class WirelessSiteController extends Controller
         $sites = Site::orderBy($key, $order)->paginate(10);
         return Inertia::render('Wireless/Sites/Index', [
             'sites' => $sites,
+        ]);
+    }
+
+    public function location_site($id)
+    {
+        $site = Site::where('loc_id', $id)->first();
+        $desiredKeys = ['remarks', 'start_date', 'end_date', 'solution_type', 'status', 'artifacts'];
+        $locTrackingData = LocTracking::where('site_id', $site->id)->whereIn('key', $desiredKeys)->get()->keyBy('key')->toArray();
+        $site->tracking = $locTrackingData;
+
+        $trackings = LocTracking::with('user')->where('loc_id', $id)->get();
+        return Inertia::render('Wireless/Sites/Show', [
+            'site' => $site,
+            'trackings' => $trackings
         ]);
     }
 }
