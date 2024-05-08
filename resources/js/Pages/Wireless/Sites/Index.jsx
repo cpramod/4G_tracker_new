@@ -1,7 +1,7 @@
 import Pagination from '@/Components/Pagination';
 import TextInput from '@/Components/TextInput';
 import Authenticated from '@/Layouts/AuthenticatedLayout'
-import { Head, Link, router } from '@inertiajs/react'
+import { Head, Link, router, usePage } from '@inertiajs/react'
 import { Button, Card, IconButton, Typography } from '@material-tailwind/react'
 import axios from 'axios';
 import { ChevronDownIcon, ChevronUpIcon, SearchIcon } from 'lucide-react';
@@ -14,6 +14,7 @@ import SelectItemField from './Components/SelectItemField';
 import UploadItemField from './Components/UploadItemField';
 
 export default function Index({ auth, sites }) {
+    const { get_data } = usePage().props
 
     const TABLE_HEAD = [
         { name: 'LOCID', sortable: true, sortKey: 'loc_id' },
@@ -36,7 +37,7 @@ export default function Index({ auth, sites }) {
         { name: 'Artifacts', sortable: false, sortKey: 'artifacts' },
     ];
     const hiddenFileInput = useRef(null);
-    const [searchText, setSearchText] = useState('');
+    const [searchText, setSearchText] = useState(get_data?.search ? get_data?.search : '');
     const [siteItems] = useState(sites);
 
     const handleClick = event => {
@@ -55,18 +56,21 @@ export default function Index({ auth, sites }) {
 
     const handleSearch = async () => {
         if (searchText) {
-            router.get(route('wireless.sites.search', searchText))
+            router.get(route('wireless.sites.index', { 'search': searchText }))
         }
     }
 
     const sortData = async (key, order) => {
-        router.get(route('wireless.sites.sort', { 'key': key, 'order': order }))
+        router.get(route('wireless.sites.index', { 'order_by': key, 'order': order }))
     };
 
     const getTrackingValue = (tracking, key) => {
         if (tracking) {
             return tracking[key]?.value
         }
+    }
+    const onChangeFilter = async (key, value) => {
+        router.get(route('wireless.sites.index', { 'filter_by': key, 'value': value }))
     }
     return (
         <Authenticated user={auth?.user}>
@@ -97,6 +101,18 @@ export default function Index({ auth, sites }) {
                                 <SearchIcon color='white' size={18} />
                             </IconButton>
                         </div>
+                    </div>
+                    <div>
+                        <select
+                            className='w-52 text-sm rounded-md focus:ring-0 h-8 border-gray-300 py-1 text-gray-600 font-medium'
+                            onChange={(e) => onChangeFilter('status', e.target.value)}
+                            value={get_data?.filter_by === 'status' ? get_data?.value : ''}
+                        >
+                            <option value="">Filter by Status</option>
+                            <option value="in_progress">In Progress</option>
+                            <option value="not_started">Not Started</option>
+                            <option value="completed">Completed</option>
+                        </select>
                     </div>
                     <div>
                         <Button variant="gradient" className='capitalize' size='sm' onClick={handleClick}>Import from CSV</Button>
