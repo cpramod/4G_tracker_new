@@ -93,7 +93,7 @@ export default function Show({ auth, site, trackings }) {
                         <ul className='flex gap-1 text-gray-600 text-sm'>
                             <li><Link href={route('dashboard')}>Dashboard</Link></li>
                             <li>/</li>
-                            <li><Link href={route('wireless.sites.index')}>Wireless Sites</Link></li>
+                            <li><Link href={route('wireless.sites.index')}>WNTD</Link></li>
                         </ul>
                     </div>
                 </div>

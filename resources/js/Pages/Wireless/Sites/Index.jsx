@@ -78,11 +78,11 @@ export default function Index({ auth, sites }) {
             <div className="top-section p-4">
                 <div className='flex items-center justify-between'>
                     <div className="">
-                        <Typography variant={'h3'} className='tracking-tight'>Wireless Sites</Typography>
+                        <Typography variant={'h3'} className='tracking-tight'>WNTD</Typography>
                         <ul className='flex gap-1 text-gray-600 text-sm'>
                             <li><Link href={route('dashboard')}>Dashboard</Link></li>
                             <li>/</li>
-                            <li><Link href={route('wireless.sites.index')}>Wireless Sites</Link></li>
+                            <li><Link href={route('wireless.sites.index')}>WNTD</Link></li>
                         </ul>
                     </div>
                 </div>
