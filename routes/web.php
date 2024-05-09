@@ -38,6 +38,7 @@ Route::get('/dashboard', function () {
 Route::controller(SQLImportController::class)->middleware('auth')->group(function () {
     Route::get('/dashboard/sql-import', 'index')->name('sql.import');
     Route::post('/dashboard/sql-import/run', 'run_sql_code')->name('sql.run');
+    Route::post('/dashboard/sql-import/store', 'store')->name('sql.store');
 });
 
 Route::controller(SettingsController::class)->middleware('auth')->group(function () {
