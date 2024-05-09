@@ -2,7 +2,7 @@ import { useState } from 'react';
 import Dropdown from '@/Components/Dropdown';
 import { Link } from '@inertiajs/react';
 import { Card, List, ListItem, ListItemPrefix, Typography } from '@material-tailwind/react';
-import { AlignJustifyIcon, ChevronDownIcon, GaugeCircleIcon, GlobeIcon, LocateFixedIcon } from 'lucide-react';
+import { AlignJustifyIcon, ChevronDownIcon, DatabaseZapIcon, GaugeCircleIcon, GlobeIcon, LocateFixedIcon, Settings2Icon, SettingsIcon } from 'lucide-react';
 import { Toaster } from 'react-hot-toast';
 
 export default function Authenticated({ user, header, children }) {
@@ -48,25 +48,31 @@ export default function Authenticated({ user, header, children }) {
                 </div>
             </div>
             <div className="page-content">
-                <aside className={`fixed w-full max-w-[18rem] transition-all ease-in-out duration-300 z-50 ${showSidebar ? "left-0" : "-left-full"}`}>
+                <aside className={`fixed w-full max-w-[15rem] transition-all ease-in-out duration-300 z-50 ${showSidebar ? "left-0" : "-left-full"}`}>
                     <Card className="h-screen bg-gradient-to-tr from-gray-900 to-gray-800 rounded-none">
                         <List className='text-white'>
                             <Link href='/dashboard' className={`${currentRoute === "dashboard" ? "bg-blue-gray-50/50 rounded-lg" : ""}`}>
                                 <ListItem>
-                                    <ListItemPrefix className='mr-3'><GaugeCircleIcon /></ListItemPrefix>
-                                    <span className='font-semibold text-base'>Dashboard</span>
+                                    <ListItemPrefix className='mr-3'><GaugeCircleIcon size={20} /></ListItemPrefix>
+                                    <span className='font-semibold text-sm'>Dashboard</span>
                                 </ListItem>
                             </Link>
                             <Link href={route('wireless.sites.index')} className={`${currentRoute === "wireless.sites.index" ? "bg-blue-gray-50/50 rounded-lg" : ""}`}>
                                 <ListItem>
-                                    <ListItemPrefix className='mr-3'><GlobeIcon /></ListItemPrefix>
-                                    <span className='font-semibold text-base'>Wireless Sites</span>
+                                    <ListItemPrefix className='mr-3'><GlobeIcon size={20} /></ListItemPrefix>
+                                    <span className='font-semibold text-sm'>Wireless Sites</span>
                                 </ListItem>
                             </Link>
-                            <Link href={route('wireless.location.index')} className={`${currentRoute === "wireless.location.index" ? "bg-blue-gray-50/50 rounded-lg" : ""}`}>
+                            <Link href={route('sql.import')} className={`${currentRoute === "sql.import" ? "bg-blue-gray-50/50 rounded-lg" : ""}`}>
                                 <ListItem>
-                                    <ListItemPrefix className='mr-3'><LocateFixedIcon /></ListItemPrefix>
-                                    <span className='font-semibold text-base'>Wireless Locations</span>
+                                    <ListItemPrefix className='mr-3'><DatabaseZapIcon size={20} /></ListItemPrefix>
+                                    <span className='font-semibold text-sm'>SQL Import</span>
+                                </ListItem>
+                            </Link>
+                            <Link href={route('settings.index')} className={`${currentRoute === "settings.index" ? "bg-blue-gray-50/50 rounded-lg" : ""}`}>
+                                <ListItem>
+                                    <ListItemPrefix className='mr-3'><Settings2Icon size={20} /></ListItemPrefix>
+                                    <span className='font-semibold text-sm'>Settings</span>
                                 </ListItem>
                             </Link>
                         </List>
