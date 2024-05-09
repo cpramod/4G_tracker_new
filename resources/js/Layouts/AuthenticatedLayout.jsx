@@ -59,8 +59,8 @@ export default function Authenticated({ user, header, children }) {
                             </Link>
                             <Link href={route('wireless.sites.index')} className={`${currentRoute === "wireless.sites.index" ? "bg-blue-gray-50/50 rounded-lg" : ""}`}>
                                 <ListItem>
-                                    <ListItemPrefix className='mr-3'><GlobeIcon size={20} /></ListItemPrefix>
-                                    <span className='font-semibold text-sm'>Wireless Sites</span>
+                                    <ListItemPrefix className='mr-3'><GlobeIcon /></ListItemPrefix>
+                                    <span className='font-semibold text-base'>WNTD</span>
                                 </ListItem>
                             </Link>
                             <Link href={route('sql.import')} className={`${currentRoute === "sql.import" ? "bg-blue-gray-50/50 rounded-lg" : ""}`}>
