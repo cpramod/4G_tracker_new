@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\ImportDB;
+use App\Models\Site;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Response;
 
 class SQLImportController extends Controller
 {
@@ -21,13 +23,14 @@ class SQLImportController extends Controller
             'sql_query' => 'required',
         ]);
         if ($validator->fails()) {
-            return response()->json(['error' => array('message' => 'SQL query is required')], 500);
+            return response()->json(['error' => array('message' => 'SQL code is required.')], 500);
         }
         $sql_code = $request->input('sql_query');
-        $this->db_connection();
+        $result = $this->db_connection($sql_code);
+        return $result;
     }
 
-    public function db_connection()
+    public function db_connection($sql_code)
     {
         $db = ImportDB::first();
         if ($db) {
@@ -49,64 +52,68 @@ class SQLImportController extends Controller
                 ]);
                 DB::purge('import');
                 DB::reconnect('import');
-                if (DB::connection('import')->getDatabaseName()) {
-                    $data = $this->getTables(DB::connection('import'), 'users');
-                    dd($data);
-                } else {
-                    dd('error');
+                $connected = DB::connection('import')->getPdo() !== null;
+                if ($connected) {
+                    $data = $this->executeQuery(DB::connection('import'), $sql_code);
+                    if (is_array($data)) {
+                        return response()->json(['data' => $data], 200);
+                    }
+                    if ($data->getStatusCode() == 500) {
+                        return $data;
+                    }
                 }
-
             } catch (\Exception $e) {
-                return response()->json(['error' => array('message' => $e)], 500);
+                return response()->json(['error' => ['message' => $e->getMessage()]], 500);
             }
+        } else {
+            return response()->json(['error' => ['message' => 'No database connection found.']], 500);
         }
     }
 
-
+    private function executeQuery($connection, $sql)
+    {
+        try {
+            return $connection->select($sql);
+        } catch (\Exception $e) {
+            return response()->json(['error' => ['message' => $e->getMessage()]], 500);
+        }
+    }
 
     public function store(Request $request)
     {
-        $request->validate([
-            'host' => 'required',
-            'port' => 'required',
-            'database' => 'required',
-            'username' => 'required',
-            'password' => 'required',
-        ]);
-        try {
-            config([
-                'database.connections.import' => [
-                    'driver' => 'mysql',
-                    'host' => $request->input('host'),
-                    'port' => $request->input('port'),
-                    'database' => $request->input('database'),
-                    'username' => $request->input('username'),
-                    'password' => $request->input('password'),
-                    'charset' => 'utf8mb4',
-                    'collation' => 'utf8mb4_unicode_ci',
-                    'prefix' => '',
-                    'strict' => true,
-                    'engine' => null,
-                ]
-            ]);
-            DB::purge('import');
-            DB::reconnect('import');
-
-            if (DB::connection('import')->getDatabaseName()) {
-                $data = $this->getTables(DB::connection('import'), 'users');
-                dd($data);
-            } else {
-                dd('error');
-
+        if (is_array($request->data)) {
+            $data = $request->data;
+            foreach ($data as $item) {
+                $existingLoc = Site::where('loc_id', $item['LOCID'])->first();
+                if (!$existingLoc) {
+                    Site::create([
+                        'loc_id' => $item['LOCID'],
+                        'wntd' => $item['WNTD'],
+                        'imsi' => $item['IMSI'],
+                        'version' => $item['VERSION'],
+                        'avc' => $item['AVC'],
+                        'bw_profile' => $item['BW_PROFILE'],
+                        'lon' => $item['LON'],
+                        'lat' => $item['LAT'],
+                        'site_name' => $item['SITE_NAME'],
+                        'home_cell' => $item['HOME_CELL'],
+                        'home_pci' => $item['HOME_PCI'],
+                        'traffic_profile' => $item['TRAFFIC_PROFILE'],
+                    ]);
+                } else {
+                    return response()->json([
+                        'error' => array(
+                            'message' => 'Site with LOCID ' . $item['LOCID'] . ' already exists',
+                        )
+                    ], 500);
+                }
             }
-
-        } catch (\Exception $e) {
-            dd($e);
+            return response()->json([
+                'success' => array(
+                    'message' => 'Data imported successfully.',
+                )
+            ], 200);
         }
-    }
 
-    private function getTables($connection, $table_name)
-    {
-        return $connection->table($table_name)->get();
     }
 }
