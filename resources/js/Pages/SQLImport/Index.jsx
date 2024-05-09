@@ -8,7 +8,7 @@ import React, { useState } from 'react'
 
 export default function Index({ auth }) {
 
-    const [query, setQuery] = useState('Select * from sites_import')
+    const [query, setQuery] = useState('')
     const [errorMsg, setErrorMsg] = useState('')
     const [response, setResponse] = useState([])
     const [isLoading, setIsLoading] = useState(false)
