@@ -15,7 +15,6 @@ import UploadItemField from './Components/UploadItemField';
 
 export default function Index({ auth, sites }) {
     const { get_data } = usePage().props
-
     const TABLE_HEAD = [
         { name: 'LOCID', sortable: true, sortKey: 'loc_id' },
         { name: 'WNTD', sortable: true, sortKey: 'wntd' },
@@ -38,6 +37,7 @@ export default function Index({ auth, sites }) {
     ];
     const hiddenFileInput = useRef(null);
     const [searchText, setSearchText] = useState(get_data?.search ? get_data?.search : '');
+    const [perPage, setPerPage] = useState(get_data?.per_page ? get_data?.per_page : 10);
     const [siteItems] = useState(sites);
 
     const handleClick = event => {
@@ -71,6 +71,10 @@ export default function Index({ auth, sites }) {
     }
     const onChangeFilter = async (key, value) => {
         router.get(route('wireless.sites.index', { 'filter_by': key, 'value': value }))
+    }
+    const handlePerPageChange = (val) => {
+        setPerPage(val);
+        router.get(route('wireless.sites.index', { ...get_data, 'per_page': val }))
     }
     return (
         <Authenticated user={auth?.user}>
@@ -212,7 +216,25 @@ export default function Index({ auth, sites }) {
                         </tbody>
                     </table>
                     {siteItems?.data?.length === 0 && <Typography variant="h6" color="blue-gray" className='text-center py-6' >No data found</Typography>}
-                    <Pagination class="mt-6" links={siteItems?.links} />
+                    <div className='flex justify-end items-center pt-6 mb-8 gap-3 px-4'>
+                        <div className='flex items-center gap-2'>
+                            <div className='text-sm font-medium'>Rows per Page</div>
+                            <select
+                                className='rounded-md text-sm font-medium border-gray-400 focus:ring-0 py-2'
+                                value={perPage}
+                                onChange={(e) => { handlePerPageChange(e.target.value) }}
+                            >
+                                <option value="10">10</option>
+                                <option value="15">15</option>
+                                <option value="20">20</option>
+                                <option value="20">25</option>
+                                <option value="50">50</option>
+                                <option value="all">All</option>
+                            </select>
+                        </div>
+                        <div className='text-sm font-medium'>{`${sites?.from}-${sites?.to} of ${sites?.total} Records`}</div>
+                        <Pagination links={siteItems?.links} perPage={perPage} />
+                    </div>
                 </Card>
             </div>
         </Authenticated>
