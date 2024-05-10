@@ -12,6 +12,7 @@ import InputItemField from './Components/InputItemField';
 import DateItemField from './Components/DateItemField';
 import SelectItemField from './Components/SelectItemField';
 import UploadItemField from './Components/UploadItemField';
+import CSVMapping from './Components/CSVMapping';
 
 export default function Index({ auth, sites }) {
     const { get_data } = usePage().props
@@ -39,6 +40,8 @@ export default function Index({ auth, sites }) {
     const [searchText, setSearchText] = useState(get_data?.search ? get_data?.search : '');
     const [perPage, setPerPage] = useState(get_data?.per_page ? get_data?.per_page : 10);
     const [siteItems] = useState(sites);
+    const [mappingDialog, setMappingDialog] = useState(false)
+    const [mappingData, setMappingData] = useState('')
 
     const handleClick = event => {
         hiddenFileInput.current.click();
@@ -48,7 +51,10 @@ export default function Index({ auth, sites }) {
         form_input.append('import_file', event.target.files[0]);
         try {
             const res = await axios.post(route('wireless.sites.import'), form_input);
-            router.visit(route('wireless.sites.index'));
+            if (res?.data) {
+                setMappingData(res?.data)
+                setMappingDialog(true)
+            }
         } catch (error) {
             toast.error(`${error?.response?.data?.error?.message}`);
         }
@@ -236,7 +242,13 @@ export default function Index({ auth, sites }) {
                         <Pagination links={siteItems?.links} perPage={perPage} />
                     </div>
                 </Card>
+                <CSVMapping
+                    mappingDialog={mappingDialog}
+                    setMappingDialog={setMappingDialog}
+                    mappingData={mappingData}
+                />
             </div>
+
         </Authenticated>
     )
 }
