@@ -47,7 +47,7 @@ export default function PageLayout({ children }) {
             {children}
             <footer className='border-t shadow-sm mt-12 py-6'>
                 <div className="container mx-auto">
-                    <Typography color='blue-grey' className='text-center font-medium text-sm'>&copy;{d.getFullYear()} - Wave Portal</Typography>
+                    <Typography color='blue-grey' className='text-center font-medium text-sm'>&copy;{d.getFullYear()} - FWP Tracker</Typography>
                 </div>
             </footer>
         </div>

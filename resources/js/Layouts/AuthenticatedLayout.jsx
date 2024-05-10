@@ -23,7 +23,7 @@ export default function Authenticated({ user, header, children }) {
                                 <button onClick={handleHamburgerIcon}><AlignJustifyIcon size={24} color='gray' strokeWidth={1.5} /></button>
                             </div>
                             <Typography variant="h5" color="blue-gray" className='text-center'>
-                                Wave Portal
+                                FWP Tracker
                             </Typography>
                         </div>
                     </div>
