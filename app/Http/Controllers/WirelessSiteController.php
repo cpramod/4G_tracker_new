@@ -96,10 +96,40 @@ class WirelessSiteController extends Controller
             'import_file' => 'required|file|mimes:csv',
         ]);
         if ($validator->fails()) {
-            return response()->json(['error' => array('message' => 'Only CSV file is allowed.')], 422);
+            return response()->json(['error' => array('message' => $validator->errors()->first())], 500);
         }
         $file = $request->file('import_file');
         $filePath = $file->storeAs('import', now()->timestamp . "_{$file->getClientOriginalName()}");
+        $csv = Reader::createFromPath(storage_path('app/' . $filePath), 'r');
+        $csv->setHeaderOffset(0);
+        $header = $csv->getHeader();
+        return response()->json([
+            'filePath' => $filePath,
+            'header' => $header
+        ], 200);
+    }
+
+    public function map_and_save_csv(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'loc_id' => 'required',
+            'wntd' => 'required',
+            'imsi' => 'required',
+            'version' => 'required',
+            'avc' => 'required',
+            'bw_profile' => 'required',
+            'lon' => 'required',
+            'lat' => 'required',
+            'site_name' => 'required',
+            'home_cell' => 'required',
+            'home_pci' => 'required',
+            'traffic_profile' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['error' => array('message' => $validator->errors()->first())], 500);
+        }
+
+        $filePath = $request->input('file_path');
         $csv = Reader::createFromPath(storage_path('app/' . $filePath), 'r');
         $csv->setHeaderOffset(0);
         foreach ($csv as $row) {
@@ -122,13 +152,15 @@ class WirelessSiteController extends Controller
             } else {
                 return response()->json([
                     'error' => array(
-                        'message' => 'Site with LOCID ' . $row['LOCID'] . ' already exists',
+                        'message' => 'Site with LOCID ' . $row['LOCID'] . ' already exists.',
                     )
-                ], 422);
+                ], 500);
             }
         }
-        return response()->json(['success' => 'Data inserted successfully'], 200);
+        return response()->json(['success' => ['message' => 'Sites imported successfully.']], 200);
     }
+
+
 
     public function location_site($id)
     {

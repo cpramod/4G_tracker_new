@@ -15,7 +15,7 @@ export default function Authenticated({ user, header, children }) {
 
     return (
         <div className="admin-layout">
-            <div className="header w-full py-4 bg-white border-b-2 sticky top-0">
+            <div className="header w-full py-4 bg-white border-b-2 sticky top-0 z-50">
                 <div className="full flex items-center justify-between px-6">
                     <div className="left">
                         <div className='flex items-center gap-4'>
