@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\IssueController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\ProfileController;
@@ -11,9 +12,11 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::controller(PageController::class)->middleware('auth')->group(function () {
-    Route::get('/', 'index')->name('home');
-});
+// Route::controller(PageController::class)->middleware('auth')->group(function () {
+//     Route::get('/', 'index')->name('home');
+// });
+
+Route::get('/', [AuthenticatedSessionController::class, 'create'])->name('login');
 
 Route::controller(WirelessSiteController::class)->middleware('auth')->group(function () {
     Route::get('/dashboard/wireless-sites', 'index')->name('wireless.sites.index');
