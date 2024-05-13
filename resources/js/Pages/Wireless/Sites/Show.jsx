@@ -2,15 +2,11 @@ import { Head, Link } from '@inertiajs/react'
 import React from 'react'
 import Authenticated from '@/Layouts/AuthenticatedLayout';
 import { Card, Timeline, TimelineBody, TimelineConnector, TimelineHeader, TimelineIcon, TimelineItem, Tooltip, Typography } from '@material-tailwind/react';
-import DateItemField from './Components/DateItemField';
-import SelectItemField from './Components/SelectItemField';
-import InputItemField from './Components/InputItemField';
 import UploadItemField from './Components/UploadItemField';
 import { format } from 'date-fns';
 import { FileBarChartIcon, ImageIcon } from 'lucide-react';
 
 export default function Show({ auth, site, trackings }) {
-    console.log(trackings);
     const TABLE_HEAD = [
         'LOCID',
         'WNTD',
@@ -33,7 +29,17 @@ export default function Show({ auth, site, trackings }) {
     ];
     const getTrackingValue = (tracking, key) => {
         if (tracking) {
-            return tracking[key]?.value
+            if (key === 'start_date' || key === 'end_date') {
+                return showFromattedDate(tracking[key]?.value)
+            } else {
+                return tracking[key]?.value
+            }
+        }
+    }
+    const showFromattedDate = (date) => {
+        if (date) {
+            const dateObject = new Date(date);
+            return format(dateObject, 'MM/dd/yyyy');
         }
     }
 
@@ -62,7 +68,7 @@ export default function Show({ auth, site, trackings }) {
 
             return (
                 <div className="flex mt-3">
-                    {existingFiles.map((file, index) => (
+                    {existingFiles?.map((file, index) => (
                         <React.Fragment key={index}>
                             {getFileExtension(file) === 'csv' && (
                                 <Tooltip content={getFileName(file)}>
@@ -105,7 +111,7 @@ export default function Show({ auth, site, trackings }) {
                         <thead>
                             <tr>
                                 {TABLE_HEAD.map((head) => (
-                                    <th key={head.name} className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-2 border-l cursor-pointer">
+                                    <th key={head} className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-2 border-l cursor-pointer">
                                         <div className="flex justify-between">
                                             <Typography variant="small" className="leading-none text-gray-800 font-medium text-sm">{head}</Typography>
                                         </div>
@@ -150,22 +156,23 @@ export default function Show({ auth, site, trackings }) {
             <div>
                 <div className="py-12 px-12 relative z-10">
                     <Timeline>
-                        {trackings.map((tracking, index) => {
+                        {trackings?.map((tracking, index) => {
                             return (
                                 <TimelineItem key={index}>
-                                    <TimelineConnector />
+                                    {index + 1 !== trackings?.length && <TimelineConnector />}
                                     <TimelineHeader className="h-3">
                                         <TimelineIcon />
                                         <Typography variant="h6" color="blue-gray" className="leading-none">{format(new Date(tracking.created_at), 'MMMM dd, yyyy HH:mm:ss')}</Typography>
                                     </TimelineHeader>
                                     <TimelineBody className="pb-8">
-                                        {tracking.key === 'artifacts' ? (
+                                        {tracking?.key === 'artifacts' ? (
                                             <Typography variant="small" color="gray" className="font-normal text-gray-600"><span className='font-semibold'>{tracking?.user.name}</span> Uploaded New  <span className='capitalize font-semibold'>{tracking.key ? tracking.key.replace(/_/g, ' ') : ''}</span>
                                                 {tracking?.value && <ShowFileIcons files={tracking?.value} />}
                                             </Typography>
                                         ) :
                                             <Typography variant="small" color="gray" className="font-normal text-gray-600"><span className='font-semibold'>{tracking?.user.name}</span> changed value of <span className='capitalize font-semibold'>{tracking.key ? tracking.key.replace(/_/g, ' ') : ''}</span> to
-                                                <span className='capitalize block'>{tracking.value}</span>
+                                                <span className='capitalize block'>
+                                                    {tracking?.key === 'start_date' || tracking?.key === 'end_date' ? showFromattedDate(tracking.value) : tracking.value}</span>
                                             </Typography>
                                         }
                                     </TimelineBody>
