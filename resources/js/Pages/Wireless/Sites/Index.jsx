@@ -97,8 +97,8 @@ export default function Index({ auth, sites }) {
                     </div>
                 </div>
             </div>
-            <div className="filter-wrapper px-4">
-                <div className="flex justify-end gap-3">
+            <div className="filter-wrapper md:px-4">
+                <div className="flex filter-details justify-end gap-3">
                     <div className="search-wrapper w-1/3 flex relative">
                         <TextInput
                             placeholder="Search..."
@@ -112,7 +112,7 @@ export default function Index({ auth, sites }) {
                             </IconButton>
                         </div>
                     </div>
-                    <div>
+                    <div className='status-filter'>
                         <select
                             className='w-52 text-sm rounded-md focus:ring-0 h-8 border-gray-300 py-1 text-gray-600 font-medium'
                             onChange={(e) => onChangeFilter('status', e.target.value)}
@@ -124,7 +124,7 @@ export default function Index({ auth, sites }) {
                             <option value="completed">Completed</option>
                         </select>
                     </div>
-                    <div>
+                    <div className='filter-solution-type'>
                         <select
                             className='w-52 text-sm rounded-md focus:ring-0 h-8 border-gray-300 py-1 text-gray-600 font-medium'
                             onChange={(e) => onChangeFilter('solution_type', e.target.value)}
@@ -136,7 +136,7 @@ export default function Index({ auth, sites }) {
                             <option value="repan">Repan</option>
                         </select>
                     </div>
-                    <div>
+                    <div className='import-type-field'>
                         <Button variant="gradient" className='capitalize' size='sm' onClick={handleClick}>Import from CSV</Button>
                         <input
                             type="file"
@@ -149,97 +149,99 @@ export default function Index({ auth, sites }) {
             </div>
             <div className="content mt-6">
                 <Card className="h-full w-full rounded-none">
-                    <table className="w-full min-w-max table-auto text-left">
-                        <thead>
-                            <tr>
-                                {TABLE_HEAD.map((head) => (
-                                    <th key={head.name} className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-2 border-l cursor-pointer">
-                                        <div className="flex justify-between">
-                                            <Typography variant="small" className="leading-none text-gray-800 font-medium text-sm">{head.name}</Typography>
-                                            {head?.sortable && (
-                                                <div className="relative mt-1">
-                                                    <span className='absolute -top-2 right-0 hover:bg-blue-gray-100 rounded-sm'><ChevronUpIcon size={12} strokeWidth={2} onClick={() => { sortData(head.sortKey, 'asc') }} /></span>
-                                                    <span className='absolute -bottom-1 right-0 hover:bg-blue-gray-100 rounded-sm'><ChevronDownIcon size={12} strokeWidth={2} onClick={() => { sortData(head.sortKey, 'desc') }} /></span>
-                                                </div>
-                                            )}
-                                        </div>
+                    <div className="overflow-x-auto overflow-hidden">
+                        <table className="w-full table-auto">
+                            <thead>
+                                <tr>
+                                    {TABLE_HEAD.map((head) => (
+                                        <th key={head.name} className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-2 border-l cursor-pointer">
+                                            <div className="flex justify-between">
+                                                <Typography variant="small" className="leading-none text-gray-800 font-medium text-sm">{head.name}</Typography>
+                                                {head?.sortable && (
+                                                    <div className="relative mt-1">
+                                                        <span className='absolute -top-2 right-0 hover:bg-blue-gray-100 rounded-sm'><ChevronUpIcon size={12} strokeWidth={2} onClick={() => { sortData(head.sortKey, 'asc') }} /></span>
+                                                        <span className='absolute -bottom-1 right-0 hover:bg-blue-gray-100 rounded-sm'><ChevronDownIcon size={12} strokeWidth={2} onClick={() => { sortData(head.sortKey, 'desc') }} /></span>
+                                                    </div>
+                                                )}
+                                            </div>
 
-                                    </th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {siteItems?.data.map((site, index) => (
-                                <tr key={site.id} className="even:bg-blue-gray-50/50">
-                                    <td className="border-l h-10 text-[12px] font-medium ps-2">
-                                        <Link href={route('wireless.show.location.index', site?.loc_id)} className='font-semibold underline'>
-                                            {site?.loc_id}
-                                        </Link>
-                                    </td>
-                                    <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.wntd}</td>
-                                    <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.imsi}</td>
-                                    <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.version}</td>
-                                    <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.avc}</td>
-                                    <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.bw_profile}</td>
-                                    <td className="border-l h-10 text-[12px] font-medium ps-2 w-20">{site?.lon}</td>
-                                    <td className="border-l h-10 text-[12px] font-medium ps-2 w-20">{site?.lat}</td>
-                                    <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.site_name}</td>
-                                    <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.home_cell}</td>
-                                    <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.home_pci}</td>
-                                    <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.traffic_profile}</td>
-                                    <td className="border-l h-10">
-                                        <DateItemField value={getTrackingValue(site?.tracking, 'start_date')} name='start_date' locId={site.loc_id} siteId={site.id} />
-                                    </td>
-                                    <td className="border-l h-10">
-                                        <DateItemField value={getTrackingValue(site?.tracking, 'end_date')} name='end_date' locId={site.loc_id} siteId={site.id} />
-                                    </td>
-                                    <td className="border-l h-10">
-                                        <SelectItemField value={getTrackingValue(site?.tracking, 'solution_type')} name='solution_type' locId={site.loc_id} siteId={site.id}
-                                            options={[
-                                                { label: 'Device Upgrade', value: 'device_upgrade' },
-                                                { label: 'Reparent', value: 'reparent' },
-                                                { label: 'Repan', value: 'repan' },
-                                            ]}
-                                        />
-                                    </td>
-                                    <td className="border-l h-10">
-                                        <SelectItemField value={getTrackingValue(site?.tracking, 'status')} name='status' locId={site.loc_id} siteId={site.id}
-                                            options={[
-                                                { label: 'In Progress', value: 'in_progress' },
-                                                { label: 'Not Started', value: 'not_started' },
-                                                { label: 'Completed', value: 'completed' },
-                                            ]}
-                                        />
-                                    </td>
-                                    <td className="border-l h-10">
-                                        <InputItemField value={getTrackingValue(site?.tracking, 'remarks')} name='remarks' locId={site.loc_id} siteId={site.id} />
-                                    </td>
-                                    <td className="border-l h-10">
-                                        <UploadItemField value={getTrackingValue(site?.tracking, 'artifacts')} name='artifacts' locId={site.loc_id} siteId={site.id} />
-                                    </td>
+                                        </th>
+                                    ))}
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                    {siteItems?.data?.length === 0 && <Typography variant="h6" color="blue-gray" className='text-center py-6' >No data found</Typography>}
-                    <div className='flex justify-end items-center pt-6 mb-8 gap-3 px-4'>
-                        <div className='flex items-center gap-2'>
-                            <div className='text-sm font-medium'>Rows per Page</div>
-                            <select
-                                className='rounded-md text-sm font-medium border-gray-400 focus:ring-0 py-2'
-                                value={perPage}
-                                onChange={(e) => { handlePerPageChange(e.target.value) }}
-                            >
-                                <option value="10">10</option>
-                                <option value="15">15</option>
-                                <option value="20">20</option>
-                                <option value="20">25</option>
-                                <option value="50">50</option>
-                                <option value="all">All</option>
-                            </select>
+                            </thead>
+                            <tbody>
+                                {siteItems?.data.map((site, index) => (
+                                    <tr key={site.id} className="even:bg-blue-gray-50/50">
+                                        <td className="border-l h-10 text-[12px] font-medium ps-2">
+                                            <Link href={route('wireless.show.location.index', site?.loc_id)} className='font-semibold underline'>
+                                                {site?.loc_id}
+                                            </Link>
+                                        </td>
+                                        <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.wntd}</td>
+                                        <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.imsi}</td>
+                                        <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.version}</td>
+                                        <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.avc}</td>
+                                        <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.bw_profile}</td>
+                                        <td className="border-l h-10 text-[12px] font-medium ps-2 w-20">{site?.lon}</td>
+                                        <td className="border-l h-10 text-[12px] font-medium ps-2 w-20">{site?.lat}</td>
+                                        <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.site_name}</td>
+                                        <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.home_cell}</td>
+                                        <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.home_pci}</td>
+                                        <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.traffic_profile}</td>
+                                        <td className="border-l h-10">
+                                            <DateItemField value={getTrackingValue(site?.tracking, 'start_date')} name='start_date' locId={site.loc_id} siteId={site.id} />
+                                        </td>
+                                        <td className="border-l h-10">
+                                            <DateItemField value={getTrackingValue(site?.tracking, 'end_date')} name='end_date' locId={site.loc_id} siteId={site.id} />
+                                        </td>
+                                        <td className="border-l h-10">
+                                            <SelectItemField value={getTrackingValue(site?.tracking, 'solution_type')} name='solution_type' locId={site.loc_id} siteId={site.id}
+                                                options={[
+                                                    { label: 'Device Upgrade', value: 'device_upgrade' },
+                                                    { label: 'Reparent', value: 'reparent' },
+                                                    { label: 'Repan', value: 'repan' },
+                                                ]}
+                                            />
+                                        </td>
+                                        <td className="border-l h-10">
+                                            <SelectItemField value={getTrackingValue(site?.tracking, 'status')} name='status' locId={site.loc_id} siteId={site.id}
+                                                options={[
+                                                    { label: 'In Progress', value: 'in_progress' },
+                                                    { label: 'Not Started', value: 'not_started' },
+                                                    { label: 'Completed', value: 'completed' },
+                                                ]}
+                                            />
+                                        </td>
+                                        <td className="border-l h-10">
+                                            <InputItemField value={getTrackingValue(site?.tracking, 'remarks')} name='remarks' locId={site.loc_id} siteId={site.id} />
+                                        </td>
+                                        <td className="border-l h-10">
+                                            <UploadItemField value={getTrackingValue(site?.tracking, 'artifacts')} name='artifacts' locId={site.loc_id} siteId={site.id} />
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                        {siteItems?.data?.length === 0 && <Typography variant="h6" color="blue-gray" className='text-center py-6' >No data found</Typography>}
+                        <div className='md:flex grid justify-start md:justify-end items-center pt-6 mb-8 gap-3 px-4'>
+                            <div className='flex items-center gap-2'>
+                                <div className='text-sm font-medium'>Rows per Page</div>
+                                <select
+                                    className='rounded-md text-sm font-medium border-gray-400 focus:ring-0 py-2'
+                                    value={perPage}
+                                    onChange={(e) => { handlePerPageChange(e.target.value) }}
+                                >
+                                    <option value="10">10</option>
+                                    <option value="15">15</option>
+                                    <option value="20">20</option>
+                                    <option value="20">25</option>
+                                    <option value="50">50</option>
+                                    <option value="all">All</option>
+                                </select>
+                            </div>
+                            <div className='text-sm font-medium'>{`${sites?.from}-${sites?.to} of ${sites?.total} Records`}</div>
+                            <Pagination links={siteItems?.links} perPage={perPage} />
                         </div>
-                        <div className='text-sm font-medium'>{`${sites?.from}-${sites?.to} of ${sites?.total} Records`}</div>
-                        <Pagination links={siteItems?.links} perPage={perPage} />
                     </div>
                 </Card>
                 <CSVMapping

@@ -100,6 +100,7 @@ export default function Show({ auth, site, trackings }) {
             </div>
             <div className="content mt-6">
                 <Card className="h-full w-full rounded-none">
+                    <div className="overflow-x-auto overflow-hidden">
                     <table className="w-full min-w-max table-auto text-left">
                         <thead>
                             <tr>
@@ -143,6 +144,7 @@ export default function Show({ auth, site, trackings }) {
                             </tr>
                         </tbody>
                     </table>
+                    </div>
                 </Card>
             </div>
             <div>

@@ -9,7 +9,7 @@ export default function Dashboard({ auth }) {
             <div className="">
                 <div className="">
                     <div className="">
-                        <div className="">You're logged in!</div>
+                        <div className="p-4">You're logged in!</div>
                     </div>
                 </div>
             </div>
