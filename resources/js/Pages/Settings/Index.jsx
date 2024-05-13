@@ -46,7 +46,7 @@ export default function Index({ auth, db }) {
                 </div>
             </div>
             <div className="filter-wrapper px-4">
-                <Card className="mt-6 w-1/4">
+                <Card className="mt-6 mb-6 w-full xl:w-1/4">
                     <CardBody>
                         <Typography variant="h5" color="blue-gray" className="mb-2">Database Credentials</Typography>
                         <div className="form-wrapper pt-4">
