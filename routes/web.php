@@ -34,9 +34,7 @@ Route::controller(IssueController::class)->middleware('auth')->group(function ()
     Route::delete('/reply/store', 'reply_delete')->name('issues.reply.delete');
 });
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [PageController::class, 'dashboard'])->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::controller(SQLImportController::class)->middleware('auth')->group(function () {
     Route::get('/dashboard/sql-import', 'index')->name('sql.import');
