@@ -25,4 +25,9 @@ class Site extends Model
         'traffic_profile',
     ];
 
+    public function locTracking()
+    {
+        return $this->hasMany(LocTracking::class, 'site_id');
+    }
+
 }
