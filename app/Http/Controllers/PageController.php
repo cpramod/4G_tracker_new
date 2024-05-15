@@ -18,7 +18,7 @@ class PageController extends Controller
         $home_cell_count = Site::distinct()->count('home_cell');
         $traffic_profile_count = Site::where('traffic_profile', '!=', 'N')->count('traffic_profile');
 
-        $wntd = Site::selectRaw('wntd, COUNT(wntd) as count')->groupBy('wntd')->get();
+        $version = Site::selectRaw('version, COUNT(wntd) as count')->groupBy('version')->get();
 
         $sites = Site::all();
         foreach ($sites as $site) {
@@ -71,7 +71,7 @@ class PageController extends Controller
                 'home_cell_count' => $home_cell_count,
                 'traffic_profile_count' => $traffic_profile_count
             ],
-            'wntd' => $wntd,
+            'version' => $version,
             'site_status' => array_values($site_status),
             'site_solution_type' => array_values($site_solution_type),
             'open_locs' => $open_locs,
