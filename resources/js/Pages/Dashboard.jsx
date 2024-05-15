@@ -6,12 +6,10 @@ import React from 'react';
 import { Doughnut } from 'react-chartjs-2';
 
 export default function Dashboard({ auth }) {
-    const { count_data, wntd, site_status, site_solution_type, open_locs, closed_locs } = usePage().props
+    const { count_data, version, site_status, site_solution_type, open_locs, closed_locs } = usePage().props
 
-    console.log(open_locs);
-
-    const counts = wntd?.map(item => item.count);
-    const wntds = wntd?.map(item => item.wntd);
+    const version_counts = version?.map(item => item.count);
+    const version_label = version?.map(item => item.version);
 
     const status_label = site_status?.map(item => item.label);
     const status_count = site_status?.map(item => item.count);
@@ -20,12 +18,12 @@ export default function Dashboard({ auth }) {
     const solution_count = site_solution_type?.map(item => item.count);
 
     ChartJS.register(ArcElement, Tooltip, Legend);
-    const wntd_data = {
-        labels: wntds,
+    const version_data = {
+        labels: version_label,
         datasets: [
             {
                 label: 'Count',
-                data: counts,
+                data: version_counts,
                 backgroundColor: [
                     'rgba(255, 99, 132, 1)',
                     'rgba(54, 162, 235, 1)',
@@ -106,7 +104,7 @@ export default function Dashboard({ auth }) {
 
             <div className="dashboard-page p-6">
                 <Typography variant='h3' color='blue-gray'>Dashboard</Typography>
-                <div className="items-row grid grid-cols-6 gap-6 pt-12">
+                <div className="items-row grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 pt-12">
                     <Card className='drop-shadow-sm shadow-lg'>
                         <CardBody className='px-3 py-2'>
                             <div className="flex items-center justify-between relative py-4">
@@ -158,100 +156,101 @@ export default function Dashboard({ auth }) {
                         </CardBody>
                     </Card>
                 </div>
-                <div className="items-row grid grid-cols-3 gap-6 pt-12">
+                <div className="items-row grid grid-col-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 pt-12">
                     <div className="item">
-                        <div className="h-[600px] relative">
-                            <Typography variant='h5' color='blue-gray' className='text-center mx-auto pb-8'>WNTD Version</Typography>
+                        <Typography variant='h5' color='blue-gray' className='text-left mx-auto pb-8'>WNTD Version</Typography>
+                        <div className="h-full md:w-[500px] md:h-[500px] md:mx-auto lg:h-[500px] relative">
                             <Doughnut
                                 options={{ responsive: true, plugins: { legend: { position: 'bottom', }, } }}
-                                data={wntd_data}
-                                style={{ margin: '0 auto', height: 500, width: 500 }}
+                                data={version_data}
                             />
                         </div>
                     </div>
                     <div className="item">
-                        <div className=" h-[600px] relative">
-                            <Typography variant='h5' color='blue-gray' className='text-center mx-auto pb-8'>Solution Type</Typography>
+                        <Typography variant='h5' color='blue-gray' className='text-left mx-auto pb-8'>Solution Type</Typography>
+                        <div className="h-full md:w-[500px] md:h-[500px] md:mx-auto lg:h-[500px] relative">
                             <Doughnut
                                 options={{ responsive: true, plugins: { legend: { position: 'bottom', }, } }}
                                 data={solution_data}
-                                style={{ margin: '0 auto', height: 500, width: 500 }}
                             />
                         </div>
                     </div>
                     <div className="item">
-                        <div className="h-[600px] relative">
-                            <Typography variant='h5' color='blue-gray' className='text-center mx-auto pb-8'>Tasks</Typography>
+                        <Typography variant='h5' color='blue-gray' className='text-left mx-auto pb-8'>Tasks</Typography>
+                        <div className="h-full md:w-[500px] md:h-[500px] md:mx-auto lg:h-[500px] relative">
                             <Doughnut
                                 options={{ responsive: true, plugins: { legend: { position: 'bottom', }, } }}
                                 data={status_data}
-                                style={{ margin: '0 auto', height: 500, width: 500 }}
                             />
                         </div>
                     </div>
                 </div>
-                <div className="grid grid-cols-3 gap-4 mt-24 clear-both">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-24 clear-both">
                     <div className='item'>
                         <Typography variant='h5' color='blue-gray' className='pb-6'>Open LocId</Typography>
-                        <table className="w-full table-auto">
-                            <thead>
-                                <tr>
-                                    {TABLE_HEAD.map((head) => (
-                                        <React.Fragment key={head}>
-                                            <th className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-2 border cursor-pointer">
-                                                <Typography variant="small" className="leading-none text-gray-800 font-medium text-sm">{head}</Typography>
-                                            </th>
-                                        </React.Fragment>))}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {open_locs?.map((site, index) => {
-                                    return (
-                                        <tr key={site.id} className="even:bg-blue-gray-50/50">
-                                            <td className="border-l h-10 text-[12px] font-medium ps-2">{index + 1}</td>
-                                            <td className="border-l h-10 text-[12px] font-medium ps-2">
-                                                <Link href={route('wireless.show.location.index', site?.loc_id)} className='font-semibold underline'>
-                                                    {site?.loc_id}
-                                                </Link>
-                                            </td>
-                                            <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.wntd}</td>
-                                            <td className="border-l border-r h-10 text-[12px] font-medium ps-2">{site?.imsi}</td>
-                                        </tr>
-                                    )
-                                })}
-                            </tbody>
-                        </table>
+                        <div className="overflow-scroll">
+                            <table className="w-full table-auto">
+                                <thead>
+                                    <tr>
+                                        {TABLE_HEAD.map((head) => (
+                                            <React.Fragment key={head}>
+                                                <th className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-2 border cursor-pointer">
+                                                    <Typography variant="small" className="leading-none text-gray-800 font-medium text-sm">{head}</Typography>
+                                                </th>
+                                            </React.Fragment>))}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {open_locs?.map((site, index) => {
+                                        return (
+                                            <tr key={site.id} className="even:bg-blue-gray-50/50">
+                                                <td className="border-l h-10 text-[12px] font-medium ps-2">{index + 1}</td>
+                                                <td className="border-l h-10 text-[12px] font-medium ps-2">
+                                                    <Link href={route('wireless.show.location.index', site?.loc_id)} className='font-semibold underline'>
+                                                        {site?.loc_id}
+                                                    </Link>
+                                                </td>
+                                                <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.wntd}</td>
+                                                <td className="border-l border-r h-10 text-[12px] font-medium ps-2">{site?.imsi}</td>
+                                            </tr>
+                                        )
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                     <div className='item'>
                         <Typography variant='h5' color='blue-gray' className='pb-6'>Closed LocId</Typography>
-                        <table className="w-full table-auto">
-                            <thead>
-                                <tr>
-                                    {TABLE_HEAD.map((head) => (
-                                        <React.Fragment key={head}>
-                                            <th className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-2 border cursor-pointer">
-                                                <Typography variant="small" className="leading-none text-gray-800 font-medium text-sm">{head}</Typography>
-                                            </th>
-                                        </React.Fragment>))}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {closed_locs?.map((site, index) => {
-                                    return (
-                                        <tr key={site.id} className="even:bg-blue-gray-50/50">
-                                            <td className="border-l h-10 text-[12px] font-medium ps-2">{index + 1}</td>
-                                            <td className="border-l h-10 text-[12px] font-medium ps-2">
-                                                <Link href={route('wireless.show.location.index', site?.loc_id)} className='font-semibold underline'>
-                                                    {site?.loc_id}
-                                                </Link>
-                                            </td>
-                                            <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.wntd}</td>
-                                            <td className="border-l h-10 text-[12px] font-medium ps-2 border-r">{site?.imsi}</td>
-                                        </tr>
-                                    )
-                                })}
-                            </tbody>
-                        </table>
+                        <div className='overflow-scroll'>
+                            <table className="w-full table-auto">
+                                <thead>
+                                    <tr>
+                                        {TABLE_HEAD.map((head) => (
+                                            <React.Fragment key={head}>
+                                                <th className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-2 border cursor-pointer">
+                                                    <Typography variant="small" className="leading-none text-gray-800 font-medium text-sm">{head}</Typography>
+                                                </th>
+                                            </React.Fragment>))}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {closed_locs?.map((site, index) => {
+                                        return (
+                                            <tr key={site.id} className="even:bg-blue-gray-50/50">
+                                                <td className="border-l h-10 text-[12px] font-medium ps-2">{index + 1}</td>
+                                                <td className="border-l h-10 text-[12px] font-medium ps-2">
+                                                    <Link href={route('wireless.show.location.index', site?.loc_id)} className='font-semibold underline'>
+                                                        {site?.loc_id}
+                                                    </Link>
+                                                </td>
+                                                <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.wntd}</td>
+                                                <td className="border-l h-10 text-[12px] font-medium ps-2 border-r">{site?.imsi}</td>
+                                            </tr>
+                                        )
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
