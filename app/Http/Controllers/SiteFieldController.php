@@ -136,7 +136,8 @@ class SiteFieldController extends Controller
         }
 
         $filePath = $request->input('file_path');
-        $job = new ProcessSiteFieldImport($filePath);
+        $input = $request->all();
+        $job = new ProcessSiteFieldImport($filePath, $input);
         dispatch_sync($job);
         return response()->json(['success' => ['message' => 'Sites imported successfully.']], 200);
     }
