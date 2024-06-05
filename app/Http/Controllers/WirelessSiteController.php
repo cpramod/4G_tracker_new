@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use Carbon\Carbon;
 use App\Models\Site;
 use Inertia\Inertia;
-use League\Csv\Reader;
 use App\Models\LocTracking;
 use Illuminate\Http\Request;
+use App\Jobs\ProcessCsvImport;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
@@ -29,7 +29,12 @@ class WirelessSiteController extends Controller
                 }
             })->orderBy($order_by, $order ? $order : 'asc')->paginate($per_page);
         } else {
-            $sites = Site::orderBy($order_by, $order ? $order : 'asc')->paginate($per_page);
+            if ($order_by) {
+                $sites = Site::orderBy($order_by, $order ? $order : 'asc')->paginate($per_page);
+            } else {
+                $sites = Site::paginate($per_page);
+            }
+
         }
         $desiredKeys = ['remarks', 'start_date', 'end_date', 'solution_type', 'status', 'artifacts'];
         foreach ($sites as $site) {
@@ -44,8 +49,8 @@ class WirelessSiteController extends Controller
             $filterBy = $request->input('filter_by');
             $sitesArray = $sites->items();
             $filteredSites = array_filter($sitesArray, function ($site) use ($filterBy, $request) {
-                return isset ($site->tracking[$filterBy]) &&
-                    isset ($site->tracking[$filterBy]['value']) &&
+                return isset($site->tracking[$filterBy]) &&
+                    isset($site->tracking[$filterBy]['value']) &&
                     $site->tracking[$filterBy]['value'] === $request->input('value');
             });
             $sites->setCollection(collect($filteredSites));
@@ -90,78 +95,6 @@ class WirelessSiteController extends Controller
         return to_route('wireless.sites.index');
     }
 
-    public function import_from_csv(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'import_file' => 'required|file|mimes:csv',
-        ]);
-        if ($validator->fails()) {
-            return response()->json(['error' => array('message' => $validator->errors()->first())], 500);
-        }
-        $file = $request->file('import_file');
-        $filePath = $file->storeAs('import', now()->timestamp . "_{$file->getClientOriginalName()}");
-        $csv = Reader::createFromPath(storage_path('app/' . $filePath), 'r');
-        $csv->setHeaderOffset(0);
-        $header = $csv->getHeader();
-        return response()->json([
-            'filePath' => $filePath,
-            'header' => $header
-        ], 200);
-    }
-
-    public function map_and_save_csv(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'loc_id' => 'required',
-            'wntd' => 'required',
-            'imsi' => 'required',
-            'version' => 'required',
-            'avc' => 'required',
-            'bw_profile' => 'required',
-            'lon' => 'required',
-            'lat' => 'required',
-            'site_name' => 'required',
-            'home_cell' => 'required',
-            'home_pci' => 'required',
-            'traffic_profile' => 'required',
-        ]);
-        if ($validator->fails()) {
-            return response()->json(['error' => array('message' => $validator->errors()->first())], 500);
-        }
-
-        $filePath = $request->input('file_path');
-        $csv = Reader::createFromPath(storage_path('app/' . $filePath), 'r');
-        $csv->setHeaderOffset(0);
-        foreach ($csv as $row) {
-            $existingLoc = Site::where('loc_id', $row['LOCID'])->first();
-            if (!$existingLoc) {
-                Site::create([
-                    'loc_id' => $row['LOCID'],
-                    'wntd' => $row['WNTD'],
-                    'imsi' => $row['IMSI'],
-                    'version' => $row['VERSION'],
-                    'avc' => $row['AVC'],
-                    'bw_profile' => $row['BW_PROFILE'],
-                    'lon' => $row['LON'],
-                    'lat' => $row['LAT'],
-                    'site_name' => $row['SITE_NAME'],
-                    'home_cell' => $row['HOME_CELL'],
-                    'home_pci' => $row['HOME_PCI'],
-                    'traffic_profile' => $row['TRAFFIC_PROFILE'],
-                ]);
-            } else {
-                return response()->json([
-                    'error' => array(
-                        'message' => 'Site with LOCID ' . $row['LOCID'] . ' already exists.',
-                    )
-                ], 500);
-            }
-        }
-        return response()->json(['success' => ['message' => 'Sites imported successfully.']], 200);
-    }
-
-
-
     public function location_site($id)
     {
         $site = Site::where('loc_id', $id)->first();
@@ -174,5 +107,19 @@ class WirelessSiteController extends Controller
             'site' => $site,
             'trackings' => $trackings
         ]);
+    }
+    public function import_from_csv(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'import_file' => 'required|file|mimes:csv',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['error' => array('message' => 'Only CSV file is allowed.')], 422);
+        }
+        $file = $request->file('import_file');
+        $filePath = $file->storeAs('import', now()->timestamp . "_{$file->getClientOriginalName()}");
+        $job = new ProcessCsvImport($filePath);
+        dispatch_sync($job);
+        return response()->json(['success' => 'CSV file imported.'], 200);
     }
 }
