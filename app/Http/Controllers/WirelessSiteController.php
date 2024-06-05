@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use App\Jobs\ProcessCsvImport;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use League\Csv\Reader;
 
 class WirelessSiteController extends Controller
 {
@@ -95,6 +96,51 @@ class WirelessSiteController extends Controller
         return to_route('wireless.sites.index');
     }
 
+    public function import_from_csv(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'import_file' => 'required|file|mimes:csv',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['error' => array('message' => $validator->errors()->first())], 500);
+        }
+        $file = $request->file('import_file');
+        $filePath = $file->storeAs('import', now()->timestamp . "_{$file->getClientOriginalName()}");
+        $csv = Reader::createFromPath(storage_path('app/' . $filePath), 'r');
+        $csv->setHeaderOffset(0);
+        $header = $csv->getHeader();
+        return response()->json([
+            'filePath' => $filePath,
+            'header' => $header
+        ], 200);
+    }
+
+    public function map_and_save_csv(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'loc_id' => 'required',
+            'wntd' => 'required',
+            'imsi' => 'required',
+            'version' => 'required',
+            'avc' => 'required',
+            'bw_profile' => 'required',
+            'lon' => 'required',
+            'lat' => 'required',
+            'site_name' => 'required',
+            'home_cell' => 'required',
+            'home_pci' => 'required',
+            'traffic_profile' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['error' => array('message' => $validator->errors()->first())], 500);
+        }
+
+        $filePath = $request->input('file_path');
+        $job = new ProcessCsvImport($filePath);
+        dispatch_sync($job);
+        return response()->json(['success' => ['message' => 'Sites imported successfully.']], 200);
+    }
+
     public function location_site($id)
     {
         $site = Site::where('loc_id', $id)->first();
@@ -107,19 +153,5 @@ class WirelessSiteController extends Controller
             'site' => $site,
             'trackings' => $trackings
         ]);
-    }
-    public function import_from_csv(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'import_file' => 'required|file|mimes:csv',
-        ]);
-        if ($validator->fails()) {
-            return response()->json(['error' => array('message' => 'Only CSV file is allowed.')], 422);
-        }
-        $file = $request->file('import_file');
-        $filePath = $file->storeAs('import', now()->timestamp . "_{$file->getClientOriginalName()}");
-        $job = new ProcessCsvImport($filePath);
-        dispatch_sync($job);
-        return response()->json(['success' => 'CSV file imported.'], 200);
-    }
+    }    
 }
