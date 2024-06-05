@@ -18,11 +18,12 @@ class ProcessCsvImport implements ShouldQueue
      * Create a new job instance.
      */
 
-    protected $filePath;
+    protected $filePath, $input;
 
-    public function __construct($filePath)
+    public function __construct($filePath, $input)
     {
         $this->filePath = $filePath;
+        $this->input = $input;
     }
 
     /**
@@ -33,21 +34,21 @@ class ProcessCsvImport implements ShouldQueue
         $csv = Reader::createFromPath(storage_path('app/' . $this->filePath), 'r');
         $csv->setHeaderOffset(0);
         foreach ($csv as $row) {
-            $existingLoc = Site::where('loc_id', $row['LOCID'])->first();
+            $existingLoc = Site::where('loc_id', $this->input['loc_id'])->first();
             if (!$existingLoc) {
                 Site::create([
-                    'loc_id' => $row['LOCID'],
-                    'wntd' => $row['WNTD'],
-                    'imsi' => $row['IMSI'],
-                    'version' => $row['VERSION'],
-                    'avc' => $row['AVC'],
-                    'bw_profile' => $row['BW_PROFILE'],
-                    'lon' => $row['LON'],
-                    'lat' => $row['LAT'],
-                    'site_name' => $row['SITE_NAME'],
-                    'home_cell' => $row['HOME_CELL'],
-                    'home_pci' => $row['HOME_PCI'],
-                    'traffic_profile' => $row['TRAFFIC_PROFILE'],
+                    'loc_id' => $row[$this->input['loc_id']],
+                    'wntd' => $row[$this->input['wntd']],
+                    'imsi' => $row[$this->input['imsi']],
+                    'version' => $row[$this->input['version']],
+                    'avc' => $row[$this->input['avc']],
+                    'bw_profile' => $row[$this->input['bw_profile']],
+                    'lon' => $row[$this->input['lon']],
+                    'lat' => $row[$this->input['lat']],
+                    'site_name' => $row[$this->input['site_name']],
+                    'home_cell' => $row[$this->input['home_cell']],
+                    'home_pci' => $row[$this->input['home_pci']],
+                    'traffic_profile' => $row[$this->input['traffic_profile']],
                 ]);
             }
         }
