@@ -26,6 +26,7 @@ return array(
     'App\\Http\\Middleware\\HandleInertiaRequests' => $baseDir . '/app/Http/Middleware/HandleInertiaRequests.php',
     'App\\Http\\Requests\\Auth\\LoginRequest' => $baseDir . '/app/Http/Requests/Auth/LoginRequest.php',
     'App\\Http\\Requests\\ProfileUpdateRequest' => $baseDir . '/app/Http/Requests/ProfileUpdateRequest.php',
+    'App\\Jobs\\ProcessCsvImport' => $baseDir . '/app/Jobs/ProcessCsvImport.php',
     'App\\Models\\Comment' => $baseDir . '/app/Models/Comment.php',
     'App\\Models\\ImportDB' => $baseDir . '/app/Models/ImportDB.php',
     'App\\Models\\Issue' => $baseDir . '/app/Models/Issue.php',
