@@ -2,7 +2,7 @@ import { useState } from 'react';
 import Dropdown from '@/Components/Dropdown';
 import { Link } from '@inertiajs/react';
 import { Card, List, ListItem, ListItemPrefix, Typography } from '@material-tailwind/react';
-import { AlignJustifyIcon, ChevronDownIcon, DatabaseZapIcon, GaugeCircleIcon, GlobeIcon, LocateFixedIcon, Settings2Icon, SettingsIcon } from 'lucide-react';
+import { AlignJustifyIcon, ChevronDownIcon, DatabaseZapIcon, GaugeCircleIcon, GlobeIcon, LocateFixedIcon, NfcIcon, Settings2Icon, SettingsIcon } from 'lucide-react';
 import { Toaster } from 'react-hot-toast';
 
 export default function Authenticated({ user, header, children }) {
@@ -61,6 +61,12 @@ export default function Authenticated({ user, header, children }) {
                                 <ListItem>
                                     <ListItemPrefix className='mr-3'><GlobeIcon size={20} /></ListItemPrefix>
                                     <span className='font-semibold text-base'>WNTD</span>
+                                </ListItem>
+                            </Link>
+                            <Link href={route('site.field.name.index')} className={`${currentRoute === "site.field.name.index" ? "bg-blue-gray-50/50 rounded-lg" : ""}`}>
+                                <ListItem>
+                                    <ListItemPrefix className='mr-3'><NfcIcon size={20} /></ListItemPrefix>
+                                    <span className='font-semibold text-base'>Site Field Names</span>
                                 </ListItem>
                             </Link>
                             <Link href={route('sql.import')} className={`${currentRoute === "sql.import" ? "bg-blue-gray-50/50 rounded-lg" : ""}`}>

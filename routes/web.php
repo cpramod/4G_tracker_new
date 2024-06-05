@@ -5,6 +5,7 @@ use App\Http\Controllers\IssueController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\SiteFieldController;
 use App\Http\Controllers\SQLImportController;
 use App\Http\Controllers\WirelessLocationController;
 use App\Http\Controllers\WirelessSiteController;
@@ -25,6 +26,16 @@ Route::controller(WirelessSiteController::class)->middleware('auth')->group(func
     Route::post('/dashboard/wireless-sites/artifacts/', 'save_artifacts')->name('wireless.sites.update.artifacts');
     Route::post('/dashboard/wireless-sites/', 'save_item')->name('wireless.sites.save.item');
     Route::get('/dashboard/wireless-sites/show/{id}', 'location_site')->name('wireless.show.location.index');
+});
+
+
+Route::controller(SiteFieldController::class)->middleware('auth')->group(function () {
+    Route::get('/dashboard/site-field-name', 'index')->name('site.field.name.index');
+    Route::post('/dashboard/site-field-name/import/csv/', 'import_from_csv')->name('site.field.name.import');
+    Route::post('/dashboard/site-field-name/map_fields/', 'map_and_save_csv')->name('site.field.map.save');
+    Route::post('/dashboard/site-field-name/artifacts/', 'save_artifacts')->name('site.field.name.update.artifacts');
+    Route::post('/dashboard/site-field-name/', 'save_item')->name('site.field.name.save.item');
+    Route::get('/dashboard/site-field-name/show/{id}', 'location_site')->name('site.field.name.show.location.index');
 });
 
 Route::controller(IssueController::class)->middleware('auth')->group(function () {
