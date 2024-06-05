@@ -136,7 +136,8 @@ class WirelessSiteController extends Controller
         }
 
         $filePath = $request->input('file_path');
-        $job = new ProcessCsvImport($filePath);
+        $input = $request->all();
+        $job = new ProcessCsvImport($filePath, $input);
         dispatch_sync($job);
         return response()->json(['success' => ['message' => 'Sites imported successfully.']], 200);
     }
