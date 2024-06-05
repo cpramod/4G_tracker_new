@@ -284,6 +284,7 @@ export default function CSVMapping({ mappingDialog, setMappingDialog, mappingDat
                         color="red"
                         onClick={handleOpen}
                         className="mr-1"
+                        disabled={loading}
                     >
                         <span>Cancel</span>
                     </Button>
@@ -291,7 +292,7 @@ export default function CSVMapping({ mappingDialog, setMappingDialog, mappingDat
                         variant="gradient"
                         color="green"
                         onClick={handleOnSubmit}
-                        disabled={loading}
+                        loading={loading}
                     >
                         <span>Confirm</span>
                     </Button>
