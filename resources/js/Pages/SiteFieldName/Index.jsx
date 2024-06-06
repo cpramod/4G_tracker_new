@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import Pagination from '@/Components/Pagination';
 import TextInput from '@/Components/TextInput';
 import Authenticated from '@/Layouts/AuthenticatedLayout'
@@ -16,7 +16,7 @@ import CSVMapping from './Components/CSVMapping';
 
 
 export default function Index() {
-    const { auth, sites, get_data } = usePage().props
+    const { auth, sites, get_data, batch } = usePage().props
     const TABLE_HEAD = [
         { name: 'Site Name', sortable: true, sortKey: 'site_name' },
         { name: 'Cell Name', sortable: true, sortKey: 'cell_name' },
@@ -44,6 +44,7 @@ export default function Index() {
     const [siteItems] = useState(sites);
     const [mappingDialog, setMappingDialog] = useState(false)
     const [mappingData, setMappingData] = useState('')
+    const [batchId, setBatchId] = useState(null)
 
     const handleClick = event => {
         hiddenFileInput.current.click();
@@ -84,7 +85,53 @@ export default function Index() {
         setPerPage(val);
         router.get(route('site.field.name.index', { ...get_data, 'per_page': val }))
     }
-
+    useEffect(() => {
+        if (batch?.batch_field_id) {
+            setBatchId(batch?.batch_field_id)
+        }
+    }, [])
+    useEffect(() => {
+        const fetchProgress = async () => {
+            try {
+                let progress = 0
+                const response = await axios.get(route('import.progress', { 'batchId': batchId }))
+                if (response?.data) {
+                    let totalJobs = parseInt(response?.data?.total_jobs)
+                    let pendingJobs = parseInt(response?.data?.pending_jobs)
+                    let completedJobs = totalJobs - pendingJobs
+                    let failedJobs = parseInt(response?.data?.failed_jobs)
+                    if (failedJobs > 0) {
+                        clearInterval(interval);
+                    } else {
+                        progress = parseInt((completedJobs / totalJobs) * 100).toFixed(0)
+                        if (progress < 100) {
+                            toast.loading(`CSV Data Import Progress: ${progress}%.\n Please wait....`, {
+                                id: 'loading-toast',
+                                style: {
+                                    backgroundColor: '#424242',
+                                    color: '#ffffff',
+                                    fontSize: 14,
+                                    borderRadius: 4,
+                                    fontWeight: 'bold',
+                                },
+                            });
+                        } else {
+                            toast.dismiss('loading-toast');
+                            clearInterval(interval);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        }
+        const interval = setInterval(() => {
+            if (batchId) {
+                fetchProgress()
+            }
+        }, 1000)
+        return () => clearInterval(interval)
+    }, [batchId])
 
     return (
         <Authenticated user={auth?.user}>
@@ -276,6 +323,7 @@ export default function Index() {
                     mappingDialog={mappingDialog}
                     setMappingDialog={setMappingDialog}
                     mappingData={mappingData}
+                    setBatchId={setBatchId}
                 />
             </div>
         </Authenticated>

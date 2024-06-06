@@ -3,27 +3,27 @@
 namespace App\Jobs;
 
 use App\Models\SiteArea;
+use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use League\Csv\Reader;
 
 class ProcessSiteFieldImport implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
      * Create a new job instance.
      */
 
-    protected $filePath, $input;
+    protected $input, $information;
 
-    public function __construct($filePath, $input)
+    public function __construct($input, $information)
     {
-        $this->filePath = $filePath;
         $this->input = $input;
+        $this->information = $information;
     }
 
     /**
@@ -31,10 +31,8 @@ class ProcessSiteFieldImport implements ShouldQueue
      */
     public function handle(): void
     {
-        $csv = Reader::createFromPath(storage_path('app/' . $this->filePath), 'r');
-        $csv->setHeaderOffset(0);
-        foreach ($csv as $row) {
-            $existingLoc = SiteArea::where('loc_id', $row[$this->input['site_name']])->first();
+        foreach ($this->information as $row) {
+            $existingLoc = SiteArea::where('site_name', $row[$this->input['site_name']])->first();
             if (!$existingLoc) {
                 SiteArea::create([
                     'site_name' => $row[$this->input['site_name']],

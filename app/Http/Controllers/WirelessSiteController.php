@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Carbon\Carbon;
 use App\Models\Site;
+use Illuminate\Support\Facades\Bus;
 use Inertia\Inertia;
 use App\Models\LocTracking;
 use Illuminate\Http\Request;
@@ -134,12 +134,28 @@ class WirelessSiteController extends Controller
         if ($validator->fails()) {
             return response()->json(['error' => array('message' => $validator->errors()->first())], 500);
         }
-
         $filePath = $request->input('file_path');
         $input = $request->all();
-        $job = new ProcessCsvImport($filePath, $input);
-        dispatch_sync($job);
-        return response()->json(['success' => ['message' => 'Sites imported successfully.']], 200);
+        $csv = Reader::createFromPath(storage_path('app/' . $filePath), 'r');
+        $csv->setHeaderOffset(0);
+        $rows = $csv->getRecords();
+        $dataFromCsv = [];
+        foreach ($rows as $row) {
+            $dataFromCsv[] = $row;
+        }
+        $dataFromCsv = array_chunk($dataFromCsv, 300);
+        $batch = Bus::batch([])->dispatch();
+        foreach ($dataFromCsv as $index => $dataCsv) {
+            foreach ($dataCsv as $data) {
+                $information[$index][] = $data;
+            }
+            $batch->add(new ProcessCsvImport($input, $information[$index]));
+        }
+        session()->put('batch_site_id', $batch->id);
+        return response()->json([
+            'success' => ['message' => 'Sites imported successfully.'],
+            'batch_id' => $batch->id,
+        ], 200);
     }
 
     public function location_site($id)
@@ -154,5 +170,5 @@ class WirelessSiteController extends Controller
             'site' => $site,
             'trackings' => $trackings
         ]);
-    }    
+    }
 }

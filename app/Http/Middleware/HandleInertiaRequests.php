@@ -35,7 +35,11 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
-            'ziggy' => fn () => [
+            'batch' => [
+                'batch_site_id' => session('batch_site_id') ? session('batch_site_id') : null,
+                'batch_field_id' => session('batch_field_id') ? session('batch_field_id') : null,
+            ],
+            'ziggy' => fn() => [
                 ...(new Ziggy)->toArray(),
                 'location' => $request->url(),
             ],

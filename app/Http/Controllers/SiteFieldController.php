@@ -4,11 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Jobs\ProcessSiteFieldImport;
 use App\Models\FieldTracking;
-use App\Models\LocTracking;
-use App\Models\Site;
 use App\Models\SiteArea;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 use League\Csv\Reader;
@@ -134,25 +133,41 @@ class SiteFieldController extends Controller
         if ($validator->fails()) {
             return response()->json(['error' => array('message' => $validator->errors()->first())], 500);
         }
-
         $filePath = $request->input('file_path');
         $input = $request->all();
-        $job = new ProcessSiteFieldImport($filePath, $input);
-        dispatch_sync($job);
-        return response()->json(['success' => ['message' => 'Sites imported successfully.']], 200);
+        $csv = Reader::createFromPath(storage_path('app/' . $filePath), 'r');
+        $csv->setHeaderOffset(0);
+        $rows = $csv->getRecords();
+        $dataFromCsv = [];
+        foreach ($rows as $row) {
+            $dataFromCsv[] = $row;
+        }
+        $dataFromCsv = array_chunk($dataFromCsv, 300);
+        $batch = Bus::batch([])->dispatch();
+        foreach ($dataFromCsv as $index => $dataCsv) {
+            foreach ($dataCsv as $data) {
+                $information[$index][] = $data;
+            }
+            $batch->add(new ProcessSiteFieldImport($input, $information[$index]));
+        }
+        session()->put('batch_field_id', $batch->id);
+        return response()->json([
+            'success' => ['message' => 'Sites imported successfully.'],
+            'batch_id' => $batch->id,
+        ], 200);
     }
 
-    public function location_site($id)
-    {
-        $site = Site::where('loc_id', $id)->first();
-        $desiredKeys = ['remarks', 'start_date', 'end_date', 'solution_type', 'status', 'artifacts'];
-        $locTrackingData = FieldTracking::where('site_area_id', $site->id)->whereIn('key', $desiredKeys)->get()->keyBy('key')->toArray();
-        $site->tracking = $locTrackingData;
+    // public function location_site($id)
+    // {
+    //     $site = Site::where('loc_id', $id)->first();
+    //     $desiredKeys = ['remarks', 'start_date', 'end_date', 'solution_type', 'status', 'artifacts'];
+    //     $locTrackingData = FieldTracking::where('site_area_id', $site->id)->whereIn('key', $desiredKeys)->get()->keyBy('key')->toArray();
+    //     $site->tracking = $locTrackingData;
 
-        $trackings = FieldTracking::with('user')->where('site_area_id', $id)->get();
-        return Inertia::render('Wireless/Sites/Show', [
-            'site' => $site,
-            'trackings' => $trackings
-        ]);
-    }
+    //     $trackings = FieldTracking::with('user')->where('site_area_id', $id)->get();
+    //     return Inertia::render('Wireless/Sites/Show', [
+    //         'site' => $site,
+    //         'trackings' => $trackings
+    //     ]);
+    // }
 }

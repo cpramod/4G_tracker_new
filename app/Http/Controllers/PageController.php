@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\JobBatch;
 use App\Models\LocTracking;
 use App\Models\Site;
 use Inertia\Inertia;
@@ -77,5 +78,18 @@ class PageController extends Controller
             'open_locs' => $open_locs,
             'closed_locs' => $closed_locs
         ]);
+    }
+
+    public function get_progress(Request $request)
+    {
+        $batchId = $request->batchId;
+        if (JobBatch::where('id', $batchId)->exists()) {
+            $response = JobBatch::where('id', $batchId)->first();
+            if ($response->pending_jobs == 0 || $response->failed_jobs > 0) {
+                session()->put('batch_field_id', '');
+                session()->put('batch_site_id', '');
+            }
+            return response()->json($response);
+        }
     }
 }
