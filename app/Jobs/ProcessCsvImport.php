@@ -3,27 +3,27 @@
 namespace App\Jobs;
 
 use App\Models\Site;
+use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use League\Csv\Reader;
 
 class ProcessCsvImport implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
      * Create a new job instance.
      */
 
-    protected $filePath, $input;
+    protected $input, $information;
 
-    public function __construct($filePath, $input)
+    public function __construct($input, $information)
     {
-        $this->filePath = $filePath;
         $this->input = $input;
+        $this->information = $information;
     }
 
     /**
@@ -31,9 +31,7 @@ class ProcessCsvImport implements ShouldQueue
      */
     public function handle(): void
     {
-        $csv = Reader::createFromPath(storage_path('app/' . $this->filePath), 'r');
-        $csv->setHeaderOffset(0);
-        foreach ($csv as $row) {
+        foreach ($this->information as $row) {
             $existingLoc = Site::where('loc_id', $this->input['loc_id'])->first();
             if (!$existingLoc) {
                 Site::create([

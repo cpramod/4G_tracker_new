@@ -86,7 +86,7 @@ export default function Authenticated({ user, header, children }) {
                 </aside>
                 <main className='main-content lg:w-full lg:max-w-[calc(100%)]'>{children}</main>
             </div>
-            <Toaster />
+            <Toaster position="top-right" />
         </div>
     );
 }

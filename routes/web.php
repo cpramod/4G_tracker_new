@@ -47,6 +47,7 @@ Route::controller(IssueController::class)->middleware('auth')->group(function ()
 });
 
 Route::get('/dashboard', [PageController::class, 'dashboard'])->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/import/progress', [PageController::class, 'get_progress'])->middleware(['auth', 'verified'])->name('import.progress');
 
 Route::controller(SQLImportController::class)->middleware('auth')->group(function () {
     Route::get('/dashboard/sql-import', 'index')->name('sql.import');

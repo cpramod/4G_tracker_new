@@ -5,7 +5,7 @@ import { Head, Link, router, usePage } from '@inertiajs/react'
 import { Button, Card, IconButton, Typography } from '@material-tailwind/react'
 import axios from 'axios';
 import { ChevronDownIcon, ChevronUpIcon, SearchIcon } from 'lucide-react';
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import "react-datepicker/dist/react-datepicker.css";
 import toast from 'react-hot-toast';
 import InputItemField from './Components/InputItemField';
@@ -15,7 +15,7 @@ import UploadItemField from './Components/UploadItemField';
 import CSVMapping from './Components/CSVMapping';
 
 export default function Index({ auth, sites }) {
-    const { get_data } = usePage().props
+    const { get_data, batch } = usePage().props
     const TABLE_HEAD = [
         { name: 'LOCID', sortable: true, sortKey: 'loc_id' },
         { name: 'WNTD', sortable: true, sortKey: 'wntd' },
@@ -42,6 +42,7 @@ export default function Index({ auth, sites }) {
     const [siteItems] = useState(sites);
     const [mappingDialog, setMappingDialog] = useState(false)
     const [mappingData, setMappingData] = useState('')
+    const [batchId, setBatchId] = useState(null)
 
     const handleClick = event => {
         hiddenFileInput.current.click();
@@ -82,6 +83,54 @@ export default function Index({ auth, sites }) {
         setPerPage(val);
         router.get(route('wireless.sites.index', { ...get_data, 'per_page': val }))
     }
+    useEffect(() => {
+        if (batch?.batch_site_id) {
+            setBatchId(batch?.batch_site_id)
+        }
+    }, [])
+    useEffect(() => {
+        const fetchProgress = async () => {
+            try {
+                let progress = 0
+                const response = await axios.get(route('import.progress', { 'batchId': batchId }))
+                if (response?.data) {
+                    let totalJobs = parseInt(response?.data?.total_jobs)
+                    let pendingJobs = parseInt(response?.data?.pending_jobs)
+                    let completedJobs = totalJobs - pendingJobs
+                    let failedJobs = parseInt(response?.data?.failed_jobs)
+                    if (failedJobs > 0) {
+                        clearInterval(interval);
+                    } else {
+                        progress = parseInt((completedJobs / totalJobs) * 100).toFixed(0)
+                        if (progress < 100) {
+                            toast.loading(`CSV Data Import Progress: ${progress}%.\n Please wait....`, {
+                                id: 'loading-toast',
+                                style: {
+                                    backgroundColor: '#424242',
+                                    color: '#ffffff',
+                                    fontSize: 14,
+                                    borderRadius: 4,
+                                    fontWeight: 'bold',
+                                },
+                            });
+                        } else {
+                            toast.dismiss('loading-toast');
+                            clearInterval(interval);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        }
+        const interval = setInterval(() => {
+            if (batchId) {
+                fetchProgress()
+            }
+        }, 1000)
+        return () => clearInterval(interval)
+    }, [batchId])
+
     return (
         <Authenticated user={auth?.user}>
             <Head title='Wireless Sites' />
@@ -248,6 +297,7 @@ export default function Index({ auth, sites }) {
                     mappingDialog={mappingDialog}
                     setMappingDialog={setMappingDialog}
                     mappingData={mappingData}
+                    setBatchId={setBatchId}
                 />
             </div>
 

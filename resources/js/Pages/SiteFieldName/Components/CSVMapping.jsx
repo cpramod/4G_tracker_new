@@ -5,7 +5,7 @@ import InputLabel from '@/Components/InputLabel';
 import InputError from '@/Components/InputError';
 import axios from 'axios';
 
-export default function CSVMapping({ mappingDialog, setMappingDialog, mappingData }) {
+export default function CSVMapping({ mappingDialog, setMappingDialog, mappingData, setBatchId }) {
     const handleOpen = () => setMappingDialog(!mappingDialog);
     const [data, setData] = useState({
         file_path: mappingData ? mappingData?.filePath : '',
@@ -41,7 +41,6 @@ export default function CSVMapping({ mappingDialog, setMappingDialog, mappingDat
 
     const handleOnSubmit = async (e) => {
         e.preventDefault();
-
         let errors = {};
         ['site_name', 'cell_name', 'lon', 'lat', 'bb_type', 'rru_type', 'antenna_type', 'frequency', 'pci', 'azimuth', 'height', 'last_epo', 'next_epo'].forEach(field => {
             if (!data[field]) {
@@ -58,6 +57,7 @@ export default function CSVMapping({ mappingDialog, setMappingDialog, mappingDat
             const res = await axios.post(route('site.field.map.save'), data)
             if (res?.data) {
                 setSuccessMsg(res?.data?.success?.message)
+                setBatchId(res?.data?.batch_id)
                 setTimeout(() => {
                     setMappingDialog(false)
                     setSuccessMsg('')

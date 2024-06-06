@@ -4,9 +4,8 @@ import { router, useForm } from '@inertiajs/react';
 import InputLabel from '@/Components/InputLabel';
 import InputError from '@/Components/InputError';
 import axios from 'axios';
-import toast from 'react-hot-toast';
 
-export default function CSVMapping({ mappingDialog, setMappingDialog, mappingData }) {
+export default function CSVMapping({ mappingDialog, setMappingDialog, mappingData, setBatchId }) {
     const handleOpen = () => setMappingDialog(!mappingDialog);
     const [data, setData] = useState({
         file_path: mappingData ? mappingData?.filePath : '',
@@ -41,7 +40,6 @@ export default function CSVMapping({ mappingDialog, setMappingDialog, mappingDat
 
     const handleOnSubmit = async (e) => {
         e.preventDefault();
-
         let errors = {};
         ['loc_id', 'wntd', 'imsi', 'version', 'avc', 'bw_profile', 'lon', 'lat', 'site_name', 'home_cell', 'home_pci', 'traffic_profile'].forEach(field => {
             if (!data[field]) {
@@ -58,11 +56,11 @@ export default function CSVMapping({ mappingDialog, setMappingDialog, mappingDat
             const res = await axios.post(route('wireless.sites.map.save'), data)
             if (res?.data) {
                 setSuccessMsg(res?.data?.success?.message)
+                setBatchId(res?.data?.batch_id)
                 setTimeout(() => {
                     setMappingDialog(false)
                     setSuccessMsg('')
                     setErrorMsg('')
-
                 }, 3000);
                 router.visit(route('wireless.sites.index'));
             }
