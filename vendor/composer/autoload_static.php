@@ -584,6 +584,7 @@ class ComposerStaticInitb3c3b7c1ee3b69d12359b9c698576689
         'App\\Models\\FieldTracking' => __DIR__ . '/../..' . '/app/Models/FieldTracking.php',
         'App\\Models\\ImportDB' => __DIR__ . '/../..' . '/app/Models/ImportDB.php',
         'App\\Models\\Issue' => __DIR__ . '/../..' . '/app/Models/Issue.php',
+        'App\\Models\\JobBatch' => __DIR__ . '/../..' . '/app/Models/JobBatch.php',
         'App\\Models\\LocTracking' => __DIR__ . '/../..' . '/app/Models/LocTracking.php',
         'App\\Models\\Location' => __DIR__ . '/../..' . '/app/Models/Location.php',
         'App\\Models\\Reply' => __DIR__ . '/../..' . '/app/Models/Reply.php',

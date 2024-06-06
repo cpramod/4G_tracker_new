@@ -33,6 +33,7 @@ return array(
     'App\\Models\\FieldTracking' => $baseDir . '/app/Models/FieldTracking.php',
     'App\\Models\\ImportDB' => $baseDir . '/app/Models/ImportDB.php',
     'App\\Models\\Issue' => $baseDir . '/app/Models/Issue.php',
+    'App\\Models\\JobBatch' => $baseDir . '/app/Models/JobBatch.php',
     'App\\Models\\LocTracking' => $baseDir . '/app/Models/LocTracking.php',
     'App\\Models\\Location' => $baseDir . '/app/Models/Location.php',
     'App\\Models\\Reply' => $baseDir . '/app/Models/Reply.php',
