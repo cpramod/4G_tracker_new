@@ -14,6 +14,7 @@ import SelectItemField from './Components/SelectItemField';
 import UploadItemField from './Components/UploadItemField';
 import CSVMapping from './Components/CSVMapping';
 import ExportButton from '@/Components/ExportButton';
+import SaveBtn from './Components/SaveBtn';
 
 export default function Index({ auth, sites }) {
     const { get_data, batch } = usePage().props
@@ -36,6 +37,7 @@ export default function Index({ auth, sites }) {
         { name: 'Status', sortable: false, sortKey: 'status' },
         { name: 'Remarks', sortable: false, sortKey: 'remarks' },
         { name: 'Artifacts', sortable: false, sortKey: 'artifacts' },
+        { name: '' }
     ];
     const hiddenFileInput = useRef(null);
     const [searchText, setSearchText] = useState(get_data?.search ? get_data?.search : '');
@@ -44,6 +46,7 @@ export default function Index({ auth, sites }) {
     const [mappingDialog, setMappingDialog] = useState(false)
     const [mappingData, setMappingData] = useState('')
     const [batchId, setBatchId] = useState(null)
+    const [changedItems, setChangedItems] = useState([])
 
     const handleClick = event => {
         hiddenFileInput.current.click();
@@ -132,6 +135,34 @@ export default function Index({ auth, sites }) {
         return () => clearInterval(interval)
     }, [batchId])
 
+    const handleEditAbleItem = (site_id, loc_id, name, value) => {
+        const index = changedItems.findIndex(item => item.site_id === site_id && item.loc_id === loc_id);
+        if (index !== -1) {
+            setChangedItems(prevItems => {
+                const updatedItems = [...prevItems];
+                updatedItems[index] = {
+                    ...updatedItems[index],
+                    items: {
+                        ...updatedItems[index].items,
+                        [name]: value
+                    }
+                };
+                return updatedItems;
+            });
+        } else {
+            setChangedItems(prevItems => [
+                ...prevItems,
+                {
+                    site_id: site_id,
+                    loc_id: loc_id,
+                    items: {
+                        [name]: value
+                    }
+                }
+            ]);
+        }
+    }
+
     return (
         <Authenticated user={auth?.user}>
             <Head title='Wireless Sites' />
@@ -156,11 +187,7 @@ export default function Index({ auth, sites }) {
                             value={searchText}
                             onChange={(e) => setSearchText(e.target.value)}
                         />
-                        <div className="search-icon">
-                            <IconButton size='sm' className='rounded-l-none' onClick={handleSearch}>
-                                <SearchIcon color='white' size={18} />
-                            </IconButton>
-                        </div>
+                        <div className="search-icon"><IconButton size='sm' className='rounded-l-none' onClick={handleSearch}><SearchIcon color='white' size={18} /></IconButton></div>
                     </div>
                     <div className='status-filter'>
                         <select
@@ -188,12 +215,7 @@ export default function Index({ auth, sites }) {
                     </div>
                     <div className='import-type-field'>
                         <Button variant="gradient" className='capitalize' size='sm' onClick={handleClick}>Import from CSV</Button>
-                        <input
-                            type="file"
-                            onChange={handleChangeUpload}
-                            ref={hiddenFileInput}
-                            style={{ display: 'none' }}
-                        />
+                        <input type="file" onChange={handleChangeUpload} ref={hiddenFileInput} style={{ display: 'none' }} />
                     </div>
                     <ExportButton route_name={'wireless.sites.export'} file_name={'WNTD_Export'} />
                 </div>
@@ -215,7 +237,6 @@ export default function Index({ auth, sites }) {
                                                     </div>
                                                 )}
                                             </div>
-
                                         </th>
                                     ))}
                                 </tr>
@@ -223,11 +244,7 @@ export default function Index({ auth, sites }) {
                             <tbody>
                                 {siteItems?.data.map((site, index) => (
                                     <tr key={site.id} className="even:bg-blue-gray-50/50">
-                                        <td className="border-l h-10 text-[12px] font-medium ps-2">
-                                            <Link href={route('wireless.show.location.index', site?.loc_id)} className='font-semibold underline'>
-                                                {site?.loc_id}
-                                            </Link>
-                                        </td>
+                                        <td className="border-l h-10 text-[12px] font-medium ps-2"><Link href={route('wireless.show.location.index', site?.loc_id)} className='font-semibold underline'>{site?.loc_id}</Link></td>
                                         <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.wntd}</td>
                                         <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.imsi}</td>
                                         <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.version}</td>
@@ -240,13 +257,13 @@ export default function Index({ auth, sites }) {
                                         <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.home_pci}</td>
                                         <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.traffic_profile}</td>
                                         <td className="border-l h-10">
-                                            <DateItemField value={getTrackingValue(site?.tracking, 'start_date')} name='start_date' locId={site.loc_id} siteId={site.id} />
+                                            <DateItemField value={getTrackingValue(site?.tracking, 'start_date')} name='start_date' locId={site.loc_id} siteId={site.id} handleEditAbleItem={handleEditAbleItem} />
                                         </td>
                                         <td className="border-l h-10">
-                                            <DateItemField value={getTrackingValue(site?.tracking, 'end_date')} name='end_date' locId={site.loc_id} siteId={site.id} />
+                                            <DateItemField value={getTrackingValue(site?.tracking, 'end_date')} name='end_date' locId={site.loc_id} siteId={site.id} handleEditAbleItem={handleEditAbleItem} />
                                         </td>
                                         <td className="border-l h-10">
-                                            <SelectItemField value={getTrackingValue(site?.tracking, 'solution_type')} name='solution_type' locId={site.loc_id} siteId={site.id}
+                                            <SelectItemField value={getTrackingValue(site?.tracking, 'solution_type')} name='solution_type' locId={site.loc_id} siteId={site.id} handleEditAbleItem={handleEditAbleItem}
                                                 options={[
                                                     { label: 'Device Upgrade', value: 'device_upgrade' },
                                                     { label: 'Reparent', value: 'reparent' },
@@ -255,7 +272,7 @@ export default function Index({ auth, sites }) {
                                             />
                                         </td>
                                         <td className="border-l h-10">
-                                            <SelectItemField value={getTrackingValue(site?.tracking, 'status')} name='status' locId={site.loc_id} siteId={site.id}
+                                            <SelectItemField value={getTrackingValue(site?.tracking, 'status')} name='status' locId={site.loc_id} siteId={site.id} handleEditAbleItem={handleEditAbleItem}
                                                 options={[
                                                     { label: 'In Progress', value: 'in_progress' },
                                                     { label: 'Not Started', value: 'not_started' },
@@ -264,10 +281,13 @@ export default function Index({ auth, sites }) {
                                             />
                                         </td>
                                         <td className="border-l h-10">
-                                            <InputItemField value={getTrackingValue(site?.tracking, 'remarks')} name='remarks' locId={site.loc_id} siteId={site.id} />
+                                            <InputItemField value={getTrackingValue(site?.tracking, 'remarks')} name='remarks' locId={site.loc_id} siteId={site.id} handleEditAbleItem={handleEditAbleItem} />
                                         </td>
                                         <td className="border-l h-10">
                                             <UploadItemField value={getTrackingValue(site?.tracking, 'artifacts')} name='artifacts' locId={site.loc_id} siteId={site.id} />
+                                        </td>
+                                        <td className='border-l h-10 px-3'>
+                                            <SaveBtn site_id={site?.id} changedItems={changedItems} setChangedItems={setChangedItems} />
                                         </td>
                                     </tr>
                                 ))}

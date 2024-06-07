@@ -14,6 +14,8 @@ import InputItemField from './Components/InputItemField';
 import UploadItemField from './Components/UploadItemField';
 import CSVMapping from './Components/CSVMapping';
 import ExportButton from '@/Components/ExportButton';
+import SaveBtn from './Components/SaveBtn';
+
 
 
 export default function Index() {
@@ -38,6 +40,7 @@ export default function Index() {
         { name: 'Status', sortable: false, sortKey: 'status' },
         { name: 'Remarks', sortable: false, sortKey: 'remarks' },
         { name: 'Artifacts', sortable: false, sortKey: 'artifacts' },
+        { name: '' }
     ];
     const hiddenFileInput = useRef(null);
     const [searchText, setSearchText] = useState(get_data?.search ? get_data?.search : '');
@@ -46,6 +49,7 @@ export default function Index() {
     const [mappingDialog, setMappingDialog] = useState(false)
     const [mappingData, setMappingData] = useState('')
     const [batchId, setBatchId] = useState(null)
+    const [changedItems, setChangedItems] = useState([])
 
     const handleClick = event => {
         hiddenFileInput.current.click();
@@ -134,6 +138,33 @@ export default function Index() {
         return () => clearInterval(interval)
     }, [batchId])
 
+    const handleEditAbleItem = (site_id, name, value) => {
+        const index = changedItems.findIndex(item => item.site_id === site_id);
+        if (index !== -1) {
+            setChangedItems(prevItems => {
+                const updatedItems = [...prevItems];
+                updatedItems[index] = {
+                    ...updatedItems[index],
+                    items: {
+                        ...updatedItems[index].items,
+                        [name]: value
+                    }
+                };
+                return updatedItems;
+            });
+        } else {
+            setChangedItems(prevItems => [
+                ...prevItems,
+                {
+                    site_id: site_id,
+                    items: {
+                        [name]: value
+                    }
+                }
+            ]);
+        }
+    }
+
     return (
         <Authenticated user={auth?.user}>
             <Head title='Site Field Name' />
@@ -158,11 +189,7 @@ export default function Index() {
                             value={searchText}
                             onChange={(e) => setSearchText(e.target.value)}
                         />
-                        <div className="search-icon">
-                            <IconButton size='sm' className='rounded-l-none' onClick={handleSearch}>
-                                <SearchIcon color='white' size={18} />
-                            </IconButton>
-                        </div>
+                        <div className="search-icon"><IconButton size='sm' className='rounded-l-none' onClick={handleSearch}><SearchIcon color='white' size={18} /></IconButton></div>
                     </div>
                     <div className='status-filter'>
                         <select
@@ -190,12 +217,7 @@ export default function Index() {
                     </div>
                     <div className='import-type-field'>
                         <Button variant="gradient" className='capitalize' size='sm' onClick={handleClick}>Import from CSV</Button>
-                        <input
-                            type="file"
-                            onChange={handleChangeUpload}
-                            ref={hiddenFileInput}
-                            style={{ display: 'none' }}
-                        />
+                        <input type="file" onChange={handleChangeUpload} ref={hiddenFileInput} style={{ display: 'none' }} />
                     </div>
                     <ExportButton route_name={'site.field.name.export'} file_name={'FW Sites_Export'} />
                 </div>
@@ -225,11 +247,7 @@ export default function Index() {
                                 {siteItems?.data.map((item, index) => {
                                     return (
                                         <tr key={item?.id} className="even:bg-blue-gray-50/50">
-                                            <td className="border-l h-10 text-[12px] font-medium ps-2">
-                                                <Link href={'#'} className='font-semibold'>
-                                                    {item?.site_name}
-                                                </Link>
-                                            </td>
+                                            <td className="border-l h-10 text-[12px] font-medium ps-2"><Link href={'#'} className='font-semibold'>{item?.site_name}</Link></td>
                                             <td className="border-l h-10 text-[12px] font-medium ps-2">{item?.cell_name}</td>
                                             <td className="border-l h-10 text-[12px] font-medium ps-2">{item?.lon}</td>
                                             <td className="border-l h-10 text-[12px] font-medium ps-2">{item?.lat}</td>
@@ -252,21 +270,14 @@ export default function Index() {
                                                         { label: 'Opti Type-5', value: 'opti_type_5' },
                                                         { label: 'Opti Type-6', value: 'opti_type_6' },
                                                     ]}
+                                                    handleEditAbleItem={handleEditAbleItem}
                                                 />
                                             </td>
                                             <td className="border-l h-10">
-                                                <DateItemField
-                                                    value={getTrackingValue(item?.tracking, 'start_date')}
-                                                    name='start_date'
-                                                    siteId={item?.id}
-                                                />
+                                                <DateItemField value={getTrackingValue(item?.tracking, 'start_date')} name='start_date' siteId={item?.id} handleEditAbleItem={handleEditAbleItem} />
                                             </td>
                                             <td className="border-l h-10">
-                                                <DateItemField
-                                                    value={getTrackingValue(item?.tracking, 'end_date')}
-                                                    name='end_date'
-                                                    siteId={item?.id}
-                                                />
+                                                <DateItemField value={getTrackingValue(item?.tracking, 'end_date')} name='end_date' siteId={item?.id} handleEditAbleItem={handleEditAbleItem} />
                                             </td>
                                             <td className="border-l h-10">
                                                 <SelectItemField
@@ -278,14 +289,11 @@ export default function Index() {
                                                         { label: 'Not Started', value: 'not_started' },
                                                         { label: 'Completed', value: 'completed' },
                                                     ]}
+                                                    handleEditAbleItem={handleEditAbleItem}
                                                 />
                                             </td>
                                             <td className="border-l h-10">
-                                                <InputItemField
-                                                    value={getTrackingValue(item?.tracking, 'remarks')}
-                                                    name='remarks'
-                                                    siteId={item?.id}
-                                                />
+                                                <InputItemField value={getTrackingValue(item?.tracking, 'remarks')} name='remarks' siteId={item?.id} handleEditAbleItem={handleEditAbleItem} />
                                             </td>
                                             <td className="border-l h-10">
                                                 <UploadItemField
@@ -293,6 +301,9 @@ export default function Index() {
                                                     name='artifacts'
                                                     siteId={item?.id}
                                                 />
+                                            </td>
+                                            <td className='border-l h-10 px-3'>
+                                                <SaveBtn site_id={item?.id} changedItems={changedItems} setChangedItems={setChangedItems} />
                                             </td>
                                         </tr>
                                     )

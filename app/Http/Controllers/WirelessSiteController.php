@@ -61,13 +61,20 @@ class WirelessSiteController extends Controller
 
     public function save_item(Request $request)
     {
-        $tracking = LocTracking::create([
-            'site_id' => $request->site_id,
-            'loc_id' => $request->location_id,
-            'user_id' => Auth::id(),
-            'key' => $request->field_name,
-            'value' => $request->field_value,
-        ]);
+        $items = $request->items;
+        foreach ($items as $key => $item) {
+            $tracking = LocTracking::create([
+                'site_id' => $request->site_id,
+                'loc_id' => $request->location_id,
+                'user_id' => Auth::id(),
+                'key' => $key,
+                'value' => $item,
+            ]);
+        }
+        return response()->json([
+            'success' => ['message' => 'Changes saved successfully.'],
+        ], 200);
+
     }
 
     public function save_artifacts(Request $request)
