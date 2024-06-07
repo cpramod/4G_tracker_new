@@ -66,7 +66,7 @@ export default function Authenticated({ user, header, children }) {
                             <Link href={route('site.field.name.index')} className={`${currentRoute === "site.field.name.index" ? "bg-blue-gray-50/50 rounded-lg" : ""}`}>
                                 <ListItem>
                                     <ListItemPrefix className='mr-3'><NfcIcon size={20} /></ListItemPrefix>
-                                    <span className='font-semibold text-base'>Site Field Names</span>
+                                    <span className='font-semibold text-base'>FW Site</span>
                                 </ListItem>
                             </Link>
                             <Link href={route('sql.import')} className={`${currentRoute === "sql.import" ? "bg-blue-gray-50/50 rounded-lg" : ""}`}>

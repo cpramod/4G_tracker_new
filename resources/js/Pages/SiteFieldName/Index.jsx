@@ -139,11 +139,11 @@ export default function Index() {
             <div className="top-section p-4">
                 <div className='flex items-center justify-between'>
                     <div className="">
-                        <Typography variant={'h3'} className='tracking-tight'>Site Field Name</Typography>
+                        <Typography variant={'h3'} className='tracking-tight'>FW Site</Typography>
                         <ul className='flex gap-1 text-gray-600 text-sm'>
                             <li><Link href={route('dashboard')}>Dashboard</Link></li>
                             <li>/</li>
-                            <li><Link href={route('site.field.name.index')}>Site Field Name</Link></li>
+                            <li><Link href={route('site.field.name.index')}>FW Site</Link></li>
                         </ul>
                     </div>
                 </div>
