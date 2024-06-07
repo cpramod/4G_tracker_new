@@ -39,7 +39,7 @@ export default function Show({ auth, site, trackings }) {
     const showFromattedDate = (date) => {
         if (date) {
             const dateObject = new Date(date);
-            return format(dateObject, 'MM/dd/yyyy');
+            return format(dateObject, 'dd/MM/yyyy');
         }
     }
 
@@ -107,49 +107,49 @@ export default function Show({ auth, site, trackings }) {
             <div className="content mt-6">
                 <Card className="h-full w-full rounded-none">
                     <div className="overflow-x-auto overflow-hidden">
-                    <table className="w-full min-w-max table-auto text-left">
-                        <thead>
-                            <tr>
-                                {TABLE_HEAD.map((head) => (
-                                    <th key={head} className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-2 border-l cursor-pointer">
-                                        <div className="flex justify-between">
-                                            <Typography variant="small" className="leading-none text-gray-800 font-medium text-sm">{head}</Typography>
-                                        </div>
-                                    </th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr key={site.id} className="even:bg-blue-gray-50/50">
-                                <td className="border-l h-10 text-[12px] font-medium ps-2">
-                                    <Link href={route('wireless.show.location.index', site?.loc_id)}>
-                                        {site?.loc_id}
-                                    </Link>
-                                </td>
-                                <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.wntd}</td>
-                                <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.imsi}</td>
-                                <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.version}</td>
-                                <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.avc}</td>
-                                <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.bw_profile}</td>
-                                <td className="border-l h-10 text-[12px] font-medium ps-2 w-20">{site?.lon}</td>
-                                <td className="border-l h-10 text-[12px] font-medium ps-2 w-20">{site?.lat}</td>
-                                <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.site_name}</td>
-                                <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.home_cell}</td>
-                                <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.home_pci}</td>
-                                <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.traffic_profile}</td>
-                                <td className="border-l h-10 text-[12px] font-medium ps-2">{getTrackingValue(site?.tracking, 'start_date')}</td>
-                                <td className="border-l h-10 text-[12px] font-medium ps-2">{getTrackingValue(site?.tracking, 'end_date')}</td>
-                                <td className="border-l h-10 text-[12px] font-medium ps-2 capitalize">{getTrackingValue(site?.tracking, 'solution_type')}</td>
-                                <td className="border-l h-10 text-[12px] font-medium ps-2 capitalize">{getTrackingValue(site?.tracking, 'status')}</td>
-                                <td className="border-l h-10 text-[12px] font-medium ps-2 capitalize">
-                                    {getTrackingValue(site?.tracking, 'remarks')}
-                                </td>
-                                <td className="border-l h-10">
-                                    <UploadItemField value={getTrackingValue(site?.tracking, 'artifacts')} name='artifacts' locId={site.loc_id} siteId={site.id} single={true} />
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                        <table className="w-full min-w-max table-auto text-left">
+                            <thead>
+                                <tr>
+                                    {TABLE_HEAD.map((head) => (
+                                        <th key={head} className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-2 border-l cursor-pointer">
+                                            <div className="flex justify-between">
+                                                <Typography variant="small" className="leading-none text-gray-800 font-medium text-sm">{head}</Typography>
+                                            </div>
+                                        </th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr key={site.id} className="even:bg-blue-gray-50/50">
+                                    <td className="border-l h-10 text-[12px] font-medium ps-2">
+                                        <Link href={route('wireless.show.location.index', site?.loc_id)}>
+                                            {site?.loc_id}
+                                        </Link>
+                                    </td>
+                                    <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.wntd}</td>
+                                    <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.imsi}</td>
+                                    <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.version}</td>
+                                    <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.avc}</td>
+                                    <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.bw_profile}</td>
+                                    <td className="border-l h-10 text-[12px] font-medium ps-2 w-20">{site?.lon}</td>
+                                    <td className="border-l h-10 text-[12px] font-medium ps-2 w-20">{site?.lat}</td>
+                                    <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.site_name}</td>
+                                    <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.home_cell}</td>
+                                    <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.home_pci}</td>
+                                    <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.traffic_profile}</td>
+                                    <td className="border-l h-10 text-[12px] font-medium ps-2">{getTrackingValue(site?.tracking, 'start_date')}</td>
+                                    <td className="border-l h-10 text-[12px] font-medium ps-2">{getTrackingValue(site?.tracking, 'end_date')}</td>
+                                    <td className="border-l h-10 text-[12px] font-medium ps-2 capitalize">{getTrackingValue(site?.tracking, 'solution_type')}</td>
+                                    <td className="border-l h-10 text-[12px] font-medium ps-2 capitalize">{getTrackingValue(site?.tracking, 'status')}</td>
+                                    <td className="border-l h-10 text-[12px] font-medium ps-2 capitalize">
+                                        {getTrackingValue(site?.tracking, 'remarks')}
+                                    </td>
+                                    <td className="border-l h-10">
+                                        <UploadItemField value={getTrackingValue(site?.tracking, 'artifacts')} name='artifacts' locId={site.loc_id} siteId={site.id} single={true} />
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </Card>
             </div>

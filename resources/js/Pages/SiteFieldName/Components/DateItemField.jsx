@@ -18,6 +18,7 @@ export default function DateItemField({ siteId, name, value, }) {
                 selected={item}
                 onChange={(date) => handleOnChange(date)}
                 className='border-none focus:ring-0 w-full bg-transparent !shadow-none text-[12px] font-medium'
+                dateFormat="dd/MM/yyyy"
             />
         </div>
     )
