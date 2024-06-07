@@ -1,28 +1,11 @@
-import TextInput from '@/Components/TextInput';
-import axios from 'axios';
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 
-export default function InputItemField({ siteId, locId, name, value, }) {
+export default function InputItemField({ siteId, locId, name, value, handleEditAbleItem }) {
 
     const [item, setItem] = useState(value ? value : '');
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            if (item) {
-                axios.post(route('wireless.sites.save.item'), {
-                    site_id: siteId,
-                    location_id: locId,
-                    field_name: name,
-                    field_value: item
-                })
-            }
-        }, 2000);
-        return () => { clearTimeout(timer); };
-    }, [item]);
-
-
     const uploadInputValue = (val) => {
         setItem(val);
-
+        handleEditAbleItem(siteId, locId, name, val)
     }
 
     return (
