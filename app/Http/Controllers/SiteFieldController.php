@@ -5,12 +5,14 @@ namespace App\Http\Controllers;
 use App\Jobs\ProcessSiteFieldImport;
 use App\Models\FieldTracking;
 use App\Models\SiteArea;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 use League\Csv\Reader;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SiteFieldController extends Controller
 {
@@ -165,4 +167,97 @@ class SiteFieldController extends Controller
     //         'trackings' => $trackings
     //     ]);
     // }
+
+    public function export()
+    {
+        set_time_limit(0);
+        ini_set('memory_limit', '-1');
+        $csvFileName = 'fw-sites.csv';
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $csvFileName . '"',
+        ];
+        $sites = SiteArea::orderBy('site_name', 'asc')->get();
+        $desiredKeys = ['remarks', 'start_date', 'end_date', 'solution_type', 'status', 'artifacts'];
+        foreach ($sites as $site) {
+            $locTrackingData = FieldTracking::where('site_area_id', $site->id)
+                ->whereIn('key', $desiredKeys)
+                ->get()
+                ->keyBy('key')
+                ->toArray();
+            $site->tracking = $locTrackingData;
+        }
+        $callback = function () use ($sites) {
+            $file = fopen('php://output', 'w');
+            fputcsv(
+                $file,
+                array(
+                    'Site Name',
+                    'Cell Name',
+                    'Lon',
+                    'Lat',
+                    'BB Type',
+                    'RRU Type',
+                    'Antenna Type',
+                    'Frequency',
+                    'PCI',
+                    'Azimuth',
+                    'Height',
+                    'Last EPO',
+                    'Next EPO',
+                    'Start Date',
+                    'End Date',
+                    'Solution Type',
+                    'Status',
+                    'Remarks',
+                    'Artifacts'
+                )
+            );
+            foreach ($sites as $row) {
+                fputcsv(
+                    $file,
+                    array(
+                        $row['site_name'],
+                        $row['cell_name'],
+                        $row['lon'],
+                        $row['lat'],
+                        $row['bb_type'],
+                        $row['rru_type'],
+                        $row['antenna_type'],
+                        $row['frequency'],
+                        $row['pci'],
+                        $row['azimuth'],
+                        $row['height'],
+                        $row['last_epo'],
+                        $row['next_epo'],
+                        $this->get_tracking_value($row['tracking'], 'start_date'),
+                        $this->get_tracking_value($row['tracking'], 'end_date'),
+                        $this->get_tracking_value($row['tracking'], 'solution_type'),
+                        $this->get_tracking_value($row['tracking'], 'status'),
+                        $this->get_tracking_value($row['tracking'], 'remarks'),
+                        $this->get_tracking_value($row['tracking'], 'artifacts')
+                    )
+                );
+            }
+            fclose($file);
+        };
+        return new StreamedResponse($callback, 200, $headers);
+    }
+
+    public function get_tracking_value($items, $key)
+    {
+        if (array_key_exists($key, $items)) {
+            $item = $items[$key];
+            if (isset($item)) {
+                if ($key == 'start_date' || $key == 'end_date') {
+                    return Carbon::parse($item['value'])->format('d/m/Y');
+                }
+                return $item['value'];
+            } else {
+                return '';
+            }
+        } else {
+            return '';
+        }
+    }
 }

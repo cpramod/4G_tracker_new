@@ -7,15 +7,9 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SiteFieldController;
 use App\Http\Controllers\SQLImportController;
-use App\Http\Controllers\WirelessLocationController;
 use App\Http\Controllers\WirelessSiteController;
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
-// Route::controller(PageController::class)->middleware('auth')->group(function () {
-//     Route::get('/', 'index')->name('home');
-// });
 
 Route::get('/', [AuthenticatedSessionController::class, 'create'])->name('login');
 
@@ -26,6 +20,7 @@ Route::controller(WirelessSiteController::class)->middleware('auth')->group(func
     Route::post('/dashboard/wireless-sites/artifacts/', 'save_artifacts')->name('wireless.sites.update.artifacts');
     Route::post('/dashboard/wireless-sites/', 'save_item')->name('wireless.sites.save.item');
     Route::get('/dashboard/wireless-sites/show/{id}', 'location_site')->name('wireless.show.location.index');
+    Route::get('/dashboard/wireless-sites/export', 'export')->name('wireless.sites.export');
 });
 
 
@@ -36,6 +31,7 @@ Route::controller(SiteFieldController::class)->middleware('auth')->group(functio
     Route::post('/dashboard/fw-sites/artifacts/', 'save_artifacts')->name('site.field.name.update.artifacts');
     Route::post('/dashboard/fw-sites/', 'save_item')->name('site.field.name.save.item');
     Route::get('/dashboard/fw-sites/show/{id}', 'location_site')->name('site.field.name.show.location.index');
+    Route::get('/dashboard/fw-sites/export', 'export')->name('site.field.name.export');
 });
 
 Route::controller(IssueController::class)->middleware('auth')->group(function () {

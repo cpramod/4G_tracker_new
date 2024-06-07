@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Site;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Bus;
 use Inertia\Inertia;
 use App\Models\LocTracking;
@@ -11,6 +12,7 @@ use App\Jobs\ProcessCsvImport;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use League\Csv\Reader;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class WirelessSiteController extends Controller
 {
@@ -165,5 +167,96 @@ class WirelessSiteController extends Controller
             'site' => $site,
             'trackings' => $trackings
         ]);
+    }
+
+    public function export()
+    {
+        set_time_limit(0);
+        ini_set('memory_limit', '-1');
+        $csvFileName = 'WNTD_data.csv';
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $csvFileName . '"',
+        ];
+        $sites = Site::all();
+        $desiredKeys = ['remarks', 'start_date', 'end_date', 'solution_type', 'status', 'artifacts'];
+        foreach ($sites as $site) {
+            $locTrackingData = LocTracking::where('site_id', $site->id)
+                ->whereIn('key', $desiredKeys)
+                ->get()
+                ->keyBy('key')
+                ->toArray();
+            $site->tracking = $locTrackingData;
+        }
+        $callback = function () use ($sites) {
+            $file = fopen('php://output', 'w');
+            fputcsv(
+                $file,
+                array(
+                    'LOCID',
+                    'WNTD',
+                    'IMSI',
+                    'VERSION',
+                    'AVC',
+                    'BW Profile',
+                    'Lon',
+                    'Lat',
+                    'SiteName',
+                    'HomeCell',
+                    'HomePCI',
+                    'TrafficProfile',
+                    'Start Date',
+                    'End Date',
+                    'Solution Type',
+                    'Status',
+                    'Remarks',
+                    'Artifacts'
+                )
+            );
+            foreach ($sites as $row) {
+                fputcsv(
+                    $file,
+                    array(
+                        $row['loc_id'],
+                        $row['wntd'],
+                        $row['imsi'],
+                        $row['version'],
+                        $row['avc'],
+                        $row['bw_profile'],
+                        $row['lon'],
+                        $row['lat'],
+                        $row['site_name'],
+                        $row['home_cell'],
+                        $row['home_pci'],
+                        $row['traffic_profile'],
+                        $this->get_tracking_value($row['tracking'], 'start_date'),
+                        $this->get_tracking_value($row['tracking'], 'end_date'),
+                        $this->get_tracking_value($row['tracking'], 'solution_type'),
+                        $this->get_tracking_value($row['tracking'], 'status'),
+                        $this->get_tracking_value($row['tracking'], 'remarks'),
+                        $this->get_tracking_value($row['tracking'], 'artifacts')
+                    )
+                );
+            }
+            fclose($file);
+        };
+        return new StreamedResponse($callback, 200, $headers);
+    }
+
+    public function get_tracking_value($items, $key)
+    {
+        if (array_key_exists($key, $items)) {
+            $item = $items[$key];
+            if (isset($item)) {
+                if ($key == 'start_date' || $key == 'end_date') {
+                    return Carbon::parse($item['value'])->format('d/m/Y');
+                }
+                return $item['value'];
+            } else {
+                return '';
+            }
+        } else {
+            return '';
+        }
     }
 }

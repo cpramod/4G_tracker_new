@@ -13,6 +13,7 @@ import SelectItemField from './Components/SelectItemField';
 import InputItemField from './Components/InputItemField';
 import UploadItemField from './Components/UploadItemField';
 import CSVMapping from './Components/CSVMapping';
+import ExportButton from '@/Components/ExportButton';
 
 
 export default function Index() {
@@ -196,6 +197,7 @@ export default function Index() {
                             style={{ display: 'none' }}
                         />
                     </div>
+                    <ExportButton route_name={'site.field.name.export'} file_name={'FW Sites_Export'} />
                 </div>
             </div>
             <div className="content mt-6">

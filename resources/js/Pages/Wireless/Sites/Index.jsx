@@ -13,6 +13,7 @@ import DateItemField from './Components/DateItemField';
 import SelectItemField from './Components/SelectItemField';
 import UploadItemField from './Components/UploadItemField';
 import CSVMapping from './Components/CSVMapping';
+import ExportButton from '@/Components/ExportButton';
 
 export default function Index({ auth, sites }) {
     const { get_data, batch } = usePage().props
@@ -194,6 +195,7 @@ export default function Index({ auth, sites }) {
                             style={{ display: 'none' }}
                         />
                     </div>
+                    <ExportButton route_name={'wireless.sites.export'} file_name={'WNTD_Export'} />
                 </div>
             </div>
             <div className="content mt-6">
