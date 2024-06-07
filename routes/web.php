@@ -30,12 +30,12 @@ Route::controller(WirelessSiteController::class)->middleware('auth')->group(func
 
 
 Route::controller(SiteFieldController::class)->middleware('auth')->group(function () {
-    Route::get('/dashboard/site-field-name', 'index')->name('site.field.name.index');
-    Route::post('/dashboard/site-field-name/import/csv/', 'import_from_csv')->name('site.field.name.import');
-    Route::post('/dashboard/site-field-name/map_fields/', 'map_and_save_csv')->name('site.field.map.save');
-    Route::post('/dashboard/site-field-name/artifacts/', 'save_artifacts')->name('site.field.name.update.artifacts');
-    Route::post('/dashboard/site-field-name/', 'save_item')->name('site.field.name.save.item');
-    Route::get('/dashboard/site-field-name/show/{id}', 'location_site')->name('site.field.name.show.location.index');
+    Route::get('/dashboard/fw-sites', 'index')->name('site.field.name.index');
+    Route::post('/dashboard/fw-sites/import/csv/', 'import_from_csv')->name('site.field.name.import');
+    Route::post('/dashboard/fw-sites/map_fields/', 'map_and_save_csv')->name('site.field.map.save');
+    Route::post('/dashboard/fw-sites/artifacts/', 'save_artifacts')->name('site.field.name.update.artifacts');
+    Route::post('/dashboard/fw-sites/', 'save_item')->name('site.field.name.save.item');
+    Route::get('/dashboard/fw-sites/show/{id}', 'location_site')->name('site.field.name.show.location.index');
 });
 
 Route::controller(IssueController::class)->middleware('auth')->group(function () {
