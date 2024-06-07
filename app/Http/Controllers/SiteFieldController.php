@@ -17,7 +17,7 @@ class SiteFieldController extends Controller
     public function index(Request $request)
     {
         $order = $request->input('order');
-        $order_by = $request->input('order_by');
+        $order_by = $request->input('order_by') ? $request->input('order_by') : 'site_name';
         $search_query = $request->input('search');
         $per_page = $request->input('per_page') && strtolower($request->input('per_page')) === 'all' ? PHP_INT_MAX : ($request->input('per_page') ? $request->input('per_page') : 10);
 
@@ -30,12 +30,7 @@ class SiteFieldController extends Controller
                 }
             })->orderBy($order_by, $order ? $order : 'asc')->paginate($per_page);
         } else {
-            if ($order_by) {
-                $sites = SiteArea::orderBy($order_by, $order ? $order : 'asc')->paginate($per_page);
-            } else {
-                $sites = SiteArea::paginate($per_page);
-            }
-
+            $sites = SiteArea::orderBy($order_by, $order ? $order : 'asc')->paginate($per_page);
         }
         $desiredKeys = ['remarks', 'start_date', 'end_date', 'solution_type', 'status', 'artifacts'];
         foreach ($sites as $site) {
