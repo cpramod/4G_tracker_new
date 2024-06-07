@@ -1,15 +1,11 @@
 import React, { useState } from 'react'
 
-export default function SelectItemField({ siteId, name, value, options }) {
+export default function SelectItemField({ siteId, name, value, options, handleEditAbleItem }) {
 
     const [item, setItem] = useState(value ? value : '');
     const uploadInputValue = (val) => {
         setItem(val)
-        axios.post(route('site.field.name.save.item'), {
-            site_id: siteId,
-            field_name: name,
-            field_value: val
-        })
+        handleEditAbleItem(siteId, name, val)
     }
 
     return (

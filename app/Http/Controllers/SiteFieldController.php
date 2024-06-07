@@ -59,12 +59,18 @@ class SiteFieldController extends Controller
 
     public function save_item(Request $request)
     {
-        $tracking = FieldTracking::create([
-            'site_area_id' => $request->site_id,
-            'user_id' => Auth::id(),
-            'key' => $request->field_name,
-            'value' => $request->field_value,
-        ]);
+        $items = $request->items;
+        foreach ($items as $key => $item) {
+            $tracking = FieldTracking::create([
+                'site_area_id' => $request->site_id,
+                'user_id' => Auth::id(),
+                'key' => $key,
+                'value' => $item,
+            ]);
+        }
+        return response()->json([
+            'success' => ['message' => 'Changes saved successfully.'],
+        ], 200);
     }
 
     public function save_artifacts(Request $request)
