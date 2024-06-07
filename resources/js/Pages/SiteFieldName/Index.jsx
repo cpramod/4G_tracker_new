@@ -13,7 +13,9 @@ import SelectItemField from './Components/SelectItemField';
 import InputItemField from './Components/InputItemField';
 import UploadItemField from './Components/UploadItemField';
 import CSVMapping from './Components/CSVMapping';
+import ExportButton from '@/Components/ExportButton';
 import SaveBtn from './Components/SaveBtn';
+
 
 
 export default function Index() {
@@ -217,6 +219,7 @@ export default function Index() {
                         <Button variant="gradient" className='capitalize' size='sm' onClick={handleClick}>Import from CSV</Button>
                         <input type="file" onChange={handleChangeUpload} ref={hiddenFileInput} style={{ display: 'none' }} />
                     </div>
+                    <ExportButton route_name={'site.field.name.export'} file_name={'FW Sites_Export'} />
                 </div>
             </div>
             <div className="content mt-6">

@@ -13,6 +13,7 @@ import DateItemField from './Components/DateItemField';
 import SelectItemField from './Components/SelectItemField';
 import UploadItemField from './Components/UploadItemField';
 import CSVMapping from './Components/CSVMapping';
+import ExportButton from '@/Components/ExportButton';
 import SaveBtn from './Components/SaveBtn';
 
 export default function Index({ auth, sites }) {
@@ -216,6 +217,7 @@ export default function Index({ auth, sites }) {
                         <Button variant="gradient" className='capitalize' size='sm' onClick={handleClick}>Import from CSV</Button>
                         <input type="file" onChange={handleChangeUpload} ref={hiddenFileInput} style={{ display: 'none' }} />
                     </div>
+                    <ExportButton route_name={'wireless.sites.export'} file_name={'WNTD_Export'} />
                 </div>
             </div>
             <div className="content mt-6">
