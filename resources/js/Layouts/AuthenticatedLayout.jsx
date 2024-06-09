@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import Dropdown from '@/Components/Dropdown';
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { Card, List, ListItem, ListItemPrefix, Typography } from '@material-tailwind/react';
-import { AlignJustifyIcon, ChevronDownIcon, DatabaseZapIcon, GaugeCircleIcon, GlobeIcon, LocateFixedIcon, NfcIcon, Settings2Icon, SettingsIcon } from 'lucide-react';
+import { AlignJustifyIcon, ChevronDownIcon, DatabaseZapIcon, GaugeCircleIcon, GlobeIcon, LocateFixedIcon, NfcIcon, Settings2Icon, SettingsIcon, UserRoundCogIcon } from 'lucide-react';
 import { Toaster } from 'react-hot-toast';
 
 export default function Authenticated({ user, header, children }) {
+    const { role } = usePage().props?.auth
     const currentRoute = route().current();
     const [showSidebar, setShowSidebar] = useState(false)
 
@@ -69,18 +70,28 @@ export default function Authenticated({ user, header, children }) {
                                     <span className='font-semibold text-base'>FW Site</span>
                                 </ListItem>
                             </Link>
-                            <Link href={route('sql.import')} className={`${currentRoute === "sql.import" ? "bg-blue-gray-50/50 rounded-lg" : ""}`}>
-                                <ListItem>
-                                    <ListItemPrefix className='mr-3'><DatabaseZapIcon size={20} /></ListItemPrefix>
-                                    <span className='font-semibold text-sm'>SQL Import</span>
-                                </ListItem>
-                            </Link>
-                            <Link href={route('settings.index')} className={`${currentRoute === "settings.index" ? "bg-blue-gray-50/50 rounded-lg" : ""}`}>
-                                <ListItem>
-                                    <ListItemPrefix className='mr-3'><Settings2Icon size={20} /></ListItemPrefix>
-                                    <span className='font-semibold text-sm'>Settings</span>
-                                </ListItem>
-                            </Link>
+                            {role === 'super-admin' && (
+                                <>
+                                    <Link href={route('sql.import')} className={`${currentRoute === "sql.import" ? "bg-blue-gray-50/50 rounded-lg" : ""}`}>
+                                        <ListItem>
+                                            <ListItemPrefix className='mr-3'><DatabaseZapIcon size={20} /></ListItemPrefix>
+                                            <span className='font-semibold text-sm'>SQL Import</span>
+                                        </ListItem>
+                                    </Link>
+                                    <Link href={route('roles.index')} className={`${currentRoute === "roles.index" ? "bg-blue-gray-50/50 rounded-lg" : ""}`}>
+                                        <ListItem>
+                                            <ListItemPrefix className='mr-3'><UserRoundCogIcon size={20} /></ListItemPrefix>
+                                            <span className='font-semibold text-sm'>Roles Management</span>
+                                        </ListItem>
+                                    </Link>
+                                    <Link href={route('settings.index')} className={`${currentRoute === "settings.index" ? "bg-blue-gray-50/50 rounded-lg" : ""}`}>
+                                        <ListItem>
+                                            <ListItemPrefix className='mr-3'><Settings2Icon size={20} /></ListItemPrefix>
+                                            <span className='font-semibold text-sm'>Settings</span>
+                                        </ListItem>
+                                    </Link>
+                                </>
+                            )}
                         </List>
                     </Card>
                 </aside>

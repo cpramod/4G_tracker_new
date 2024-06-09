@@ -16,8 +16,8 @@ import CSVMapping from './Components/CSVMapping';
 import ExportButton from '@/Components/ExportButton';
 import SaveBtn from './Components/SaveBtn';
 
-export default function Index({ auth, sites }) {
-    const { get_data, batch } = usePage().props
+export default function Index({ auth, sites, get_data, batch }) {
+    const { role } = auth
     const TABLE_HEAD = [
         { name: 'LOCID', sortable: true, sortKey: 'loc_id' },
         { name: 'WNTD', sortable: true, sortKey: 'wntd' },
@@ -66,9 +66,7 @@ export default function Index({ auth, sites }) {
     };
 
     const handleSearch = async () => {
-        if (searchText) {
-            router.get(route('wireless.sites.index', { 'search': searchText }))
-        }
+        router.get(route('wireless.sites.index', { 'search': searchText }))
     }
 
     const sortData = async (key, order) => {
@@ -213,10 +211,12 @@ export default function Index({ auth, sites }) {
                             <option value="repan">Repan</option>
                         </select>
                     </div>
-                    <div className='import-type-field'>
-                        <Button variant="gradient" className='capitalize' size='sm' onClick={handleClick}>Import from CSV</Button>
-                        <input type="file" onChange={handleChangeUpload} ref={hiddenFileInput} style={{ display: 'none' }} />
-                    </div>
+                    {role === 'super-admin' && (
+                        <div className='import-type-field'>
+                            <Button variant="gradient" className='capitalize' size='sm' onClick={handleClick}>Import from CSV</Button>
+                            <input type="file" onChange={handleChangeUpload} ref={hiddenFileInput} style={{ display: 'none' }} />
+                        </div>
+                    )}
                     <ExportButton route_name={'wireless.sites.export'} file_name={'WNTD_Export'} />
                 </div>
             </div>

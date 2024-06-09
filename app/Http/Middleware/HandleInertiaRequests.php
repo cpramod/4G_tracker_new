@@ -30,10 +30,17 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $roleName = 'guest';
+        $user = $request->user();
+
+        if ($user && $user->roles->isNotEmpty()) {
+            $roleName = $user->roles->first()->name;
+        }
         return [
             ...parent::share($request),
             'auth' => [
                 'user' => $request->user(),
+                'role' => $roleName,
             ],
             'batch' => [
                 'batch_site_id' => session('batch_site_id') ? session('batch_site_id') : null,
