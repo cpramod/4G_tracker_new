@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Models\Site;
+use App\Models\Location;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -32,9 +32,9 @@ class ProcessCsvImport implements ShouldQueue
     public function handle(): void
     {
         foreach ($this->information as $row) {
-            $existingLoc = Site::where('loc_id', $this->input['loc_id'])->first();
+            $existingLoc = Location::where('loc_id', $this->input['loc_id'])->first();
             if (!$existingLoc) {
-                Site::create([
+                Location::create([
                     'loc_id' => $row[$this->input['loc_id']],
                     'wntd' => $row[$this->input['wntd']],
                     'imsi' => $row[$this->input['imsi']],

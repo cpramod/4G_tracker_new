@@ -50,13 +50,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Site::class);
     }
-    public function issues()
-    {
-        return $this->hasMany(Issue::class);
-    }
-
+    
     public function tracking()
     {
-        return $this->hasMany(LocTracking::class);
+        return $this->hasMany(LocationTracking::class);
     }
 }

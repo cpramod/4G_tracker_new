@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\JobBatch;
-use App\Models\LocTracking;
-use App\Models\Site;
+use App\Models\Location;
+use App\Models\LocationTracking;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 
@@ -12,18 +12,18 @@ class PageController extends Controller
 {
     public function dashboard()
     {
-        $loc_count = Site::distinct()->count('loc_id');
-        $wntd_count = Site::distinct()->count('wntd');
-        $avc_count = Site::distinct()->count('avc');
-        $site_count = Site::distinct()->count('site_name');
-        $home_cell_count = Site::distinct()->count('home_cell');
-        $traffic_profile_count = Site::where('traffic_profile', '!=', 'N')->count('traffic_profile');
+        $loc_count = Location::distinct()->count('loc_id');
+        $wntd_count = Location::distinct()->count('wntd');
+        $avc_count = Location::distinct()->count('avc');
+        $site_count = Location::distinct()->count('site_name');
+        $home_cell_count = Location::distinct()->count('home_cell');
+        $traffic_profile_count = Location::where('traffic_profile', '!=', 'N')->count('traffic_profile');
 
-        $version = Site::selectRaw('version, COUNT(wntd) as count')->groupBy('version')->get();
+        $version = Location::selectRaw('version, COUNT(wntd) as count')->groupBy('version')->get();
 
-        $sites = Site::all();
+        $sites = Location::all();
         foreach ($sites as $site) {
-            $locTrackingData = LocTracking::where('site_id', $site->id)->whereIn('key', ['status', 'solution_type'])->get()->keyBy('key')->toArray();
+            $locTrackingData = LocationTracking::where('site_id', $site->id)->whereIn('key', ['status', 'solution_type'])->get()->keyBy('key')->toArray();
             $site->tracking = $locTrackingData;
         }
         $site_status = array(
@@ -56,10 +56,10 @@ class PageController extends Controller
             }
         }
 
-        $open_locs = Site::with('locTracking')->whereHas('locTracking', function ($query) {
+        $open_locs = Location::with('locTracking')->whereHas('locTracking', function ($query) {
             $query->where('key', 'status')->where('value', 'in_progress');
         })->take(10)->get();
-        $closed_locs = Site::with('locTracking')->whereHas('locTracking', function ($query) {
+        $closed_locs = Location::with('locTracking')->whereHas('locTracking', function ($query) {
             $query->where('key', 'status')->where('value', 'completed');
         })->take(10)->get();
 

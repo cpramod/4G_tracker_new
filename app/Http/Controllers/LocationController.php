@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Site;
+use App\Models\Location;
+use App\Models\LocationTracking;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Bus;
 use Inertia\Inertia;
-use App\Models\LocTracking;
 use Illuminate\Http\Request;
 use App\Jobs\ProcessCsvImport;
 use Illuminate\Support\Facades\Auth;
@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Validator;
 use League\Csv\Reader;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-class WirelessSiteController extends Controller
+class LocationController extends Controller
 {
     public function index(Request $request)
     {
@@ -24,19 +24,19 @@ class WirelessSiteController extends Controller
         $per_page = $request->input('per_page') && strtolower($request->input('per_page')) === 'all' ? PHP_INT_MAX : ($request->input('per_page') ? $request->input('per_page') : 10);
 
         if ($search_query) {
-            $tableName = (new Site)->getTable();
+            $tableName = (new Location())->getTable();
             $columns = \Schema::getColumnListing($tableName);
-            $sites = Site::where(function ($query) use ($search_query, $columns) {
+            $sites = Location::where(function ($query) use ($search_query, $columns) {
                 foreach ($columns as $column) {
                     $query->orWhere($column, 'LIKE', '%' . $search_query . '%');
                 }
             })->orderBy($order_by, $order ? $order : 'asc')->paginate($per_page);
         } else {
-            $sites = Site::orderBy($order_by, $order ? $order : 'asc')->paginate($per_page);
+            $sites = Location::orderBy($order_by, $order ? $order : 'asc')->paginate($per_page);
         }
         $desiredKeys = ['remarks', 'start_date', 'end_date', 'solution_type', 'status', 'artifacts'];
         foreach ($sites as $site) {
-            $locTrackingData = LocTracking::where('site_id', $site->id)
+            $locTrackingData = LocationTracking::where('site_id', $site->id)
                 ->whereIn('key', $desiredKeys)
                 ->get()
                 ->keyBy('key')
@@ -63,7 +63,7 @@ class WirelessSiteController extends Controller
     {
         $items = $request->items;
         foreach ($items as $key => $item) {
-            $tracking = LocTracking::create([
+            $tracking = LocationTracking::create([
                 'site_id' => $request->site_id,
                 'loc_id' => $request->location_id,
                 'user_id' => Auth::id(),
@@ -89,7 +89,7 @@ class WirelessSiteController extends Controller
             }
         }
         if (count($paths_array) > 0) {
-            $tracking = LocTracking::create([
+            $tracking = LocationTracking::create([
                 'site_id' => $request->site_id,
                 'loc_id' => $request->location_id,
                 'user_id' => Auth::id(),
@@ -164,12 +164,12 @@ class WirelessSiteController extends Controller
 
     public function location_site($id)
     {
-        $site = Site::where('loc_id', $id)->first();
+        $site = Location::where('loc_id', $id)->first();
         $desiredKeys = ['remarks', 'start_date', 'end_date', 'solution_type', 'status', 'artifacts'];
-        $locTrackingData = LocTracking::where('site_id', $site->id)->whereIn('key', $desiredKeys)->get()->keyBy('key')->toArray();
+        $locTrackingData = LocationTracking::where('site_id', $site->id)->whereIn('key', $desiredKeys)->get()->keyBy('key')->toArray();
         $site->tracking = $locTrackingData;
 
-        $trackings = LocTracking::with('user')->where('loc_id', $id)->get();
+        $trackings = LocationTracking::with('user')->where('loc_id', $id)->get();
         return Inertia::render('Wireless/Sites/Show', [
             'site' => $site,
             'trackings' => $trackings
@@ -185,10 +185,10 @@ class WirelessSiteController extends Controller
             'Content-Type' => 'text/csv',
             'Content-Disposition' => 'attachment; filename="' . $csvFileName . '"',
         ];
-        $sites = Site::all();
+        $sites = Location::all();
         $desiredKeys = ['remarks', 'start_date', 'end_date', 'solution_type', 'status', 'artifacts'];
         foreach ($sites as $site) {
-            $locTrackingData = LocTracking::where('site_id', $site->id)
+            $locTrackingData = LocationTracking::where('site_id', $site->id)
                 ->whereIn('key', $desiredKeys)
                 ->get()
                 ->keyBy('key')

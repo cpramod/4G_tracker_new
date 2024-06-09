@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ImportDB;
-use App\Models\Site;
+use App\Models\Location;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -84,9 +84,9 @@ class SQLImportController extends Controller
         if (is_array($request->data)) {
             $data = $request->data;
             foreach ($data as $item) {
-                $existingLoc = Site::where('loc_id', $item['LOCID'])->first();
+                $existingLoc = Location::where('loc_id', $item['LOCID'])->first();
                 if (!$existingLoc) {
-                    Site::create([
+                    Location::create([
                         'loc_id' => $item['LOCID'],
                         'wntd' => $item['WNTD'],
                         'imsi' => $item['IMSI'],

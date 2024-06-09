@@ -18,7 +18,7 @@ import SaveBtn from './Components/SaveBtn';
 
 
 
-export default function Index(auth, sites, get_data, batch) {
+export default function Index({ auth, sites, get_data, batch }) {
     const { role } = auth
     const TABLE_HEAD = [
         { name: 'Site Name', sortable: true, sortKey: 'site_name' },
