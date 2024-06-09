@@ -18,8 +18,8 @@ import SaveBtn from './Components/SaveBtn';
 
 
 
-export default function Index() {
-    const { auth, sites, get_data, batch } = usePage().props
+export default function Index(auth, sites, get_data, batch) {
+    const { role } = auth
     const TABLE_HEAD = [
         { name: 'Site Name', sortable: true, sortKey: 'site_name' },
         { name: 'Cell Name', sortable: true, sortKey: 'cell_name' },
@@ -215,10 +215,12 @@ export default function Index() {
                             <option value="opti_type_6">Opti Type-6</option>
                         </select>
                     </div>
-                    <div className='import-type-field'>
-                        <Button variant="gradient" className='capitalize' size='sm' onClick={handleClick}>Import from CSV</Button>
-                        <input type="file" onChange={handleChangeUpload} ref={hiddenFileInput} style={{ display: 'none' }} />
-                    </div>
+                    {role === 'super-admin' && (
+                        <div className='import-type-field'>
+                            <Button variant="gradient" className='capitalize' size='sm' onClick={handleClick}>Import from CSV</Button>
+                            <input type="file" onChange={handleChangeUpload} ref={hiddenFileInput} style={{ display: 'none' }} />
+                        </div>
+                    )}
                     <ExportButton route_name={'site.field.name.export'} file_name={'FW Sites_Export'} />
                 </div>
             </div>
