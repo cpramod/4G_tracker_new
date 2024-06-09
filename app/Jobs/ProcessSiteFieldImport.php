@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Models\SiteArea;
+use App\Models\Site;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -32,9 +32,9 @@ class ProcessSiteFieldImport implements ShouldQueue
     public function handle(): void
     {
         foreach ($this->information as $row) {
-            $existingLoc = SiteArea::where('site_name', $row[$this->input['site_name']])->first();
+            $existingLoc = Site::where('site_name', $row[$this->input['site_name']])->first();
             if (!$existingLoc) {
-                SiteArea::create([
+                Site::create([
                     'site_name' => $row[$this->input['site_name']],
                     'cell_name' => $row[$this->input['cell_name']],
                     'lon' => $row[$this->input['lon']],

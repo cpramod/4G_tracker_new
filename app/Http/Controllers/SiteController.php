@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\ProcessSiteFieldImport;
-use App\Models\FieldTracking;
-use App\Models\SiteArea;
+use App\Models\Site;
+use App\Models\SiteTracking;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,7 +14,7 @@ use Inertia\Inertia;
 use League\Csv\Reader;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-class SiteFieldController extends Controller
+class SiteController extends Controller
 {
     public function index(Request $request)
     {
@@ -24,19 +24,19 @@ class SiteFieldController extends Controller
         $per_page = $request->input('per_page') && strtolower($request->input('per_page')) === 'all' ? PHP_INT_MAX : ($request->input('per_page') ? $request->input('per_page') : 10);
 
         if ($search_query) {
-            $tableName = (new SiteArea())->getTable();
+            $tableName = (new Site())->getTable();
             $columns = \Schema::getColumnListing($tableName);
-            $sites = SiteArea::where(function ($query) use ($search_query, $columns) {
+            $sites = Site::where(function ($query) use ($search_query, $columns) {
                 foreach ($columns as $column) {
                     $query->orWhere($column, 'LIKE', '%' . $search_query . '%');
                 }
             })->orderBy($order_by, $order ? $order : 'asc')->paginate($per_page);
         } else {
-            $sites = SiteArea::orderBy($order_by, $order ? $order : 'asc')->paginate($per_page);
+            $sites = Site::orderBy($order_by, $order ? $order : 'asc')->paginate($per_page);
         }
         $desiredKeys = ['remarks', 'start_date', 'end_date', 'solution_type', 'status', 'artifacts'];
         foreach ($sites as $site) {
-            $locTrackingData = FieldTracking::where('site_area_id', $site->id)
+            $locTrackingData = SiteTracking::where('site_area_id', $site->id)
                 ->whereIn('key', $desiredKeys)
                 ->get()
                 ->keyBy('key')
@@ -63,7 +63,7 @@ class SiteFieldController extends Controller
     {
         $items = $request->items;
         foreach ($items as $key => $item) {
-            $tracking = FieldTracking::create([
+            $tracking = SiteTracking::create([
                 'site_area_id' => $request->site_id,
                 'user_id' => Auth::id(),
                 'key' => $key,
@@ -87,7 +87,7 @@ class SiteFieldController extends Controller
             }
         }
         if (count($paths_array) > 0) {
-            $tracking = FieldTracking::create([
+            $tracking = SiteTracking::create([
                 'site_area_id' => $request->site_id,
                 'user_id' => Auth::id(),
                 'key' => $request->field_name,
@@ -183,10 +183,10 @@ class SiteFieldController extends Controller
             'Content-Type' => 'text/csv',
             'Content-Disposition' => 'attachment; filename="' . $csvFileName . '"',
         ];
-        $sites = SiteArea::orderBy('site_name', 'asc')->get();
+        $sites = Site::orderBy('site_name', 'asc')->get();
         $desiredKeys = ['remarks', 'start_date', 'end_date', 'solution_type', 'status', 'artifacts'];
         foreach ($sites as $site) {
-            $locTrackingData = FieldTracking::where('site_area_id', $site->id)
+            $locTrackingData = SiteTracking::where('site_area_id', $site->id)
                 ->whereIn('key', $desiredKeys)
                 ->get()
                 ->keyBy('key')

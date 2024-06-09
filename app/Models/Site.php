@@ -2,32 +2,37 @@
 
 namespace App\Models;
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Site extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'loc_id',
-        'wntd',
-        'imsi',
-        'version',
-        'avc',
-        'bw_profile',
+        'site_name',
+        'cell_name',
         'lon',
         'lat',
-        'site_name',
-        'home_cell',
-        'home_pci',
-        'traffic_profile',
+        'bb_type',
+        'rru_type',
+        'antenna_type',
+        'frequency',
+        'pci',
+        'azimuth',
+        'height',
+        'last_epo',
+        'next_epo',
+        'solution_type',
+        'start_date',
+        'end_date',
+        'status',
+        'remarks',
+        'artifacts',
     ];
 
-    public function locTracking()
+    public function tracking()
     {
-        return $this->hasMany(LocTracking::class, 'site_id');
+        return $this->hasMany(SiteTracking::class, 'site_area_id');
     }
-
 }
