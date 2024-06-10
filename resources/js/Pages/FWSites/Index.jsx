@@ -1,24 +1,25 @@
 import React, { useEffect, useRef, useState } from 'react'
-import Pagination from '@/Components/Pagination';
-import TextInput from '@/Components/TextInput';
-import Authenticated from '@/Layouts/AuthenticatedLayout'
-import { Head, Link, router, usePage } from '@inertiajs/react'
+import { Head, Link, router } from '@inertiajs/react'
 import { Button, Card, IconButton, Typography } from '@material-tailwind/react'
 import axios from 'axios';
 import { ChevronDownIcon, ChevronUpIcon, SearchIcon } from 'lucide-react';
-import "react-datepicker/dist/react-datepicker.css";
 import toast from 'react-hot-toast';
-import DateItemField from './Components/DateItemField';
-import SelectItemField from './Components/SelectItemField';
-import InputItemField from './Components/InputItemField';
-import UploadItemField from './Components/UploadItemField';
-import CSVMapping from './Components/CSVMapping';
+import Pagination from '@/Components/Pagination';
+import TextInput from '@/Components/TextInput';
+import Authenticated from '@/Layouts/AuthenticatedLayout'
+import DateItemField from '@/Components/FWSites/DateItemField';
+import SelectItemField from '@/Components/FWSites/SelectItemField';
+import InputItemField from '@/Components/FWSites/InputItemField';
+import UploadItemField from '@/Components/FWSites/UploadItemField';
+import CSVMapping from '@/Components/FWSites/CSVMapping';
 import ExportButton from '@/Components/ExportButton';
-import SaveBtn from './Components/SaveBtn';
+import SaveBtn from '@/Components/FWSites/SaveBtn';
+import AddColumn from '@/Components/FWSites/AddColumn';
+import AdditionalColumnField from '@/Components/FWSites/AdditionalColumnField';
 
 
 
-export default function Index({ auth, sites, get_data, batch }) {
+export default function Index({ auth, sites, get_data, batch, additional_columns }) {
     const { role } = auth
     const TABLE_HEAD = [
         { name: 'Site Name', sortable: true, sortKey: 'site_name' },
@@ -40,7 +41,6 @@ export default function Index({ auth, sites, get_data, batch }) {
         { name: 'Status', sortable: false, sortKey: 'status' },
         { name: 'Remarks', sortable: false, sortKey: 'remarks' },
         { name: 'Artifacts', sortable: false, sortKey: 'artifacts' },
-        { name: '' }
     ];
     const hiddenFileInput = useRef(null);
     const [searchText, setSearchText] = useState(get_data?.search ? get_data?.search : '');
@@ -181,7 +181,7 @@ export default function Index({ auth, sites, get_data, batch }) {
                 </div>
             </div>
             <div className="filter-wrapper md:px-4">
-                <div className="flex filter-details justify-end gap-3">
+                <div className="flex filter-details justify-end gap-1">
                     <div className="search-wrapper w-1/3 flex relative">
                         <TextInput
                             placeholder="Search..."
@@ -216,10 +216,13 @@ export default function Index({ auth, sites, get_data, batch }) {
                         </select>
                     </div>
                     {role === 'super-admin' && (
-                        <div className='import-type-field'>
-                            <Button variant="gradient" className='capitalize' size='sm' onClick={handleClick}>Import from CSV</Button>
-                            <input type="file" onChange={handleChangeUpload} ref={hiddenFileInput} style={{ display: 'none' }} />
-                        </div>
+                        <>
+                            <div className='import-type-field'>
+                                <Button variant="gradient" className='capitalize' size='sm' onClick={handleClick}>Import from CSV</Button>
+                                <input type="file" onChange={handleChangeUpload} ref={hiddenFileInput} style={{ display: 'none' }} />
+                            </div>
+                            <AddColumn />
+                        </>
                     )}
                     <ExportButton route_name={'site.field.name.export'} file_name={'FW Sites_Export'} />
                 </div>
@@ -243,6 +246,16 @@ export default function Index({ auth, sites, get_data, batch }) {
                                             </div>
                                         </th>
                                     ))}
+                                    {additional_columns?.length > 0 && (
+                                        additional_columns?.map((head) => (
+                                            <th key={head.name} className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-2 border-l cursor-pointer">
+                                                <div className="flex justify-between">
+                                                    <Typography variant="small" className="leading-none text-gray-800 font-medium text-sm">{head.name}</Typography>
+                                                </div>
+                                            </th>
+                                        ))
+                                    )}
+                                    <th className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-2 border-l cursor-pointer"></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -304,6 +317,16 @@ export default function Index({ auth, sites, get_data, batch }) {
                                                     siteId={item?.id}
                                                 />
                                             </td>
+                                            {additional_columns?.length > 0 && additional_columns.map((column, index) => (
+                                                <td className="border-l h-10" key={index}>
+                                                    <AdditionalColumnField
+                                                        column={column}
+                                                        item={item}
+                                                        value={getTrackingValue(item?.tracking, column.key)}
+                                                        handleEditAbleItem={handleEditAbleItem}
+                                                    />
+                                                </td>
+                                            ))}
                                             <td className='border-l h-10 px-3'>
                                                 <SaveBtn site_id={item?.id} changedItems={changedItems} setChangedItems={setChangedItems} />
                                             </td>
