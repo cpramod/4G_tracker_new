@@ -2,12 +2,12 @@ import React, { useState } from 'react'
 import { useForm } from '@inertiajs/react';
 import { Button, Checkbox, Dialog, DialogBody, DialogFooter, DialogHeader, Typography } from '@material-tailwind/react'
 
-export default function HideColumn({ columns, additional_columns, hidden_columns }) {
 
+export default function HideColumn({ columns, additional_columns, hidden_columns }) {
     const [open, setOpen] = useState(false);
     const handleOpen = () => setOpen(!open);
     const { data, setData, post, processing, errors, reset } = useForm({
-        type: "wntd",
+        type: "fw_site",
         key: 'hide',
         items: hidden_columns?.length > 0 ? hidden_columns : []
     })
@@ -38,7 +38,6 @@ export default function HideColumn({ columns, additional_columns, hidden_columns
             }
         })
     }
-
     return (
         <>
             <Button variant="gradient" className='capitalize' size='sm' onClick={handleOpen}>Hide Column</Button>

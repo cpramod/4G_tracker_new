@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Jobs\ProcessSiteFieldImport;
 use App\Models\AdditionalColumn;
+use App\Models\ColumnOption;
 use App\Models\Site;
 use App\Models\SiteTracking;
 use Carbon\Carbon;
@@ -35,6 +36,7 @@ class SiteController extends Controller
         } else {
             $sites = Site::orderBy($order_by, $order ? $order : 'asc')->paginate($per_page);
         }
+        $hidden_columns = ColumnOption::where('type', 'fw_site')->pluck('value')->first();
         $additional_columns_keys = AdditionalColumn::where('type', 'fw_site')->pluck('key')->toArray();
         $additional_columns = AdditionalColumn::where('type', 'fw_site')->get();
         $desiredKeys = array_merge(['remarks', 'start_date', 'end_date', 'solution_type', 'status', 'artifacts'], $additional_columns_keys);
@@ -59,7 +61,8 @@ class SiteController extends Controller
         return Inertia::render('FWSites/Index', [
             'sites' => $sites,
             'get_data' => $request->all(),
-            'additional_columns' => $additional_columns
+            'additional_columns' => $additional_columns,
+            'hidden_columns' => $hidden_columns
         ]);
     }
 

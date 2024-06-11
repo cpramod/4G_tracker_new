@@ -254,10 +254,7 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
                                     ))}
                                     {additional_columns?.length > 0 && (
                                         additional_columns?.map((head) => (
-                                            <th
-                                                key={head.name}
-                                                className={`border-y border-blue-gray-100 bg-blue-gray-50/50 p-2 border-l cursor-pointer ${hiddenItems?.includes(head?.key) ? 'hidden' : ''}`}
-                                            >
+                                            <th key={head.name} className={`border-y border-blue-gray-100 bg-blue-gray-50/50 p-2 border-l cursor-pointer ${hiddenItems?.includes(head?.key) ? 'hidden' : ''}`}>
                                                 <div className="flex justify-between">
                                                     <Typography variant="small" className="leading-none text-gray-800 font-medium text-sm">{head.name}</Typography>
                                                 </div>
