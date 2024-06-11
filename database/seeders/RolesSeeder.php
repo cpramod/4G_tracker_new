@@ -22,7 +22,7 @@ class RolesSeeder extends Seeder
         if (!Role::where('name', 'guest')->exists()) {
             $guestRole = Role::create(['name' => 'guest']);
         }
-        $superAdminEmail = 'sanjay@pcsoftnepal.com';
+        $superAdminEmail = 'benedickagdipa1@nbnco.com.au';
         $user = User::where('email', $superAdminEmail)->first();
         if ($user) {
             if (!$user->hasRole('super-admin')) {
