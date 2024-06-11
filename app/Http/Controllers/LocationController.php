@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AdditionalColumn;
+use App\Models\ColumnOption;
 use App\Models\Location;
 use App\Models\LocationTracking;
 use Carbon\Carbon;
@@ -34,7 +36,10 @@ class LocationController extends Controller
         } else {
             $sites = Location::orderBy($order_by, $order ? $order : 'asc')->paginate($per_page);
         }
-        $desiredKeys = ['remarks', 'start_date', 'end_date', 'solution_type', 'status', 'artifacts'];
+        $hidden_columns = ColumnOption::where('type', 'wntd')->pluck('value')->first();
+        $additional_columns_keys = AdditionalColumn::where('type', 'wntd')->pluck('key')->toArray();
+        $additional_columns = AdditionalColumn::where('type', 'wntd')->get();
+        $desiredKeys = array_merge(['remarks', 'start_date', 'end_date', 'solution_type', 'status', 'artifacts'], $additional_columns_keys);
         foreach ($sites as $site) {
             $locTrackingData = LocationTracking::where('site_id', $site->id)
                 ->whereIn('key', $desiredKeys)
@@ -53,9 +58,11 @@ class LocationController extends Controller
             });
             $sites->setCollection(collect($filteredSites));
         }
-        return Inertia::render('Wireless/Sites/Index', [
+        return Inertia::render('WNTD/Index', [
             'sites' => $sites,
-            'get_data' => $request->all()
+            'get_data' => $request->all(),
+            'additional_columns' => $additional_columns,
+            'hidden_columns' => $hidden_columns
         ]);
     }
 
@@ -170,7 +177,7 @@ class LocationController extends Controller
         $site->tracking = $locTrackingData;
 
         $trackings = LocationTracking::with('user')->where('loc_id', $id)->get();
-        return Inertia::render('Wireless/Sites/Show', [
+        return Inertia::render('WNTD/Show', [
             'site' => $site,
             'trackings' => $trackings
         ]);

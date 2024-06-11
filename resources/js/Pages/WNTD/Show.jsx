@@ -2,7 +2,7 @@ import { Head, Link } from '@inertiajs/react'
 import React from 'react'
 import Authenticated from '@/Layouts/AuthenticatedLayout';
 import { Card, Timeline, TimelineBody, TimelineConnector, TimelineHeader, TimelineIcon, TimelineItem, Tooltip, Typography } from '@material-tailwind/react';
-import UploadItemField from './Components/UploadItemField';
+import UploadItemField from '@/Components/Wntd/UploadItemField';
 import { format } from 'date-fns';
 import { FileBarChartIcon, ImageIcon } from 'lucide-react';
 

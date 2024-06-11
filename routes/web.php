@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ColumnController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\PageController;
@@ -23,7 +24,6 @@ Route::controller(LocationController::class)->middleware('auth')->group(function
     Route::get('/dashboard/wireless-sites/export', 'export')->name('wireless.sites.export');
 });
 
-
 Route::controller(SiteController::class)->middleware('auth')->group(function () {
     Route::get('/dashboard/fw-sites', 'index')->name('site.field.name.index');
     Route::post('/dashboard/fw-sites/import/csv/', 'import_from_csv')->middleware(['auth', 'role:super-admin'])->name('site.field.name.import');
@@ -32,6 +32,11 @@ Route::controller(SiteController::class)->middleware('auth')->group(function () 
     Route::post('/dashboard/fw-sites/', 'save_item')->name('site.field.name.save.item');
     Route::get('/dashboard/fw-sites/show/{id}', 'location_site')->name('site.field.name.show.location.index');
     Route::get('/dashboard/fw-sites/export', 'export')->name('site.field.name.export');
+});
+
+Route::controller(ColumnController::class)->middleware(['auth', 'role:super-admin'])->group(function () {
+    Route::post('/dashboard/additional-columns/', 'save_columns')->name('additional.columns.save.item');
+    Route::post('/dashboard/hide-columns/', 'hide_columns')->name('hide.columns.item');
 });
 
 Route::get('/dashboard', [PageController::class, 'dashboard'])->middleware(['auth', 'verified'])->name('dashboard');

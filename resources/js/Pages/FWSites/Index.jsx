@@ -1,46 +1,49 @@
 import React, { useEffect, useRef, useState } from 'react'
-import Pagination from '@/Components/Pagination';
-import TextInput from '@/Components/TextInput';
-import Authenticated from '@/Layouts/AuthenticatedLayout'
-import { Head, Link, router, usePage } from '@inertiajs/react'
+import { Head, Link, router } from '@inertiajs/react'
 import { Button, Card, IconButton, Typography } from '@material-tailwind/react'
 import axios from 'axios';
 import { ChevronDownIcon, ChevronUpIcon, SearchIcon } from 'lucide-react';
-import "react-datepicker/dist/react-datepicker.css";
 import toast from 'react-hot-toast';
-import DateItemField from './Components/DateItemField';
-import SelectItemField from './Components/SelectItemField';
-import InputItemField from './Components/InputItemField';
-import UploadItemField from './Components/UploadItemField';
-import CSVMapping from './Components/CSVMapping';
+import Pagination from '@/Components/Pagination';
+import TextInput from '@/Components/TextInput';
+import Authenticated from '@/Layouts/AuthenticatedLayout'
+import DateItemField from '@/Components/FWSites/DateItemField';
+import SelectItemField from '@/Components/FWSites/SelectItemField';
+import InputItemField from '@/Components/FWSites/InputItemField';
+import UploadItemField from '@/Components/FWSites/UploadItemField';
+import CSVMapping from '@/Components/FWSites/CSVMapping';
 import ExportButton from '@/Components/ExportButton';
-import SaveBtn from './Components/SaveBtn';
+import SaveBtn from '@/Components/FWSites/SaveBtn';
+import AddColumn from '@/Components/FWSites/AddColumn';
+import AdditionalColumnField from '@/Components/FWSites/AdditionalColumnField';
+import HideColumn from '@/Components/FWSites/HideColumn';
 
 
 
-export default function Index({ auth, sites, get_data, batch }) {
+export default function Index({ auth, sites, get_data, batch, additional_columns, hidden_columns }) {
     const { role } = auth
+    const hiddenItems = JSON.parse(hidden_columns)
+
     const TABLE_HEAD = [
-        { name: 'Site Name', sortable: true, sortKey: 'site_name' },
-        { name: 'Cell Name', sortable: true, sortKey: 'cell_name' },
-        { name: 'Lon', sortable: true, sortKey: 'lon' },
-        { name: 'Lat', sortable: true, sortKey: 'lat' },
-        { name: 'BB Type', sortable: true, sortKey: 'bb_type' },
-        { name: 'RRU Type', sortable: true, sortKey: 'rru_type' },
-        { name: 'Antenna Type', sortable: true, sortKey: 'antenna_type' },
-        { name: 'Frequency', sortable: true, sortKey: 'frequency' },
-        { name: 'PCI', sortable: false, sortKey: 'pci' },
-        { name: 'Azimuth', sortable: false, sortKey: 'azimuth' },
-        { name: 'Height', sortable: false, sortKey: 'height' },
-        { name: 'Last EPO', sortable: false, sortKey: 'last_epo' },
-        { name: 'Next EPO', sortable: false, sortKey: 'next_epo' },
-        { name: 'Solution Type', sortable: false, sortKey: 'solution_type' },
-        { name: 'Start Date', sortable: false, sortKey: 'start_date' },
-        { name: 'End Date', sortable: false, sortKey: 'end_date' },
-        { name: 'Status', sortable: false, sortKey: 'status' },
-        { name: 'Remarks', sortable: false, sortKey: 'remarks' },
-        { name: 'Artifacts', sortable: false, sortKey: 'artifacts' },
-        { name: '' }
+        { name: 'Site Name', sortable: true, key: 'site_name' },
+        { name: 'Cell Name', sortable: true, key: 'cell_name' },
+        { name: 'Lon', sortable: true, key: 'lon' },
+        { name: 'Lat', sortable: true, key: 'lat' },
+        { name: 'BB Type', sortable: true, key: 'bb_type' },
+        { name: 'RRU Type', sortable: true, key: 'rru_type' },
+        { name: 'Antenna Type', sortable: true, key: 'antenna_type' },
+        { name: 'Frequency', sortable: true, key: 'frequency' },
+        { name: 'PCI', sortable: false, key: 'pci' },
+        { name: 'Azimuth', sortable: false, key: 'azimuth' },
+        { name: 'Height', sortable: false, key: 'height' },
+        { name: 'Last EPO', sortable: false, key: 'last_epo' },
+        { name: 'Next EPO', sortable: false, key: 'next_epo' },
+        { name: 'Solution Type', sortable: false, key: 'solution_type' },
+        { name: 'Start Date', sortable: false, key: 'start_date' },
+        { name: 'End Date', sortable: false, key: 'end_date' },
+        { name: 'Status', sortable: false, key: 'status' },
+        { name: 'Remarks', sortable: false, key: 'remarks' },
+        { name: 'Artifacts', sortable: false, key: 'artifacts' },
     ];
     const hiddenFileInput = useRef(null);
     const [searchText, setSearchText] = useState(get_data?.search ? get_data?.search : '');
@@ -167,7 +170,7 @@ export default function Index({ auth, sites, get_data, batch }) {
 
     return (
         <Authenticated user={auth?.user}>
-            <Head title='Site Field Name' />
+            <Head title='FW Sites' />
             <div className="top-section p-4">
                 <div className='flex items-center justify-between'>
                     <div className="">
@@ -181,7 +184,7 @@ export default function Index({ auth, sites, get_data, batch }) {
                 </div>
             </div>
             <div className="filter-wrapper md:px-4">
-                <div className="flex filter-details justify-end gap-3">
+                <div className="flex filter-details justify-end gap-1">
                     <div className="search-wrapper w-1/3 flex relative">
                         <TextInput
                             placeholder="Search..."
@@ -216,10 +219,18 @@ export default function Index({ auth, sites, get_data, batch }) {
                         </select>
                     </div>
                     {role === 'super-admin' && (
-                        <div className='import-type-field'>
-                            <Button variant="gradient" className='capitalize' size='sm' onClick={handleClick}>Import from CSV</Button>
-                            <input type="file" onChange={handleChangeUpload} ref={hiddenFileInput} style={{ display: 'none' }} />
-                        </div>
+                        <>
+                            <div className='import-type-field'>
+                                <Button variant="gradient" className='capitalize' size='sm' onClick={handleClick}>Import from CSV</Button>
+                                <input type="file" onChange={handleChangeUpload} ref={hiddenFileInput} style={{ display: 'none' }} />
+                            </div>
+                            <AddColumn />
+                            <HideColumn
+                                columns={TABLE_HEAD}
+                                additional_columns={additional_columns}
+                                hidden_columns={hiddenItems}
+                            />
+                        </>
                     )}
                     <ExportButton route_name={'site.field.name.export'} file_name={'FW Sites_Export'} />
                 </div>
@@ -231,38 +242,48 @@ export default function Index({ auth, sites, get_data, batch }) {
                             <thead>
                                 <tr>
                                     {TABLE_HEAD.map((head) => (
-                                        <th key={head.name} className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-2 border-l cursor-pointer">
+                                        <th key={head.name} className={`border-y border-blue-gray-100 bg-blue-gray-50/50 p-2 border-l cursor-pointer ${hiddenItems?.includes(head?.key) ? 'hidden' : ''}`}>
                                             <div className="flex justify-between">
                                                 <Typography variant="small" className="leading-none text-gray-800 font-medium text-sm">{head.name}</Typography>
                                                 {head?.sortable && (
                                                     <div className="relative mt-1">
-                                                        <span className='absolute -top-2 right-0 hover:bg-blue-gray-100 rounded-sm'><ChevronUpIcon size={12} strokeWidth={2} onClick={() => { sortData(head.sortKey, 'asc') }} /></span>
-                                                        <span className='absolute -bottom-1 right-0 hover:bg-blue-gray-100 rounded-sm'><ChevronDownIcon size={12} strokeWidth={2} onClick={() => { sortData(head.sortKey, 'desc') }} /></span>
+                                                        <span className='absolute -top-2 right-0 hover:bg-blue-gray-100 rounded-sm'><ChevronUpIcon size={12} strokeWidth={2} onClick={() => { sortData(head.key, 'asc') }} /></span>
+                                                        <span className='absolute -bottom-1 right-0 hover:bg-blue-gray-100 rounded-sm'><ChevronDownIcon size={12} strokeWidth={2} onClick={() => { sortData(head.key, 'desc') }} /></span>
                                                     </div>
                                                 )}
                                             </div>
                                         </th>
                                     ))}
+                                    {additional_columns?.length > 0 && (
+                                        additional_columns?.map((head) => (
+                                            <th key={head.name} className={`border-y border-blue-gray-100 bg-blue-gray-50/50 p-2 border-l cursor-pointer ${hiddenItems?.includes(head?.key) ? 'hidden' : ''}`}>
+                                                <div className="flex justify-between">
+                                                    <Typography variant="small" className="leading-none text-gray-800 font-medium text-sm">{head.name}</Typography>
+                                                </div>
+                                            </th>
+                                        ))
+                                    )}
+                                    <th className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-2 border-l cursor-pointer"></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {siteItems?.data.map((item, index) => {
                                     return (
                                         <tr key={item?.id} className="even:bg-blue-gray-50/50">
-                                            <td className="border-l h-10 text-[12px] font-medium ps-2"><Link href={'#'} className='font-semibold'>{item?.site_name}</Link></td>
-                                            <td className="border-l h-10 text-[12px] font-medium ps-2">{item?.cell_name}</td>
-                                            <td className="border-l h-10 text-[12px] font-medium ps-2">{item?.lon}</td>
-                                            <td className="border-l h-10 text-[12px] font-medium ps-2">{item?.lat}</td>
-                                            <td className="border-l h-10 text-[12px] font-medium ps-2">{item?.bb_type}</td>
-                                            <td className="border-l h-10 text-[12px] font-medium ps-2">{item?.rru_type}</td>
-                                            <td className="border-l h-10 text-[12px] font-medium ps-2">{item?.antenna_type}</td>
-                                            <td className="border-l h-10 text-[12px] font-medium ps-2">{item?.frequency}</td>
-                                            <td className="border-l h-10 text-[12px] font-medium ps-2">{item?.pci}</td>
-                                            <td className="border-l h-10 text-[12px] font-medium ps-2">{item?.azimuth}</td>
-                                            <td className="border-l h-10 text-[12px] font-medium ps-2">{item?.height}</td>
-                                            <td className="border-l h-10 text-[12px] font-medium ps-2">{item?.last_epo}</td>
-                                            <td className="border-l h-10 text-[12px] font-medium ps-2">{item?.next_epo}</td>
-                                            <td className="border-l h-10">
+                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hiddenItems?.includes('site_name') ? 'hidden' : ''}`}><Link href={'#'} className='font-semibold'>{item?.site_name}</Link></td>
+                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hiddenItems?.includes('cell_name') ? 'hidden' : ''}`}>{item?.cell_name}</td>
+                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hiddenItems?.includes('lon') ? 'hidden' : ''}`}>{item?.lon}</td>
+                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hiddenItems?.includes('lat') ? 'hidden' : ''}`}>{item?.lat}</td>
+                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hiddenItems?.includes('bb_type') ? 'hidden' : ''}`}>{item?.bb_type}</td>
+                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hiddenItems?.includes('rru_type') ? 'hidden' : ''}`}>{item?.rru_type}</td>
+                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hiddenItems?.includes('antenna_type') ? 'hidden' : ''}`}>{item?.antenna_type}</td>
+                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hiddenItems?.includes('frequency') ? 'hidden' : ''}`}>{item?.frequency}</td>
+                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hiddenItems?.includes('pci') ? 'hidden' : ''}`}>{item?.pci}</td>
+                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hiddenItems?.includes('azimuth') ? 'hidden' : ''}`}>{item?.azimuth}</td>
+                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hiddenItems?.includes('height') ? 'hidden' : ''}`}>{item?.height}</td>
+                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hiddenItems?.includes('last_epo') ? 'hidden' : ''}`}>{item?.last_epo}</td>
+                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hiddenItems?.includes('next_epo') ? 'hidden' : ''}`}>{item?.next_epo}</td>
+                                            <td className={`border-l h-10 ${hiddenItems?.includes('solution_type') ? 'hidden' : ''}`}>
                                                 <SelectItemField
                                                     value={getTrackingValue(item?.tracking, 'solution_type')}
                                                     name='solution_type'
@@ -275,13 +296,13 @@ export default function Index({ auth, sites, get_data, batch }) {
                                                     handleEditAbleItem={handleEditAbleItem}
                                                 />
                                             </td>
-                                            <td className="border-l h-10">
+                                            <td className={`border-l h-10 ${hiddenItems?.includes('start_date') ? 'hidden' : ''}`}>
                                                 <DateItemField value={getTrackingValue(item?.tracking, 'start_date')} name='start_date' siteId={item?.id} handleEditAbleItem={handleEditAbleItem} />
                                             </td>
-                                            <td className="border-l h-10">
+                                            <td className={`border-l h-10 ${hiddenItems?.includes('end_date') ? 'hidden' : ''}`}>
                                                 <DateItemField value={getTrackingValue(item?.tracking, 'end_date')} name='end_date' siteId={item?.id} handleEditAbleItem={handleEditAbleItem} />
                                             </td>
-                                            <td className="border-l h-10">
+                                            <td className={`border-l h-10 ${hiddenItems?.includes('status') ? 'hidden' : ''}`}>
                                                 <SelectItemField
                                                     value={getTrackingValue(item?.tracking, 'status')}
                                                     name='status'
@@ -294,16 +315,26 @@ export default function Index({ auth, sites, get_data, batch }) {
                                                     handleEditAbleItem={handleEditAbleItem}
                                                 />
                                             </td>
-                                            <td className="border-l h-10">
+                                            <td className={`border-l h-10 ${hiddenItems?.includes('remarks') ? 'hidden' : ''}`}>
                                                 <InputItemField value={getTrackingValue(item?.tracking, 'remarks')} name='remarks' siteId={item?.id} handleEditAbleItem={handleEditAbleItem} />
                                             </td>
-                                            <td className="border-l h-10">
+                                            <td className={`border-l h-10 ${hiddenItems?.includes('artifacts') ? 'hidden' : ''}`}>
                                                 <UploadItemField
                                                     value={getTrackingValue(item?.tracking, 'artifacts')}
                                                     name='artifacts'
                                                     siteId={item?.id}
                                                 />
                                             </td>
+                                            {additional_columns?.length > 0 && additional_columns.map((column, index) => (
+                                                <td className={`border-l h-10 ${hiddenItems?.includes(column.key) ? 'hidden' : ''}`} key={index}>
+                                                    <AdditionalColumnField
+                                                        column={column}
+                                                        item={item}
+                                                        value={getTrackingValue(item?.tracking, column.key)}
+                                                        handleEditAbleItem={handleEditAbleItem}
+                                                    />
+                                                </td>
+                                            ))}
                                             <td className='border-l h-10 px-3'>
                                                 <SaveBtn site_id={item?.id} changedItems={changedItems} setChangedItems={setChangedItems} />
                                             </td>
