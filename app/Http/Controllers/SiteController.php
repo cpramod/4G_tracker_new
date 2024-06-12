@@ -36,7 +36,8 @@ class SiteController extends Controller
         } else {
             $sites = Site::orderBy($order_by, $order ? $order : 'asc')->paginate($per_page);
         }
-        $hidden_columns = ColumnOption::where('type', 'fw_site')->pluck('value')->first();
+        $hidden_columns = ColumnOption::where('type', 'fw_site')->where('key', 'hide')->pluck('value')->first();
+        $renamed_columns = ColumnOption::where('type', 'fw_site')->where('key', 'rename')->pluck('value')->first();
         $additional_columns_keys = AdditionalColumn::where('type', 'fw_site')->pluck('key')->toArray();
         $additional_columns = AdditionalColumn::where('type', 'fw_site')->get();
         $desiredKeys = array_merge(['remarks', 'start_date', 'end_date', 'solution_type', 'status', 'artifacts'], $additional_columns_keys);
@@ -62,7 +63,8 @@ class SiteController extends Controller
             'sites' => $sites,
             'get_data' => $request->all(),
             'additional_columns' => $additional_columns,
-            'hidden_columns' => $hidden_columns
+            'hidden_columns' => json_decode($hidden_columns),
+            'renamed_columns' => json_decode($renamed_columns),
         ]);
     }
 

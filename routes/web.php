@@ -37,6 +37,7 @@ Route::controller(SiteController::class)->middleware('auth')->group(function () 
 Route::controller(ColumnController::class)->middleware(['auth', 'role:super-admin'])->group(function () {
     Route::post('/dashboard/additional-columns/', 'save_columns')->name('additional.columns.save.item');
     Route::post('/dashboard/hide-columns/', 'hide_columns')->name('hide.columns.item');
+    Route::post('/dashboard/rename-columns/', 'rename_columns')->name('rename.columns.item');
 });
 
 Route::get('/dashboard', [PageController::class, 'dashboard'])->middleware(['auth', 'verified'])->name('dashboard');

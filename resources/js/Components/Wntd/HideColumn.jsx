@@ -2,10 +2,9 @@ import React, { useState } from 'react'
 import { useForm } from '@inertiajs/react';
 import { Button, Checkbox, Dialog, DialogBody, DialogFooter, DialogHeader, Typography } from '@material-tailwind/react'
 
-export default function HideColumn({ columns, additional_columns, hidden_columns }) {
+export default function HideColumn({ hideColumnDialog, setHideColumnDialog, columns, additional_columns, hidden_columns }) {
 
-    const [open, setOpen] = useState(false);
-    const handleOpen = () => setOpen(!open);
+    const handleOpen = () => setHideColumnDialog(!hideColumnDialog);
     const { data, setData, post, processing, errors, reset } = useForm({
         type: "wntd",
         key: 'hide',
@@ -33,55 +32,52 @@ export default function HideColumn({ columns, additional_columns, hidden_columns
         e.preventDefault();
         post(route('hide.columns.item'), {
             onSuccess: () => {
-                setOpen(false)
+                setHideColumnDialog(false)
                 reset()
             }
         })
     }
 
     return (
-        <>
-            <Button variant="gradient" className='capitalize' size='sm' onClick={handleOpen}>Hide Column</Button>
-            <Dialog open={open} size='xs'>
-                <DialogHeader>Hide Column</DialogHeader>
-                <DialogBody>
-                    <div className="form-item">
-                        <p className='text-[#333] font-semibold'>Please select the column you want to hide</p>
-                        <div className="form-item grid grid-cols-2">
-                            {columns?.length > 0 && columns.map((column, index) => (
-                                <React.Fragment key={index}>
-                                    <Checkbox
-                                        containerProps={{ className: 'py-3', }}
-                                        className='w-5 h-5 rounded-md'
-                                        label={<Typography color="blue-gray" className="font-medium text-sm">{column?.name}</Typography>}
-                                        onChange={(e) => onCheckboxChangeHandler(e, column?.key)}
-                                        defaultChecked={hidden_columns?.includes(column?.key)}
-                                    />
-                                </React.Fragment>
-                            ))}
-                            {additional_columns?.length > 0 && additional_columns.map((column, index) => (
-                                <React.Fragment key={index}>
-                                    <Checkbox
-                                        containerProps={{ className: 'py-3', }}
-                                        className='w-5 h-5 rounded-md'
-                                        label={<Typography color="blue-gray" className="font-medium text-sm">{column?.name}</Typography>}
-                                        onChange={(e) => onCheckboxChangeHandler(e, column?.key)}
-                                        defaultChecked={hidden_columns?.includes(column?.key)}
-                                    />
-                                </React.Fragment>
-                            ))}
-                        </div>
+        <Dialog open={hideColumnDialog} size='xs'>
+            <DialogHeader>Hide Column</DialogHeader>
+            <DialogBody>
+                <div className="form-item">
+                    <p className='text-[#333] font-semibold'>Please select the column you want to hide</p>
+                    <div className="form-item grid grid-cols-2">
+                        {columns?.length > 0 && columns.map((column, index) => (
+                            <React.Fragment key={index}>
+                                <Checkbox
+                                    containerProps={{ className: 'py-3', }}
+                                    className='w-5 h-5 rounded-md'
+                                    label={<Typography color="blue-gray" className="font-medium text-sm">{column?.name}</Typography>}
+                                    onChange={(e) => onCheckboxChangeHandler(e, column?.key)}
+                                    defaultChecked={hidden_columns?.includes(column?.key)}
+                                />
+                            </React.Fragment>
+                        ))}
+                        {additional_columns?.length > 0 && additional_columns.map((column, index) => (
+                            <React.Fragment key={index}>
+                                <Checkbox
+                                    containerProps={{ className: 'py-3', }}
+                                    className='w-5 h-5 rounded-md'
+                                    label={<Typography color="blue-gray" className="font-medium text-sm">{column?.name}</Typography>}
+                                    onChange={(e) => onCheckboxChangeHandler(e, column?.key)}
+                                    defaultChecked={hidden_columns?.includes(column?.key)}
+                                />
+                            </React.Fragment>
+                        ))}
                     </div>
-                </DialogBody>
-                <DialogFooter>
-                    <Button variant="text" color="red" onClick={handleOpen} className="mr-1 capitalize">
-                        <span>Cancel</span>
-                    </Button>
-                    <Button variant="gradient" color="green" onClick={(e) => { onSubmitHandler(e) }} className='capitalize'>
-                        <span>Confirm</span>
-                    </Button>
-                </DialogFooter>
-            </Dialog>
-        </>
+                </div>
+            </DialogBody>
+            <DialogFooter>
+                <Button variant="text" color="red" onClick={handleOpen} className="mr-1 capitalize">
+                    <span>Cancel</span>
+                </Button>
+                <Button variant="gradient" color="green" onClick={(e) => { onSubmitHandler(e) }} className='capitalize' loading={processing}>
+                    <span>Confirm</span>
+                </Button>
+            </DialogFooter>
+        </Dialog>
     )
 }

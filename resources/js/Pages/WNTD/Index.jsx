@@ -15,12 +15,11 @@ import UploadItemField from '@/Components/Wntd/UploadItemField';
 import SaveBtn from '@/Components/Wntd/SaveBtn';
 import ExportButton from '@/Components/ExportButton';
 import CSVMapping from '@/Components/Wntd/CSVMapping';
-import AddColumn from '@/Components/Wntd/AddColumn';
-import HideColumn from '@/Components/Wntd/HideColumn';
+import ColumnOptions from '@/Components/Wntd/ColumnOptions';
 
-export default function Index({ auth, sites, get_data, batch, additional_columns, hidden_columns }) {
+export default function Index({ auth, sites, get_data, batch, additional_columns, hidden_columns, renamed_columns }) {
     const { role } = auth
-    const hiddenItems = JSON.parse(hidden_columns)
+
     const TABLE_HEAD = [
         { name: 'LOCID', sortable: true, key: 'loc_id' },
         { name: 'WNTD', sortable: true, key: 'wntd' },
@@ -41,6 +40,31 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
         { name: 'Remarks', sortable: false, key: 'remarks' },
         { name: 'Artifacts', sortable: false, key: 'artifacts' },
     ];
+
+    const [tableHeader, setTableHeader] = useState(TABLE_HEAD);
+    const [additionTableHeader, setAdditionalTableHeader] = useState(additional_columns)
+
+    useEffect(() => {
+        if (renamed_columns) {
+            const updatedTableHeader = [...tableHeader];
+            updatedTableHeader.forEach(column => {
+                const renamedColumn = renamed_columns.find(renamed => renamed.key === column.key);
+                if (renamedColumn) {
+                    column.name = renamedColumn.name;
+                }
+            });
+            const updatedAdditionalTableHeader = [...additionTableHeader];
+            updatedAdditionalTableHeader.forEach(column => {
+                const renamedColumn = renamed_columns.find(renamed => renamed.key === column.key);
+                if (renamedColumn) {
+                    column.name = renamedColumn.name;
+                }
+            });
+            setTableHeader(updatedTableHeader);
+            setAdditionalTableHeader(updatedAdditionalTableHeader);
+        }
+    }, [renamed_columns])
+
     const hiddenFileInput = useRef(null);
     const [searchText, setSearchText] = useState(get_data?.search ? get_data?.search : '');
     const [perPage, setPerPage] = useState(get_data?.per_page ? get_data?.per_page : 10);
@@ -131,7 +155,7 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
             if (batchId) {
                 fetchProgress()
             }
-        }, 1000)
+        }, 5000)
         return () => clearInterval(interval)
     }, [batchId])
 
@@ -219,12 +243,7 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
                                 <Button variant="gradient" className='capitalize' size='sm' onClick={handleClick}>Import from CSV</Button>
                                 <input type="file" onChange={handleChangeUpload} ref={hiddenFileInput} style={{ display: 'none' }} />
                             </div>
-                            <AddColumn />
-                            <HideColumn
-                                columns={TABLE_HEAD}
-                                additional_columns={additional_columns}
-                                hidden_columns={hiddenItems}
-                            />
+                            <ColumnOptions columns={tableHeader} additional_columns={additionTableHeader} hidden_columns={hidden_columns} />
                         </>
                     )}
                     <ExportButton route_name={'wireless.sites.export'} file_name={'WNTD_Export'} />
@@ -236,11 +255,8 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
                         <table className="w-full table-auto">
                             <thead>
                                 <tr>
-                                    {TABLE_HEAD.map((head) => (
-                                        <th
-                                            key={head.name}
-                                            className={`border-y border-blue-gray-100 bg-blue-gray-50/50 p-2 border-l cursor-pointer ${hiddenItems?.includes(head?.key) ? 'hidden' : ''}`}
-                                        >
+                                    {tableHeader.map((head) => (
+                                        <th key={head.name} className={`border-y border-blue-gray-100 bg-blue-gray-50/50 p-2 border-l cursor-pointer ${hidden_columns?.includes(head?.key) ? 'hidden' : ''}`}>
                                             <div className="flex justify-between">
                                                 <Typography variant="small" className="leading-none text-gray-800 font-medium text-sm">{head.name}</Typography>
                                                 {head?.sortable && (
@@ -252,9 +268,9 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
                                             </div>
                                         </th>
                                     ))}
-                                    {additional_columns?.length > 0 && (
-                                        additional_columns?.map((head) => (
-                                            <th key={head.name} className={`border-y border-blue-gray-100 bg-blue-gray-50/50 p-2 border-l cursor-pointer ${hiddenItems?.includes(head?.key) ? 'hidden' : ''}`}>
+                                    {additionTableHeader?.length > 0 && (
+                                        additionTableHeader?.map((head) => (
+                                            <th key={head.name} className={`border-y border-blue-gray-100 bg-blue-gray-50/50 p-2 border-l cursor-pointer ${hidden_columns?.includes(head?.key) ? 'hidden' : ''}`}>
                                                 <div className="flex justify-between">
                                                     <Typography variant="small" className="leading-none text-gray-800 font-medium text-sm">{head.name}</Typography>
                                                 </div>
@@ -268,25 +284,25 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
                                 {siteItems?.data.map((site) => {
                                     return (
                                         <tr key={site.id} className="even:bg-blue-gray-50/50">
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hiddenItems?.includes('loc_id') ? 'hidden' : ''}`}><Link href={route('wireless.show.location.index', site?.loc_id)} className='font-semibold underline'>{site?.loc_id}</Link></td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hiddenItems?.includes('wntd') ? 'hidden' : ''}`}>{site?.wntd}</td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hiddenItems?.includes('imsi') ? 'hidden' : ''}`}>{site?.imsi}</td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hiddenItems?.includes('version') ? 'hidden' : ''}`}>{site?.version}</td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hiddenItems?.includes('avc') ? 'hidden' : ''}`}>{site?.avc}</td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hiddenItems?.includes('bw_profile') ? 'hidden' : ''}`}>{site?.bw_profile}</td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hiddenItems?.includes('lon') ? 'hidden' : ''}`}>{site?.lon}</td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hiddenItems?.includes('lat') ? 'hidden' : ''}`}>{site?.lat}</td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hiddenItems?.includes('site_name') ? 'hidden' : ''}`}>{site?.site_name}</td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hiddenItems?.includes('home_cell') ? 'hidden' : ''}`}>{site?.home_cell}</td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hiddenItems?.includes('home_pci') ? 'hidden' : ''}`}>{site?.home_pci}</td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hiddenItems?.includes('traffic_profile') ? 'hidden' : ''}`}>{site?.traffic_profile}</td>
-                                            <td className={`border-l h-10 ${hiddenItems?.includes('start_date') ? 'hidden' : ''}`}>
+                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hidden_columns?.includes('loc_id') ? 'hidden' : ''}`}><Link href={route('wireless.show.location.index', site?.loc_id)} className='font-semibold underline'>{site?.loc_id}</Link></td>
+                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hidden_columns?.includes('wntd') ? 'hidden' : ''}`}>{site?.wntd}</td>
+                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hidden_columns?.includes('imsi') ? 'hidden' : ''}`}>{site?.imsi}</td>
+                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hidden_columns?.includes('version') ? 'hidden' : ''}`}>{site?.version}</td>
+                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hidden_columns?.includes('avc') ? 'hidden' : ''}`}>{site?.avc}</td>
+                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hidden_columns?.includes('bw_profile') ? 'hidden' : ''}`}>{site?.bw_profile}</td>
+                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hidden_columns?.includes('lon') ? 'hidden' : ''}`}>{site?.lon}</td>
+                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hidden_columns?.includes('lat') ? 'hidden' : ''}`}>{site?.lat}</td>
+                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hidden_columns?.includes('site_name') ? 'hidden' : ''}`}>{site?.site_name}</td>
+                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hidden_columns?.includes('home_cell') ? 'hidden' : ''}`}>{site?.home_cell}</td>
+                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hidden_columns?.includes('home_pci') ? 'hidden' : ''}`}>{site?.home_pci}</td>
+                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hidden_columns?.includes('traffic_profile') ? 'hidden' : ''}`}>{site?.traffic_profile}</td>
+                                            <td className={`border-l h-10 ${hidden_columns?.includes('start_date') ? 'hidden' : ''}`}>
                                                 <DateItemField value={getTrackingValue(site?.tracking, 'start_date')} name='start_date' locId={site.loc_id} siteId={site.id} handleEditAbleItem={handleEditAbleItem} />
                                             </td>
-                                            <td className={`border-l h-10 ${hiddenItems?.includes('end_date') ? 'hidden' : ''}`}>
+                                            <td className={`border-l h-10 ${hidden_columns?.includes('end_date') ? 'hidden' : ''}`}>
                                                 <DateItemField value={getTrackingValue(site?.tracking, 'end_date')} name='end_date' locId={site.loc_id} siteId={site.id} handleEditAbleItem={handleEditAbleItem} />
                                             </td>
-                                            <td className={`border-l h-10 ${hiddenItems?.includes('solution_type') ? 'hidden' : ''}`}>
+                                            <td className={`border-l h-10 ${hidden_columns?.includes('solution_type') ? 'hidden' : ''}`}>
                                                 <SelectItemField value={getTrackingValue(site?.tracking, 'solution_type')} name='solution_type' locId={site.loc_id} siteId={site.id} handleEditAbleItem={handleEditAbleItem}
                                                     options={[
                                                         { label: 'Device Upgrade', value: 'device_upgrade' },
@@ -295,7 +311,7 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
                                                     ]}
                                                 />
                                             </td>
-                                            <td className={`border-l h-10 ${hiddenItems?.includes('status') ? 'hidden' : ''}`}>
+                                            <td className={`border-l h-10 ${hidden_columns?.includes('status') ? 'hidden' : ''}`}>
                                                 <SelectItemField value={getTrackingValue(site?.tracking, 'status')} name='status' locId={site.loc_id} siteId={site.id} handleEditAbleItem={handleEditAbleItem}
                                                     options={[
                                                         { label: 'In Progress', value: 'in_progress' },
@@ -304,14 +320,14 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
                                                     ]}
                                                 />
                                             </td>
-                                            <td className={`border-l h-10 ${hiddenItems?.includes('remarks') ? 'hidden' : ''}`}>
+                                            <td className={`border-l h-10 ${hidden_columns?.includes('remarks') ? 'hidden' : ''}`}>
                                                 <InputItemField value={getTrackingValue(site?.tracking, 'remarks')} name='remarks' locId={site.loc_id} siteId={site.id} handleEditAbleItem={handleEditAbleItem} />
                                             </td>
-                                            <td className={`border-l h-10 ${hiddenItems?.includes('artifacts') ? 'hidden' : ''}`}>
+                                            <td className={`border-l h-10 ${hidden_columns?.includes('artifacts') ? 'hidden' : ''}`}>
                                                 <UploadItemField value={getTrackingValue(site?.tracking, 'artifacts')} name='artifacts' locId={site.loc_id} siteId={site.id} />
                                             </td>
-                                            {additional_columns?.length > 0 && additional_columns.map((column, index) => (
-                                                <td className={`border-l h-10 ${hiddenItems?.includes(column.key) ? 'hidden' : ''}`} key={index}>
+                                            {additionTableHeader?.length > 0 && additionTableHeader.map((column, index) => (
+                                                <td className={`border-l h-10 ${hidden_columns?.includes(column.key) ? 'hidden' : ''}`} key={index}>
                                                     <AdditionalColumnField
                                                         column={column}
                                                         site={site}
