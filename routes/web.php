@@ -30,7 +30,7 @@ Route::controller(SiteController::class)->middleware('auth')->group(function () 
     Route::post('/dashboard/fw-sites/map_fields/', 'map_and_save_csv')->middleware(['auth', 'role:super-admin'])->name('site.field.map.save');
     Route::post('/dashboard/fw-sites/artifacts/', 'save_artifacts')->name('site.field.name.update.artifacts');
     Route::post('/dashboard/fw-sites/', 'save_item')->name('site.field.name.save.item');
-    Route::get('/dashboard/fw-sites/show/{id}', 'location_site')->name('site.field.name.show.location.index');
+    Route::get('/dashboard/fw-sites/show/{id}', 'show')->name('site.field.name.show');
     Route::get('/dashboard/fw-sites/export', 'export')->name('site.field.name.export');
 });
 

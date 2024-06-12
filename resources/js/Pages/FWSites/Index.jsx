@@ -270,7 +270,7 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
                                 {siteItems?.data.map((item, index) => {
                                     return (
                                         <tr key={item?.id} className="even:bg-blue-gray-50/50">
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hiddenItems?.includes('site_name') ? 'hidden' : ''}`}><Link href={'#'} className='font-semibold'>{item?.site_name}</Link></td>
+                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hiddenItems?.includes('site_name') ? 'hidden' : ''}`}><Link href={route('site.field.name.show', item?.id)} className='font-semibold underline'>{item?.site_name}</Link></td>
                                             <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hiddenItems?.includes('cell_name') ? 'hidden' : ''}`}>{item?.cell_name}</td>
                                             <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hiddenItems?.includes('lon') ? 'hidden' : ''}`}>{item?.lon}</td>
                                             <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hiddenItems?.includes('lat') ? 'hidden' : ''}`}>{item?.lat}</td>

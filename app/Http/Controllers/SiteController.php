@@ -259,4 +259,17 @@ class SiteController extends Controller
             return '';
         }
     }
+    public function show($id)
+    {
+        $site = Site::find($id);
+        $desiredKeys = ['remarks', 'start_date', 'end_date', 'solution_type', 'status', 'artifacts'];
+        $locTrackingData = SiteTracking::where('site_area_id', $site->id)->whereIn('key', $desiredKeys)->get()->keyBy('key')->toArray();
+        $site->tracking = $locTrackingData;
+
+        $trackings = SiteTracking::with('user')->where('site_area_id', $id)->get();
+        return Inertia::render('FWSites/Show', [
+            'site' => $site,
+            'trackings' => $trackings
+        ]);
+    }
 }
