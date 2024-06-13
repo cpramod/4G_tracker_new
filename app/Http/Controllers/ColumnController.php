@@ -74,4 +74,21 @@ class ColumnController extends Controller
             ]);
         }
     }
+
+    public function delete_columns(Request $request)
+    {
+        $option = ColumnOption::where('type', $request->type)->where('key', $request->key)->first();
+        if ($option) {
+            $newItems = array_merge(json_decode($option->value), $request->items);
+            $option->update([
+                'value' => $request->items ? json_encode($newItems) : null
+            ]);
+        } else {
+            ColumnOption::create([
+                'type' => $request->type,
+                'key' => $request->key,
+                'value' => $request->items ? json_encode($request->items) : null
+            ]);
+        }
+    }
 }

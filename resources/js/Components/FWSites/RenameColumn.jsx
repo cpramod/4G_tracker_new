@@ -3,7 +3,7 @@ import React, { useEffect } from 'react'
 import TextInput from '../TextInput'
 import { useForm } from '@inertiajs/react'
 
-export default function RenameColumn({ renameColumnDialog, setRenameColumnDialog, columns, additional_columns }) {
+export default function RenameColumn({ renameColumnDialog, setRenameColumnDialog, columns, additional_columns, deleted_columns }) {
     const { data, setData, post, processing, errors, reset } = useForm({
         type: "fw_site",
         key: 'rename',
@@ -14,8 +14,8 @@ export default function RenameColumn({ renameColumnDialog, setRenameColumnDialog
         if (renameColumnDialog) {
             setData(prevData => {
                 const newItems = [
-                    ...columns.map(item => ({ key: item.key, name: item.name })),
-                    ...additional_columns.map(item => ({ key: item.key, name: item.name }))
+                    ...columns.filter(item => !deleted_columns.includes(item.key)).map(item => ({ key: item.key, name: item.name })),
+                    ...additional_columns.filter(item => !deleted_columns.includes(item.key)).map(item => ({ key: item.key, name: item.name }))
                 ];
                 return {
                     ...prevData,
@@ -56,7 +56,7 @@ export default function RenameColumn({ renameColumnDialog, setRenameColumnDialog
     return (
         <Dialog open={renameColumnDialog} size='xs'>
             <DialogHeader>Rename Columns</DialogHeader>
-            <DialogBody className="h-[42rem] overflow-scroll">
+            <DialogBody className="max-h-[42rem] overflow-scroll">
                 <div className="grid grid-cols-2 gap-3">
                     {data?.items.length > 0 && data?.items?.map((item, index) => {
                         return (

@@ -19,7 +19,7 @@ import ColumnOptions from '@/Components/FWSites/ColumnOptions';
 
 
 
-export default function Index({ auth, sites, get_data, batch, additional_columns, hidden_columns, renamed_columns }) {
+export default function Index({ auth, sites, get_data, batch, additional_columns, hidden_columns, renamed_columns, deleted_columns }) {
     const { role } = auth
 
     const TABLE_HEAD = [
@@ -45,6 +45,18 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
     ];
     const [tableHeader, setTableHeader] = useState(TABLE_HEAD);
     const [additionTableHeader, setAdditionalTableHeader] = useState(additional_columns)
+
+    const toHideItems = mergeArrays(hidden_columns, deleted_columns);
+    function mergeArrays(arr1, arr2) {
+        if (arr1 === null || arr1 === undefined) {
+            return arr2;
+        }
+        if (arr2 === null || arr2 === undefined) {
+            return arr1;
+        }
+        const merged = [...new Set([...arr1, ...arr2])];
+        return merged;
+    }
 
     useEffect(() => {
         if (renamed_columns) {
@@ -246,14 +258,12 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
                                 <Button variant="gradient" className='capitalize' size='sm' onClick={handleClick}>Import from CSV</Button>
                                 <input type="file" onChange={handleChangeUpload} ref={hiddenFileInput} style={{ display: 'none' }} />
                             </div>
-                            <ColumnOptions columns={tableHeader} additional_columns={additionTableHeader} hidden_columns={hidden_columns} />
-
-                            {/* <AddColumn />
-                            <HideColumn
-                                columns={TABLE_HEAD}
-                                additional_columns={additional_columns}
-                                hidden_columns={hiddenItems}
-                            /> */}
+                            <ColumnOptions
+                                columns={tableHeader}
+                                additional_columns={additionTableHeader}
+                                hidden_columns={hidden_columns}
+                                deleted_columns={deleted_columns ? deleted_columns : []}
+                            />
                         </>
                     )}
                     <ExportButton route_name={'site.field.name.export'} file_name={'FW Sites_Export'} />
@@ -266,7 +276,7 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
                             <thead>
                                 <tr>
                                     {tableHeader.map((head) => (
-                                        <th key={head.name} className={`border-y border-blue-gray-100 bg-blue-gray-50/50 p-2 border-l cursor-pointer ${hidden_columns?.includes(head?.key) ? 'hidden' : ''}`}>
+                                        <th key={head.name} className={`border-y border-blue-gray-100 bg-blue-gray-50/50 p-2 border-l cursor-pointer ${toHideItems?.includes(head?.key) ? 'hidden' : ''}`}>
                                             <div className="flex justify-between">
                                                 <Typography variant="small" className="leading-none text-gray-800 font-medium text-sm">{head.name}</Typography>
                                                 {head?.sortable && (
@@ -280,7 +290,7 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
                                     ))}
                                     {additionTableHeader?.length > 0 && (
                                         additionTableHeader?.map((head) => (
-                                            <th key={head.name} className={`border-y border-blue-gray-100 bg-blue-gray-50/50 p-2 border-l cursor-pointer ${hidden_columns?.includes(head?.key) ? 'hidden' : ''}`}>
+                                            <th key={head.name} className={`border-y border-blue-gray-100 bg-blue-gray-50/50 p-2 border-l cursor-pointer ${toHideItems?.includes(head?.key) ? 'hidden' : ''}`}>
                                                 <div className="flex justify-between">
                                                     <Typography variant="small" className="leading-none text-gray-800 font-medium text-sm">{head.name}</Typography>
                                                 </div>
@@ -294,20 +304,20 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
                                 {siteItems?.data.map((item, index) => {
                                     return (
                                         <tr key={item?.id} className="even:bg-blue-gray-50/50">
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hidden_columns?.includes('site_name') ? 'hidden' : ''}`}><Link href={'#'} className='font-semibold'>{item?.site_name}</Link></td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hidden_columns?.includes('cell_name') ? 'hidden' : ''}`}>{item?.cell_name}</td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hidden_columns?.includes('lon') ? 'hidden' : ''}`}>{item?.lon}</td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hidden_columns?.includes('lat') ? 'hidden' : ''}`}>{item?.lat}</td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hidden_columns?.includes('bb_type') ? 'hidden' : ''}`}>{item?.bb_type}</td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hidden_columns?.includes('rru_type') ? 'hidden' : ''}`}>{item?.rru_type}</td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hidden_columns?.includes('antenna_type') ? 'hidden' : ''}`}>{item?.antenna_type}</td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hidden_columns?.includes('frequency') ? 'hidden' : ''}`}>{item?.frequency}</td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hidden_columns?.includes('pci') ? 'hidden' : ''}`}>{item?.pci}</td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hidden_columns?.includes('azimuth') ? 'hidden' : ''}`}>{item?.azimuth}</td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hidden_columns?.includes('height') ? 'hidden' : ''}`}>{item?.height}</td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hidden_columns?.includes('last_epo') ? 'hidden' : ''}`}>{item?.last_epo}</td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hidden_columns?.includes('next_epo') ? 'hidden' : ''}`}>{item?.next_epo}</td>
-                                            <td className={`border-l h-10 ${hidden_columns?.includes('solution_type') ? 'hidden' : ''}`}>
+                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${toHideItems?.includes('site_name') ? 'hidden' : ''}`}><Link href={route('site.field.name.show', item?.id)} className='font-semibold underline'>{item?.site_name}</Link></td>
+                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${toHideItems?.includes('cell_name') ? 'hidden' : ''}`}>{item?.cell_name}</td>
+                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${toHideItems?.includes('lon') ? 'hidden' : ''}`}>{item?.lon}</td>
+                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${toHideItems?.includes('lat') ? 'hidden' : ''}`}>{item?.lat}</td>
+                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${toHideItems?.includes('bb_type') ? 'hidden' : ''}`}>{item?.bb_type}</td>
+                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${toHideItems?.includes('rru_type') ? 'hidden' : ''}`}>{item?.rru_type}</td>
+                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${toHideItems?.includes('antenna_type') ? 'hidden' : ''}`}>{item?.antenna_type}</td>
+                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${toHideItems?.includes('frequency') ? 'hidden' : ''}`}>{item?.frequency}</td>
+                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${toHideItems?.includes('pci') ? 'hidden' : ''}`}>{item?.pci}</td>
+                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${toHideItems?.includes('azimuth') ? 'hidden' : ''}`}>{item?.azimuth}</td>
+                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${toHideItems?.includes('height') ? 'hidden' : ''}`}>{item?.height}</td>
+                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${toHideItems?.includes('last_epo') ? 'hidden' : ''}`}>{item?.last_epo}</td>
+                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${toHideItems?.includes('next_epo') ? 'hidden' : ''}`}>{item?.next_epo}</td>
+                                            <td className={`border-l h-10 ${toHideItems?.includes('solution_type') ? 'hidden' : ''}`}>
                                                 <SelectItemField
                                                     value={getTrackingValue(item?.tracking, 'solution_type')}
                                                     name='solution_type'
@@ -320,13 +330,13 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
                                                     handleEditAbleItem={handleEditAbleItem}
                                                 />
                                             </td>
-                                            <td className={`border-l h-10 ${hidden_columns?.includes('start_date') ? 'hidden' : ''}`}>
+                                            <td className={`border-l h-10 ${toHideItems?.includes('start_date') ? 'hidden' : ''}`}>
                                                 <DateItemField value={getTrackingValue(item?.tracking, 'start_date')} name='start_date' siteId={item?.id} handleEditAbleItem={handleEditAbleItem} />
                                             </td>
-                                            <td className={`border-l h-10 ${hidden_columns?.includes('end_date') ? 'hidden' : ''}`}>
+                                            <td className={`border-l h-10 ${toHideItems?.includes('end_date') ? 'hidden' : ''}`}>
                                                 <DateItemField value={getTrackingValue(item?.tracking, 'end_date')} name='end_date' siteId={item?.id} handleEditAbleItem={handleEditAbleItem} />
                                             </td>
-                                            <td className={`border-l h-10 ${hidden_columns?.includes('status') ? 'hidden' : ''}`}>
+                                            <td className={`border-l h-10 ${toHideItems?.includes('status') ? 'hidden' : ''}`}>
                                                 <SelectItemField
                                                     value={getTrackingValue(item?.tracking, 'status')}
                                                     name='status'
@@ -339,10 +349,10 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
                                                     handleEditAbleItem={handleEditAbleItem}
                                                 />
                                             </td>
-                                            <td className={`border-l h-10 ${hidden_columns?.includes('remarks') ? 'hidden' : ''}`}>
+                                            <td className={`border-l h-10 ${toHideItems?.includes('remarks') ? 'hidden' : ''}`}>
                                                 <InputItemField value={getTrackingValue(item?.tracking, 'remarks')} name='remarks' siteId={item?.id} handleEditAbleItem={handleEditAbleItem} />
                                             </td>
-                                            <td className={`border-l h-10 ${hidden_columns?.includes('artifacts') ? 'hidden' : ''}`}>
+                                            <td className={`border-l h-10 ${toHideItems?.includes('artifacts') ? 'hidden' : ''}`}>
                                                 <UploadItemField
                                                     value={getTrackingValue(item?.tracking, 'artifacts')}
                                                     name='artifacts'
@@ -350,7 +360,7 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
                                                 />
                                             </td>
                                             {additional_columns?.length > 0 && additional_columns.map((column, index) => (
-                                                <td className={`border-l h-10 ${hidden_columns?.includes(column.key) ? 'hidden' : ''}`} key={index}>
+                                                <td className={`border-l h-10 ${toHideItems?.includes(column.key) ? 'hidden' : ''}`} key={index}>
                                                     <AdditionalColumnField
                                                         column={column}
                                                         item={item}

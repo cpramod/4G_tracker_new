@@ -38,6 +38,7 @@ class LocationController extends Controller
         }
         $hidden_columns = ColumnOption::where('type', 'wntd')->where('key', 'hide')->pluck('value')->first();
         $renamed_columns = ColumnOption::where('type', 'wntd')->where('key', 'rename')->pluck('value')->first();
+        $deleted_columns = ColumnOption::where('type', 'wntd')->where('key', 'delete')->pluck('value')->first();
         $additional_columns_keys = AdditionalColumn::where('type', 'wntd')->pluck('key')->toArray();
         $additional_columns = AdditionalColumn::where('type', 'wntd')->get();
         $desiredKeys = array_merge(['remarks', 'start_date', 'end_date', 'solution_type', 'status', 'artifacts'], $additional_columns_keys);
@@ -64,7 +65,8 @@ class LocationController extends Controller
             'get_data' => $request->all(),
             'additional_columns' => $additional_columns,
             'hidden_columns' => json_decode($hidden_columns),
-            'renamed_columns' => json_decode($renamed_columns)
+            'renamed_columns' => json_decode($renamed_columns),
+            'deleted_columns' => json_decode($deleted_columns),
         ]);
     }
 
