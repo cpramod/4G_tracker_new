@@ -39,6 +39,7 @@ Route::controller(ColumnController::class)->middleware(['auth', 'role:super-admi
     Route::post('/dashboard/hide-columns/', 'hide_columns')->name('hide.columns.item');
     Route::post('/dashboard/rename-columns/', 'rename_columns')->name('rename.columns.item');
     Route::post('/dashboard/delete-columns/', 'delete_columns')->name('delete.columns.item');
+    Route::post('/dashboard/arrange-columns/', 'rearrange_columns')->name('rearrange.columns.item');
 });
 
 Route::get('/dashboard', [PageController::class, 'dashboard'])->middleware(['auth', 'verified'])->name('dashboard');

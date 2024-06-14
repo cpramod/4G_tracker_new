@@ -3,7 +3,7 @@ import React, { useEffect } from 'react'
 import TextInput from '../TextInput'
 import { useForm } from '@inertiajs/react'
 
-export default function RenameColumn({ renameColumnDialog, setRenameColumnDialog, columns, additional_columns, deleted_columns }) {
+export default function RenameColumn({ renameColumnDialog, setRenameColumnDialog, columns, deleted_columns }) {
 
     const { data, setData, post, processing, errors, reset } = useForm({
         type: "wntd",
@@ -16,7 +16,6 @@ export default function RenameColumn({ renameColumnDialog, setRenameColumnDialog
             setData(prevData => {
                 const newItems = [
                     ...columns.filter(item => !deleted_columns.includes(item.key)).map(item => ({ key: item.key, name: item.name })),
-                    ...additional_columns.filter(item => !deleted_columns.includes(item.key)).map(item => ({ key: item.key, name: item.name }))
                 ];
                 return {
                     ...prevData,

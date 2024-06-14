@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useForm } from '@inertiajs/react'
 import { Button, Checkbox, Dialog, DialogBody, DialogFooter, DialogHeader, Typography } from '@material-tailwind/react'
 
-export default function DeleteColumn({ deleteColumnDialog, setDeleteColumnDialog, columns, additional_columns, deleted_columns }) {
+export default function DeleteColumn({ deleteColumnDialog, setDeleteColumnDialog, columns, deleted_columns }) {
 
     const { data, setData, post, processing, errors, reset } = useForm({
         type: "wntd",
@@ -16,7 +16,6 @@ export default function DeleteColumn({ deleteColumnDialog, setDeleteColumnDialog
             setItems(prevData => {
                 const newItems = [
                     ...columns.filter(item => !deleted_columns.includes(item.key)).map(item => ({ key: item.key, name: item.name })),
-                    ...additional_columns.filter(item => !deleted_columns.includes(item.key)).map(item => ({ key: item.key, name: item.name }))
                 ];
                 return newItems;
             })

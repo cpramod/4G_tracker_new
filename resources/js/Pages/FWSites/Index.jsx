@@ -7,47 +7,40 @@ import toast from 'react-hot-toast';
 import Pagination from '@/Components/Pagination';
 import TextInput from '@/Components/TextInput';
 import Authenticated from '@/Layouts/AuthenticatedLayout'
-import DateItemField from '@/Components/FWSites/DateItemField';
-import SelectItemField from '@/Components/FWSites/SelectItemField';
-import InputItemField from '@/Components/FWSites/InputItemField';
 import UploadItemField from '@/Components/FWSites/UploadItemField';
 import CSVMapping from '@/Components/FWSites/CSVMapping';
 import ExportButton from '@/Components/ExportButton';
 import SaveBtn from '@/Components/FWSites/SaveBtn';
-import AdditionalColumnField from '@/Components/FWSites/AdditionalColumnField';
 import ColumnOptions from '@/Components/FWSites/ColumnOptions';
+import EditableItem from '@/Components/FWSites/EditableItem';
 
 
 
-export default function Index({ auth, sites, get_data, batch, additional_columns, hidden_columns, renamed_columns, deleted_columns }) {
+export default function Index({ auth, sites, get_data, batch, additional_columns, hidden_columns, renamed_columns, deleted_columns, arrange_columns }) {
     const { role } = auth
 
-    const TABLE_HEAD = [
-        { name: 'Site Name', sortable: true, key: 'site_name' },
-        { name: 'Cell Name', sortable: true, key: 'cell_name' },
-        { name: 'Lon', sortable: true, key: 'lon' },
-        { name: 'Lat', sortable: true, key: 'lat' },
-        { name: 'BB Type', sortable: true, key: 'bb_type' },
-        { name: 'RRU Type', sortable: true, key: 'rru_type' },
-        { name: 'Antenna Type', sortable: true, key: 'antenna_type' },
-        { name: 'Frequency', sortable: true, key: 'frequency' },
-        { name: 'PCI', sortable: false, key: 'pci' },
-        { name: 'Azimuth', sortable: false, key: 'azimuth' },
-        { name: 'Height', sortable: false, key: 'height' },
-        { name: 'Last EPO', sortable: false, key: 'last_epo' },
-        { name: 'Next EPO', sortable: false, key: 'next_epo' },
-        { name: 'Solution Type', sortable: false, key: 'solution_type' },
-        { name: 'Start Date', sortable: false, key: 'start_date' },
-        { name: 'End Date', sortable: false, key: 'end_date' },
-        { name: 'Status', sortable: false, key: 'status' },
-        { name: 'Remarks', sortable: false, key: 'remarks' },
-        { name: 'Artifacts', sortable: false, key: 'artifacts' },
+    const fw_sites_header = [
+        { name: 'Site Name', sortable: true, key: 'site_name', position: 1, editable: false },
+        { name: 'Cell Name', sortable: true, key: 'cell_name', position: 2, editable: false },
+        { name: 'Lon', sortable: true, key: 'lon', position: 3, editable: false },
+        { name: 'Lat', sortable: true, key: 'lat', position: 4, editable: false },
+        { name: 'BB Type', sortable: true, key: 'bb_type', position: 5, editable: false },
+        { name: 'RRU Type', sortable: true, key: 'rru_type', position: 6, editable: false },
+        { name: 'Antenna Type', sortable: true, key: 'antenna_type', position: 7, editable: false },
+        { name: 'Frequency', sortable: true, key: 'frequency', position: 8, editable: false },
+        { name: 'PCI', sortable: false, key: 'pci', position: 9, editable: false },
+        { name: 'Azimuth', sortable: false, key: 'azimuth', position: 10, editable: false },
+        { name: 'Height', sortable: false, key: 'height', position: 11, editable: false },
+        { name: 'Last EPO', sortable: false, key: 'last_epo', position: 12, editable: true, input_type: "date" },
+        { name: 'Next EPO', sortable: false, key: 'next_epo', position: 13, editable: true, input_type: "date" },
+        { name: 'Solution Type', sortable: false, key: 'solution_type', position: 14, editable: true, input_type: "dropdown" },
+        { name: 'Start Date', sortable: false, key: 'start_date', position: 15, editable: true, input_type: "date" },
+        { name: 'End Date', sortable: false, key: 'end_date', position: 16, editable: true, input_type: "date" },
+        { name: 'Status', sortable: false, key: 'status', position: 17, editable: true, input_type: "dropdown" },
+        { name: 'Remarks', sortable: false, key: 'remarks', position: 18, editable: true, input_type: "text" },
+        { name: 'Artifacts', sortable: false, key: 'artifacts', position: 19, editable: true, input_type: "upload" },
     ];
-    const [tableHeader, setTableHeader] = useState(TABLE_HEAD);
-    const [additionTableHeader, setAdditionalTableHeader] = useState(additional_columns)
-
-    const toHideItems = mergeArrays(hidden_columns, deleted_columns);
-    function mergeArrays(arr1, arr2) {
+    function mergeHiddenDeletedColumn(arr1, arr2) {
         if (arr1 === null || arr1 === undefined) {
             return arr2;
         }
@@ -57,28 +50,69 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
         const merged = [...new Set([...arr1, ...arr2])];
         return merged;
     }
+    const hiddenColumnItems = mergeHiddenDeletedColumn(hidden_columns, deleted_columns);
+    function get_table_header() {
 
-    useEffect(() => {
+        const updatedTableHeader = [...fw_sites_header];
+        const updatedAdditionalTableHeader = additional_columns?.map(item => ({ ...item, editable: true }));
+        const sortByPosition = (a, b) => {
+            if (a.position !== undefined && b.position !== undefined) {
+                return a.position - b.position;
+            } else if (a.position !== undefined) {
+                return -1;
+            } else if (b.position !== undefined) {
+                return 1;
+            }
+            return 0;
+        };
+
         if (renamed_columns) {
-            const updatedTableHeader = [...tableHeader];
             updatedTableHeader.forEach(column => {
                 const renamedColumn = renamed_columns.find(renamed => renamed.key === column.key);
                 if (renamedColumn) {
                     column.name = renamedColumn.name;
                 }
             });
-            const updatedAdditionalTableHeader = [...additionTableHeader];
             updatedAdditionalTableHeader.forEach(column => {
                 const renamedColumn = renamed_columns.find(renamed => renamed.key === column.key);
                 if (renamedColumn) {
                     column.name = renamedColumn.name;
                 }
             });
-            setTableHeader(updatedTableHeader);
-            setAdditionalTableHeader(updatedAdditionalTableHeader);
         }
-    }, [renamed_columns])
-
+        if (hiddenColumnItems) {
+            updatedTableHeader.forEach(column => {
+                const hiddenColumn = hiddenColumnItems.find(hidden => hidden === column.key);
+                if (hiddenColumn) {
+                    column.hidden = true;
+                }
+            });
+            updatedAdditionalTableHeader.forEach(column => {
+                const hiddenColumn = hiddenColumnItems.find(hidden => hidden === column.key);
+                if (hiddenColumn) {
+                    column.hidden = true;
+                }
+            });
+        }
+        if (arrange_columns) {
+            updatedTableHeader.forEach(column => {
+                const arrangedColumn = arrange_columns.find(arranged => arranged.key === column.key);
+                if (arrangedColumn) {
+                    column.position = arrangedColumn.position;
+                }
+            });
+            updatedAdditionalTableHeader.forEach(column => {
+                const arrangedColumn = arrange_columns.find(arranged => arranged.key === column.key);
+                if (arrangedColumn) {
+                    column.position = arrangedColumn.position;
+                }
+            });
+        }
+        const combinedTableHeader = [...updatedTableHeader, ...updatedAdditionalTableHeader];
+        const sortedTableHeader = combinedTableHeader.sort(sortByPosition);
+        return sortedTableHeader
+    }
+    const tableHeader = get_table_header();
     const hiddenFileInput = useRef(null);
     const [searchText, setSearchText] = useState(get_data?.search ? get_data?.search : '');
     const [perPage, setPerPage] = useState(get_data?.per_page ? get_data?.per_page : 10);
@@ -115,11 +149,6 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
         router.get(route('site.field.name.index', { 'order_by': key, 'order': order }))
     };
 
-    const getTrackingValue = (tracking, key) => {
-        if (tracking) {
-            return tracking[key]?.value
-        }
-    }
     const onChangeFilter = async (key, value) => {
         router.get(route('site.field.name.index', { 'filter_by': key, 'value': value }))
     }
@@ -202,6 +231,39 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
         }
     }
 
+    const convert_item_object_to_array = (siteItem) => {
+        let newArray = []
+        tableHeader.forEach(item => {
+            const key = item.key;
+            const value = siteItem[key];
+            if (value !== undefined) {
+                if (item?.position) {
+                    newArray[item.position - 1] = {
+                        'key': key,
+                        'value': value,
+                        editable: item?.editable,
+                        input_type: item?.input_type ? item?.input_type : ''
+                    };
+                } else {
+                    newArray.push({
+                        'key': key,
+                        'value': value,
+                        editable: item?.editable,
+                        input_type: item?.input_type ? item?.input_type : ''
+                    });
+                }
+            } else {
+                newArray.push({
+                    'key': key,
+                    'value': '',
+                    editable: item?.editable,
+                    input_type: item?.input_type ? item?.input_type : ''
+                });
+            }
+        });
+        return newArray
+    }
+
     return (
         <Authenticated user={auth?.user}>
             <Head title='FW Sites' />
@@ -258,12 +320,7 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
                                 <Button variant="gradient" className='capitalize' size='sm' onClick={handleClick}>Import from CSV</Button>
                                 <input type="file" onChange={handleChangeUpload} ref={hiddenFileInput} style={{ display: 'none' }} />
                             </div>
-                            <ColumnOptions
-                                columns={tableHeader}
-                                additional_columns={additionTableHeader}
-                                hidden_columns={hidden_columns}
-                                deleted_columns={deleted_columns ? deleted_columns : []}
-                            />
+                            <ColumnOptions columns={tableHeader} hidden_columns={hidden_columns} deleted_columns={deleted_columns ? deleted_columns : []} />
                         </>
                     )}
                     <ExportButton route_name={'site.field.name.export'} file_name={'FW Sites_Export'} />
@@ -276,7 +333,7 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
                             <thead>
                                 <tr>
                                     {tableHeader.map((head) => (
-                                        <th key={head.name} className={`border-y border-blue-gray-100 bg-blue-gray-50/50 p-2 border-l cursor-pointer ${toHideItems?.includes(head?.key) ? 'hidden' : ''}`}>
+                                        <th key={head.name} className={`border-y border-blue-gray-100 bg-blue-gray-50/50 p-2 border-l cursor-pointer ${hiddenColumnItems?.includes(head?.key) ? 'hidden' : ''}`}>
                                             <div className="flex justify-between">
                                                 <Typography variant="small" className="leading-none text-gray-800 font-medium text-sm">{head.name}</Typography>
                                                 {head?.sortable && (
@@ -288,89 +345,35 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
                                             </div>
                                         </th>
                                     ))}
-                                    {additionTableHeader?.length > 0 && (
-                                        additionTableHeader?.map((head) => (
-                                            <th key={head.name} className={`border-y border-blue-gray-100 bg-blue-gray-50/50 p-2 border-l cursor-pointer ${toHideItems?.includes(head?.key) ? 'hidden' : ''}`}>
-                                                <div className="flex justify-between">
-                                                    <Typography variant="small" className="leading-none text-gray-800 font-medium text-sm">{head.name}</Typography>
-                                                </div>
-                                            </th>
-                                        ))
-                                    )}
                                     <th className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-2 border-l cursor-pointer"></th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {siteItems?.data.map((item, index) => {
+                                {siteItems?.data.map((siteItem, index) => {
+                                    const siteArray = convert_item_object_to_array(siteItem)
                                     return (
-                                        <tr key={item?.id} className="even:bg-blue-gray-50/50">
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${toHideItems?.includes('site_name') ? 'hidden' : ''}`}><Link href={route('site.field.name.show', item?.id)} className='font-semibold underline'>{item?.site_name}</Link></td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${toHideItems?.includes('cell_name') ? 'hidden' : ''}`}>{item?.cell_name}</td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${toHideItems?.includes('lon') ? 'hidden' : ''}`}>{item?.lon}</td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${toHideItems?.includes('lat') ? 'hidden' : ''}`}>{item?.lat}</td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${toHideItems?.includes('bb_type') ? 'hidden' : ''}`}>{item?.bb_type}</td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${toHideItems?.includes('rru_type') ? 'hidden' : ''}`}>{item?.rru_type}</td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${toHideItems?.includes('antenna_type') ? 'hidden' : ''}`}>{item?.antenna_type}</td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${toHideItems?.includes('frequency') ? 'hidden' : ''}`}>{item?.frequency}</td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${toHideItems?.includes('pci') ? 'hidden' : ''}`}>{item?.pci}</td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${toHideItems?.includes('azimuth') ? 'hidden' : ''}`}>{item?.azimuth}</td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${toHideItems?.includes('height') ? 'hidden' : ''}`}>{item?.height}</td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${toHideItems?.includes('last_epo') ? 'hidden' : ''}`}>{item?.last_epo}</td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${toHideItems?.includes('next_epo') ? 'hidden' : ''}`}>{item?.next_epo}</td>
-                                            <td className={`border-l h-10 ${toHideItems?.includes('solution_type') ? 'hidden' : ''}`}>
-                                                <SelectItemField
-                                                    value={getTrackingValue(item?.tracking, 'solution_type')}
-                                                    name='solution_type'
-                                                    siteId={item?.id}
-                                                    options={[
-                                                        { label: 'Opti Type-1', value: 'opti_type_1' },
-                                                        { label: 'Opti Type-5', value: 'opti_type_5' },
-                                                        { label: 'Opti Type-6', value: 'opti_type_6' },
-                                                    ]}
-                                                    handleEditAbleItem={handleEditAbleItem}
-                                                />
-                                            </td>
-                                            <td className={`border-l h-10 ${toHideItems?.includes('start_date') ? 'hidden' : ''}`}>
-                                                <DateItemField value={getTrackingValue(item?.tracking, 'start_date')} name='start_date' siteId={item?.id} handleEditAbleItem={handleEditAbleItem} />
-                                            </td>
-                                            <td className={`border-l h-10 ${toHideItems?.includes('end_date') ? 'hidden' : ''}`}>
-                                                <DateItemField value={getTrackingValue(item?.tracking, 'end_date')} name='end_date' siteId={item?.id} handleEditAbleItem={handleEditAbleItem} />
-                                            </td>
-                                            <td className={`border-l h-10 ${toHideItems?.includes('status') ? 'hidden' : ''}`}>
-                                                <SelectItemField
-                                                    value={getTrackingValue(item?.tracking, 'status')}
-                                                    name='status'
-                                                    siteId={item?.id}
-                                                    options={[
-                                                        { label: 'In Progress', value: 'in_progress' },
-                                                        { label: 'Not Started', value: 'not_started' },
-                                                        { label: 'Completed', value: 'completed' },
-                                                    ]}
-                                                    handleEditAbleItem={handleEditAbleItem}
-                                                />
-                                            </td>
-                                            <td className={`border-l h-10 ${toHideItems?.includes('remarks') ? 'hidden' : ''}`}>
-                                                <InputItemField value={getTrackingValue(item?.tracking, 'remarks')} name='remarks' siteId={item?.id} handleEditAbleItem={handleEditAbleItem} />
-                                            </td>
-                                            <td className={`border-l h-10 ${toHideItems?.includes('artifacts') ? 'hidden' : ''}`}>
-                                                <UploadItemField
-                                                    value={getTrackingValue(item?.tracking, 'artifacts')}
-                                                    name='artifacts'
-                                                    siteId={item?.id}
-                                                />
-                                            </td>
-                                            {additional_columns?.length > 0 && additional_columns.map((column, index) => (
-                                                <td className={`border-l h-10 ${toHideItems?.includes(column.key) ? 'hidden' : ''}`} key={index}>
-                                                    <AdditionalColumnField
-                                                        column={column}
-                                                        item={item}
-                                                        value={getTrackingValue(item?.tracking, column.key)}
-                                                        handleEditAbleItem={handleEditAbleItem}
-                                                    />
-                                                </td>
-                                            ))}
+                                        <tr key={siteItem?.id} className="even:bg-blue-gray-50/50">
+                                            {siteArray?.map((item, index) => {
+                                                return (
+                                                    <React.Fragment key={index} >
+                                                        <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hiddenColumnItems?.includes(item?.key) ? 'hidden' : ''}`}>
+                                                            {item?.key === "loc_id" ?
+                                                                <Link href={route('wireless.show.location.index', item?.value)} className='font-semibold underline'>{item?.value}</Link> :
+                                                                <React.Fragment>
+                                                                    {item?.editable ?
+                                                                        <React.Fragment>
+                                                                            {item?.input_type !== 'upload' && <EditableItem item={item} site={siteItem} handleEditAbleItem={handleEditAbleItem} />}
+                                                                            {item?.input_type === 'upload' && <UploadItemField value={item?.value} siteId={siteItem?.id} name='artifacts' />}
+                                                                        </React.Fragment>
+                                                                        : item?.value}
+                                                                </React.Fragment>
+                                                            }
+                                                        </td>
+                                                    </React.Fragment>
+                                                )
+                                            })}
                                             <td className='border-l h-10 px-3'>
-                                                <SaveBtn site_id={item?.id} changedItems={changedItems} setChangedItems={setChangedItems} />
+                                                <SaveBtn site_id={siteItem?.id} changedItems={changedItems} setChangedItems={setChangedItems} />
                                             </td>
                                         </tr>
                                     )

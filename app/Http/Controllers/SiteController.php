@@ -39,16 +39,19 @@ class SiteController extends Controller
         $hidden_columns = ColumnOption::where('type', 'fw_site')->where('key', 'hide')->pluck('value')->first();
         $renamed_columns = ColumnOption::where('type', 'fw_site')->where('key', 'rename')->pluck('value')->first();
         $deleted_columns = ColumnOption::where('type', 'fw_site')->where('key', 'delete')->pluck('value')->first();
+        $arrange_columns = ColumnOption::where('type', 'fw_site')->where('key', 'arrange')->pluck('value')->first();
         $additional_columns_keys = AdditionalColumn::where('type', 'fw_site')->pluck('key')->toArray();
         $additional_columns = AdditionalColumn::where('type', 'fw_site')->get();
         $desiredKeys = array_merge(['remarks', 'start_date', 'end_date', 'solution_type', 'status', 'artifacts'], $additional_columns_keys);
         foreach ($sites as $site) {
-            $locTrackingData = SiteTracking::where('site_area_id', $site->id)
+            $tracking_data = SiteTracking::where('site_area_id', $site->id)
                 ->whereIn('key', $desiredKeys)
                 ->get()
                 ->keyBy('key')
                 ->toArray();
-            $site->tracking = $locTrackingData;
+            foreach ($tracking_data as $key => $value) {
+                $site->{$key} = $value['value'];
+            }
         }
         if ($request->input('filter_by') && $request->input('value')) {
             $filterBy = $request->input('filter_by');
@@ -67,6 +70,7 @@ class SiteController extends Controller
             'hidden_columns' => json_decode($hidden_columns),
             'renamed_columns' => json_decode($renamed_columns),
             'deleted_columns' => json_decode($deleted_columns),
+            'arrange_columns' => json_decode($arrange_columns),
         ]);
     }
 
