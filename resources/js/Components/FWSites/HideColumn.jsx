@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useForm } from '@inertiajs/react';
 import { Button, Checkbox, Dialog, DialogBody, DialogFooter, DialogHeader, Typography } from '@material-tailwind/react'
 
-export default function HideColumn({ hideColumnDialog, setHideColumnDialog, columns, additional_columns, hidden_columns, deleted_columns }) {
+export default function HideColumn({ hideColumnDialog, setHideColumnDialog, columns, hidden_columns, deleted_columns }) {
 
     const handleOpen = () => setHideColumnDialog(!hideColumnDialog);
     const [items, setItems] = useState([])
@@ -17,7 +17,6 @@ export default function HideColumn({ hideColumnDialog, setHideColumnDialog, colu
             setItems(prevData => {
                 const newItems = [
                     ...columns.filter(item => !deleted_columns.includes(item.key)).map(item => ({ key: item.key, name: item.name })),
-                    ...additional_columns.filter(item => !deleted_columns.includes(item.key)).map(item => ({ key: item.key, name: item.name }))
                 ];
                 return newItems;
             })

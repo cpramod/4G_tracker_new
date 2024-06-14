@@ -91,4 +91,19 @@ class ColumnController extends Controller
             ]);
         }
     }
+    public function rearrange_columns(Request $request)
+    {
+        $option = ColumnOption::where('type', $request->type)->where('key', $request->key)->first();
+        if ($option) {
+            $option->update([
+                'value' => $request->items ? json_encode($request->items) : null
+            ]);
+        } else {
+            ColumnOption::create([
+                'type' => $request->type,
+                'key' => $request->key,
+                'value' => $request->items ? json_encode($request->items) : null
+            ]);
+        }
+    }
 }

@@ -1,50 +1,42 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Head, Link, router } from '@inertiajs/react'
-import { Button, Card, IconButton, Typography } from '@material-tailwind/react'
+import { Button, Card, IconButton, Typography } from '@material-tailwind/react';
 import { ChevronDownIcon, ChevronUpIcon, SearchIcon } from 'lucide-react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-import Pagination from '@/Components/Pagination';
-import TextInput from '@/Components/TextInput';
 import Authenticated from '@/Layouts/AuthenticatedLayout'
-import AdditionalColumnField from '@/Components/Wntd/AdditionalColumnField';
-import DateItemField from '@/Components/Wntd/DateItemField';
-import SelectItemField from '@/Components/Wntd/SelectItemField';
-import InputItemField from '@/Components/Wntd/InputItemField';
-import UploadItemField from '@/Components/Wntd/UploadItemField';
-import SaveBtn from '@/Components/Wntd/SaveBtn';
+import TextInput from '@/Components/TextInput';
+import ColumnOptions from '@/Components/Wntd/ColumnOptions';
 import ExportButton from '@/Components/ExportButton';
 import CSVMapping from '@/Components/Wntd/CSVMapping';
-import ColumnOptions from '@/Components/Wntd/ColumnOptions';
+import Pagination from '@/Components/Pagination';
+import EditableItem from '@/Components/Wntd/EditableItem';
+import SaveBtn from '@/Components/Wntd/SaveBtn';
+import UploadItemField from '@/Components/Wntd/UploadItemField';
 
-export default function Index({ auth, sites, get_data, batch, additional_columns, hidden_columns, renamed_columns, deleted_columns }) {
+export default function Index({ auth, sites, get_data, batch, additional_columns, hidden_columns, renamed_columns, deleted_columns, arrange_columns }) {
     const { role } = auth
-    const TABLE_HEAD = [
-        { name: 'LOCID', sortable: true, key: 'loc_id' },
-        { name: 'WNTD', sortable: true, key: 'wntd' },
-        { name: 'IMSI', sortable: true, key: 'imsi' },
-        { name: 'VERSION', sortable: true, key: 'version' },
-        { name: 'AVC', sortable: true, key: 'avc' },
-        { name: 'BW Profile', sortable: true, key: 'bw_profile' },
-        { name: 'Lon', sortable: true, key: 'lon' },
-        { name: 'Lat', sortable: true, key: 'lat' },
-        { name: 'SiteName', sortable: true, key: 'site_name' },
-        { name: 'HomeCell', sortable: true, key: 'home_cell' },
-        { name: 'HomePCI', sortable: true, key: 'home_pci' },
-        { name: 'Traffic Profile', sortable: true, key: 'traffic_profile' },
-        { name: 'Start Date', sortable: false, key: 'start_date' },
-        { name: 'End Date', sortable: false, key: 'end_date' },
-        { name: 'Solution Type', sortable: false, key: 'solution_type' },
-        { name: 'Status', sortable: false, key: 'status' },
-        { name: 'Remarks', sortable: false, key: 'remarks' },
-        { name: 'Artifacts', sortable: false, key: 'artifacts' },
+    const wntd_header = [
+        { name: 'LOCID', sortable: true, key: 'loc_id', position: 1, editable: false },
+        { name: 'WNTD', sortable: true, key: 'wntd', position: 2, editable: false },
+        { name: 'IMSI', sortable: true, key: 'imsi', position: 3, editable: false },
+        { name: 'VERSION', sortable: true, key: 'version', position: 4, editable: false },
+        { name: 'AVC', sortable: true, key: 'avc', position: 5, editable: false },
+        { name: 'BW Profile', sortable: true, key: 'bw_profile', position: 6, editable: false },
+        { name: 'Lon', sortable: true, key: 'lon', position: 7, editable: false },
+        { name: 'Lat', sortable: true, key: 'lat', position: 8, editable: false },
+        { name: 'SiteName', sortable: true, key: 'site_name', position: 9, editable: false },
+        { name: 'HomeCell', sortable: true, key: 'home_cell', position: 10, editable: false },
+        { name: 'HomePCI', sortable: true, key: 'home_pci', position: 11, editable: false },
+        { name: 'Traffic Profile', sortable: true, key: 'traffic_profile', position: 12 },
+        { name: 'Start Date', sortable: false, key: 'start_date', position: 13, editable: true, input_type: "date" },
+        { name: 'End Date', sortable: false, key: 'end_date', position: 14, editable: true, input_type: "date" },
+        { name: 'Solution Type', sortable: false, key: 'solution_type', position: 15, editable: true, input_type: "dropdown" },
+        { name: 'Status', sortable: false, key: 'status', position: 16, editable: true, input_type: "dropdown" },
+        { name: 'Remarks', sortable: false, key: 'remarks', position: 17, editable: true, input_type: "text" },
+        { name: 'Artifacts', sortable: false, key: 'artifacts', position: 18, editable: true, input_type: "upload" },
     ];
-
-    const [tableHeader, setTableHeader] = useState(TABLE_HEAD);
-    const [additionTableHeader, setAdditionalTableHeader] = useState(additional_columns)
-
-    const toHideItems = mergeArrays(hidden_columns, deleted_columns);
-    function mergeArrays(arr1, arr2) {
+    function mergeHiddenDeletedColumn(arr1, arr2) {
         if (arr1 === null || arr1 === undefined) {
             return arr2;
         }
@@ -54,28 +46,69 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
         const merged = [...new Set([...arr1, ...arr2])];
         return merged;
     }
+    const hiddenColumnItems = mergeHiddenDeletedColumn(hidden_columns, deleted_columns);
+    function get_table_header() {
 
-    useEffect(() => {
+        const updatedTableHeader = [...wntd_header];
+        const updatedAdditionalTableHeader = additional_columns?.map(item => ({ ...item, editable: true }));
+        const sortByPosition = (a, b) => {
+            if (a.position !== undefined && b.position !== undefined) {
+                return a.position - b.position;
+            } else if (a.position !== undefined) {
+                return -1;
+            } else if (b.position !== undefined) {
+                return 1;
+            }
+            return 0;
+        };
+
         if (renamed_columns) {
-            const updatedTableHeader = [...tableHeader];
             updatedTableHeader.forEach(column => {
                 const renamedColumn = renamed_columns.find(renamed => renamed.key === column.key);
                 if (renamedColumn) {
                     column.name = renamedColumn.name;
                 }
             });
-            const updatedAdditionalTableHeader = [...additionTableHeader];
             updatedAdditionalTableHeader.forEach(column => {
                 const renamedColumn = renamed_columns.find(renamed => renamed.key === column.key);
                 if (renamedColumn) {
                     column.name = renamedColumn.name;
                 }
             });
-            setTableHeader(updatedTableHeader);
-            setAdditionalTableHeader(updatedAdditionalTableHeader);
         }
-    }, [renamed_columns])
-
+        if (hiddenColumnItems) {
+            updatedTableHeader.forEach(column => {
+                const hiddenColumn = hiddenColumnItems.find(hidden => hidden === column.key);
+                if (hiddenColumn) {
+                    column.hidden = true;
+                }
+            });
+            updatedAdditionalTableHeader.forEach(column => {
+                const hiddenColumn = hiddenColumnItems.find(hidden => hidden === column.key);
+                if (hiddenColumn) {
+                    column.hidden = true;
+                }
+            });
+        }
+        if (arrange_columns) {
+            updatedTableHeader.forEach(column => {
+                const arrangedColumn = arrange_columns.find(arranged => arranged.key === column.key);
+                if (arrangedColumn) {
+                    column.position = arrangedColumn.position;
+                }
+            });
+            updatedAdditionalTableHeader.forEach(column => {
+                const arrangedColumn = arrange_columns.find(arranged => arranged.key === column.key);
+                if (arrangedColumn) {
+                    column.position = arrangedColumn.position;
+                }
+            });
+        }
+        const combinedTableHeader = [...updatedTableHeader, ...updatedAdditionalTableHeader];
+        const sortedTableHeader = combinedTableHeader.sort(sortByPosition);
+        return sortedTableHeader
+    }
+    const tableHeader = get_table_header();
     const hiddenFileInput = useRef(null);
     const [searchText, setSearchText] = useState(get_data?.search ? get_data?.search : '');
     const [perPage, setPerPage] = useState(get_data?.per_page ? get_data?.per_page : 10);
@@ -110,11 +143,6 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
         router.get(route('wireless.sites.index', { 'order_by': key, 'order': order }))
     };
 
-    const getTrackingValue = (tracking, key) => {
-        if (tracking) {
-            return tracking[key]?.value
-        }
-    }
     const onChangeFilter = async (key, value) => {
         router.get(route('wireless.sites.index', { 'filter_by': key, 'value': value }))
     }
@@ -198,9 +226,42 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
         }
     }
 
+    const convert_item_object_to_array = (siteItem) => {
+        let newArray = []
+        tableHeader.forEach(item => {
+            const key = item.key;
+            const value = siteItem[key];
+            if (value !== undefined) {
+                if (item?.position) {
+                    newArray[item.position - 1] = {
+                        'key': key,
+                        'value': value,
+                        editable: item?.editable,
+                        input_type: item?.input_type ? item?.input_type : ''
+                    };
+                } else {
+                    newArray.push({
+                        'key': key,
+                        'value': value,
+                        editable: item?.editable,
+                        input_type: item?.input_type ? item?.input_type : ''
+                    });
+                }
+            } else {
+                newArray.push({
+                    'key': key,
+                    'value': '',
+                    editable: item?.editable,
+                    input_type: item?.input_type ? item?.input_type : ''
+                });
+            }
+        });
+        return newArray
+    }
+
     return (
         <Authenticated user={auth?.user}>
-            <Head title='Wireless Sites' />
+            <Head title='WNTD' />
             <div className="top-section p-4">
                 <div className='flex items-center justify-between'>
                     <div className="">
@@ -254,17 +315,13 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
                                 <Button variant="gradient" className='capitalize' size='sm' onClick={handleClick}>Import from CSV</Button>
                                 <input type="file" onChange={handleChangeUpload} ref={hiddenFileInput} style={{ display: 'none' }} />
                             </div>
-                            <ColumnOptions
-                                columns={tableHeader}
-                                additional_columns={additionTableHeader}
-                                hidden_columns={hidden_columns}
-                                deleted_columns={deleted_columns ? deleted_columns : []}
-                            />
+                            <ColumnOptions columns={tableHeader} hidden_columns={hidden_columns} deleted_columns={deleted_columns ? deleted_columns : []} />
                         </>
                     )}
                     <ExportButton route_name={'wireless.sites.export'} file_name={'WNTD_Export'} />
                 </div>
             </div>
+
             <div className="content mt-6">
                 <Card className="h-full w-full rounded-none">
                     <div className="overflow-x-auto overflow-hidden">
@@ -272,7 +329,7 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
                             <thead>
                                 <tr>
                                     {tableHeader.map((head) => (
-                                        <th key={head.name} className={`border-y border-blue-gray-100 bg-blue-gray-50/50 p-2 border-l cursor-pointer ${toHideItems?.includes(head?.key) ? 'hidden' : ''}`}>
+                                        <th key={head.name} className={`border-y border-blue-gray-100 bg-blue-gray-50/50 p-2 border-l cursor-pointer ${hiddenColumnItems?.includes(head?.key) ? 'hidden' : ''}`}>
                                             <div className="flex justify-between">
                                                 <Typography variant="small" className="leading-none text-gray-800 font-medium text-sm">{head.name}</Typography>
                                                 {head?.sortable && (
@@ -284,74 +341,33 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
                                             </div>
                                         </th>
                                     ))}
-                                    {additionTableHeader?.length > 0 && (
-                                        additionTableHeader?.map((head) => (
-                                            <th key={head.name} className={`border-y border-blue-gray-100 bg-blue-gray-50/50 p-2 border-l cursor-pointer ${toHideItems?.includes(head?.key) ? 'hidden' : ''}`}>
-                                                <div className="flex justify-between">
-                                                    <Typography variant="small" className="leading-none text-gray-800 font-medium text-sm">{head.name}</Typography>
-                                                </div>
-                                            </th>
-                                        ))
-                                    )}
                                     <th className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-2 border-l cursor-pointer"></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {siteItems?.data.map((site) => {
+                                    const siteArray = convert_item_object_to_array(site)
                                     return (
                                         <tr key={site.id} className="even:bg-blue-gray-50/50">
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${toHideItems?.includes('loc_id') ? 'hidden' : ''}`}><Link href={route('wireless.show.location.index', site?.loc_id)} className='font-semibold underline'>{site?.loc_id}</Link></td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${toHideItems?.includes('wntd') ? 'hidden' : ''}`}>{site?.wntd}</td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${toHideItems?.includes('imsi') ? 'hidden' : ''}`}>{site?.imsi}</td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${toHideItems?.includes('version') ? 'hidden' : ''}`}>{site?.version}</td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${toHideItems?.includes('avc') ? 'hidden' : ''}`}>{site?.avc}</td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${toHideItems?.includes('bw_profile') ? 'hidden' : ''}`}>{site?.bw_profile}</td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${toHideItems?.includes('lon') ? 'hidden' : ''}`}>{site?.lon}</td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${toHideItems?.includes('lat') ? 'hidden' : ''}`}>{site?.lat}</td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${toHideItems?.includes('site_name') ? 'hidden' : ''}`}>{site?.site_name}</td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${toHideItems?.includes('home_cell') ? 'hidden' : ''}`}>{site?.home_cell}</td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${toHideItems?.includes('home_pci') ? 'hidden' : ''}`}>{site?.home_pci}</td>
-                                            <td className={`border-l h-10 text-[12px] font-medium ps-2 ${toHideItems?.includes('traffic_profile') ? 'hidden' : ''}`}>{site?.traffic_profile}</td>
-                                            <td className={`border-l h-10 ${toHideItems?.includes('start_date') ? 'hidden' : ''}`}>
-                                                <DateItemField value={getTrackingValue(site?.tracking, 'start_date')} name='start_date' locId={site.loc_id} siteId={site.id} handleEditAbleItem={handleEditAbleItem} />
-                                            </td>
-                                            <td className={`border-l h-10 ${toHideItems?.includes('end_date') ? 'hidden' : ''}`}>
-                                                <DateItemField value={getTrackingValue(site?.tracking, 'end_date')} name='end_date' locId={site.loc_id} siteId={site.id} handleEditAbleItem={handleEditAbleItem} />
-                                            </td>
-                                            <td className={`border-l h-10 ${toHideItems?.includes('solution_type') ? 'hidden' : ''}`}>
-                                                <SelectItemField value={getTrackingValue(site?.tracking, 'solution_type')} name='solution_type' locId={site.loc_id} siteId={site.id} handleEditAbleItem={handleEditAbleItem}
-                                                    options={[
-                                                        { label: 'Device Upgrade', value: 'device_upgrade' },
-                                                        { label: 'Reparent', value: 'reparent' },
-                                                        { label: 'Repan', value: 'repan' },
-                                                    ]}
-                                                />
-                                            </td>
-                                            <td className={`border-l h-10 ${toHideItems?.includes('status') ? 'hidden' : ''}`}>
-                                                <SelectItemField value={getTrackingValue(site?.tracking, 'status')} name='status' locId={site.loc_id} siteId={site.id} handleEditAbleItem={handleEditAbleItem}
-                                                    options={[
-                                                        { label: 'In Progress', value: 'in_progress' },
-                                                        { label: 'Not Started', value: 'not_started' },
-                                                        { label: 'Completed', value: 'completed' },
-                                                    ]}
-                                                />
-                                            </td>
-                                            <td className={`border-l h-10 ${toHideItems?.includes('remarks') ? 'hidden' : ''}`}>
-                                                <InputItemField value={getTrackingValue(site?.tracking, 'remarks')} name='remarks' locId={site.loc_id} siteId={site.id} handleEditAbleItem={handleEditAbleItem} />
-                                            </td>
-                                            <td className={`border-l h-10 ${toHideItems?.includes('artifacts') ? 'hidden' : ''}`}>
-                                                <UploadItemField value={getTrackingValue(site?.tracking, 'artifacts')} name='artifacts' locId={site.loc_id} siteId={site.id} />
-                                            </td>
-                                            {additionTableHeader?.length > 0 && additionTableHeader.map((column, index) => (
-                                                <td className={`border-l h-10 ${toHideItems?.includes(column.key) ? 'hidden' : ''}`} key={index}>
-                                                    <AdditionalColumnField
-                                                        column={column}
-                                                        site={site}
-                                                        value={getTrackingValue(site?.tracking, column.key)}
-                                                        handleEditAbleItem={handleEditAbleItem}
-                                                    />
-                                                </td>
-                                            ))}
+                                            {siteArray?.map((item, index) => {
+                                                return (
+                                                    <React.Fragment key={index} >
+                                                        <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hiddenColumnItems?.includes(item?.key) ? 'hidden' : ''}`}>
+                                                            {item?.key === "loc_id" ?
+                                                                <Link href={route('wireless.show.location.index', item?.value)} className='font-semibold underline'>{item?.value}</Link> :
+                                                                <React.Fragment>
+                                                                    {item?.editable ?
+                                                                        <React.Fragment>
+                                                                            {item?.input_type !== 'upload' && <EditableItem item={item} site={site} handleEditAbleItem={handleEditAbleItem} />}
+                                                                            {item?.input_type === 'upload' && <UploadItemField value={item?.value} name='artifacts' locId={site.loc_id} siteId={site.id} />}
+                                                                        </React.Fragment>
+                                                                        : item?.value}
+                                                                </React.Fragment>
+                                                            }
+                                                        </td>
+                                                    </React.Fragment>
+                                                )
+                                            })}
                                             <td className='border-l h-10 px-3'>
                                                 <SaveBtn site_id={site?.id} changedItems={changedItems} setChangedItems={setChangedItems} />
                                             </td>
@@ -391,4 +407,5 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
             </div>
         </Authenticated>
     )
+
 }
