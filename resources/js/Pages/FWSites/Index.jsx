@@ -13,6 +13,7 @@ import ExportButton from '@/Components/ExportButton';
 import SaveBtn from '@/Components/FWSites/SaveBtn';
 import ColumnOptions from '@/Components/FWSites/ColumnOptions';
 import EditableItem from '@/Components/FWSites/EditableItem';
+import RestoreTable from '@/Components/RestoreTable';
 
 
 
@@ -321,6 +322,7 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
                                 <input type="file" onChange={handleChangeUpload} ref={hiddenFileInput} style={{ display: 'none' }} />
                             </div>
                             <ColumnOptions columns={tableHeader} hidden_columns={hidden_columns} deleted_columns={deleted_columns ? deleted_columns : []} />
+                            <RestoreTable type={'fw_site'} />
                         </>
                     )}
                     <ExportButton route_name={'site.field.name.export'} file_name={'FW Sites_Export'} />

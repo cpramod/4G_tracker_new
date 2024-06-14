@@ -13,6 +13,7 @@ import Pagination from '@/Components/Pagination';
 import EditableItem from '@/Components/Wntd/EditableItem';
 import SaveBtn from '@/Components/Wntd/SaveBtn';
 import UploadItemField from '@/Components/Wntd/UploadItemField';
+import RestoreTable from '@/Components/RestoreTable';
 
 export default function Index({ auth, sites, get_data, batch, additional_columns, hidden_columns, renamed_columns, deleted_columns, arrange_columns }) {
     const { role } = auth
@@ -316,6 +317,7 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
                                 <input type="file" onChange={handleChangeUpload} ref={hiddenFileInput} style={{ display: 'none' }} />
                             </div>
                             <ColumnOptions columns={tableHeader} hidden_columns={hidden_columns} deleted_columns={deleted_columns ? deleted_columns : []} />
+                            <RestoreTable type={'wntd'} />
                         </>
                     )}
                     <ExportButton route_name={'wireless.sites.export'} file_name={'WNTD_Export'} />

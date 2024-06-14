@@ -106,4 +106,12 @@ class ColumnController extends Controller
             ]);
         }
     }
+
+    public function restore_table(Request $request)
+    {
+        $all_options = ColumnOption::where('type', $request->table_type)->get();
+        foreach ($all_options as $option) {
+            $option->delete();
+        }
+    }
 }
