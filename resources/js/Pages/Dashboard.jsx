@@ -101,58 +101,48 @@ export default function Dashboard({ auth }) {
     return (
         <AuthenticatedLayout user={auth.user}>
             <Head title="Dashboard" />
-
             <div className="dashboard-page p-6">
                 <Typography variant='h3' color='blue-gray'>Dashboard</Typography>
-                <div className="items-row grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 pt-12">
-                    <Card className='drop-shadow-sm shadow-lg'>
-                        <CardBody className='px-3 py-2'>
-                            <div className="flex items-center justify-between relative py-4">
-                                <p className='font-semibold text-2xl capitalize'>locations</p>
-                                <h4 className='text-gray-400 font-semibold text-5xl absolute right-0 leading-tight tracking-tighter'>{count_data?.loc_count ? count_data?.loc_count : '00'}</h4>
-                            </div>
-                        </CardBody>
-                    </Card>
-                    <Card className='drop-shadow-sm shadow-lg'>
-                        <CardBody className='px-3 py-2'>
-                            <div className="flex items-center justify-between relative py-4">
-                                <p className='font-semibold text-2xl capitalize'>WNTD</p>
-                                <h4 className='text-gray-400 font-semibold text-5xl absolute right-0 leading-tight tracking-tighter'>{count_data?.wntd_count ? count_data?.wntd_count : '00'}</h4>
-                            </div>
-                        </CardBody>
-                    </Card>
-                    <Card className='drop-shadow-sm shadow-lg'>
-                        <CardBody className='px-3 py-2'>
-                            <div className="flex items-center justify-between relative py-4">
-                                <p className='font-semibold text-2xl capitalize'>AVC</p>
-                                <h4 className='text-gray-400 font-semibold text-5xl absolute right-0 leading-tight tracking-tighter'>{count_data?.avc_count ? count_data?.avc_count : '00'}</h4>
-                            </div>
-                        </CardBody>
-                    </Card>
-                    <Card className='drop-shadow-sm shadow-lg'>
-                        <CardBody className='px-3 py-2'>
-                            <div className="flex items-center justify-between relative py-4">
-                                <p className='font-semibold text-2xl capitalize'>Sites</p>
-                                <h4 className='text-gray-400 font-semibold text-5xl absolute right-0 leading-tight tracking-tighter'>{count_data?.site_count ? count_data?.site_count : '00'}</h4>
-                            </div>
+                <div className="items-row grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 pt-12">
+
+                    <Card className='drop-shadow-sm shadow-lg border rounded-md'>
+                        <CardBody className='px-6 py-6'>
+                            <h4 className='text-gray-700 font-bold text-5xl leading-tight tracking-tighter font-inter'>{count_data?.loc_count ? count_data?.loc_count : '00'}</h4>
+                            <p className='font-semibold text-xl capitalize'>locations</p>
                         </CardBody>
                     </Card>
 
-                    <Card className='drop-shadow-sm shadow-lg'>
-                        <CardBody className='px-3 py-2'>
-                            <div className="flex items-center justify-between relative py-4">
-                                <p className='font-semibold text-2xl capitalize'>Cells</p>
-                                <h4 className='text-gray-400 font-semibold text-5xl absolute right-0 leading-tight tracking-tighter'>{count_data?.home_cell_count ? count_data?.home_cell_count : '00'}</h4>
-                            </div>
+                    <Card className='drop-shadow-sm shadow-lg border rounded-md'>
+                        <CardBody className='px-6 py-6'>
+                            <h4 className='text-gray-700 font-bold text-5xl leading-tight tracking-tighter font-inter'>{count_data?.wntd_count ? count_data?.wntd_count : '00'}</h4>
+                            <p className='font-semibold text-xl capitalize'>WNTD</p>
                         </CardBody>
                     </Card>
 
-                    <Card className='drop-shadow-sm shadow-lg'>
-                        <CardBody className='px-3 py-2'>
-                            <div className="flex items-center justify-between relative py-4">
-                                <p className='font-semibold text-2xl capitalize'>Heavy users locs</p>
-                                <h4 className='text-gray-400 font-semibold text-5xl absolute right-0 leading-tight tracking-tighter'>{count_data?.traffic_profile_count ? count_data?.traffic_profile_count : '00'}</h4>
-                            </div>
+                    <Card className='drop-shadow-sm shadow-lg border rounded-md '>
+                        <CardBody className='px-6 py-6'>
+                            <h4 className='text-gray-700 font-bold text-5xl leading-tight tracking-tighter font-inter'>{count_data?.avc_count ? count_data?.avc_count : '00'}</h4>
+                            <p className='font-semibold text-xl capitalize'>AVC</p>
+                        </CardBody>
+                    </Card>
+                    <Card className='drop-shadow-sm shadow-lg border rounded-md'>
+                        <CardBody className='px-6 py-6'>
+                            <h4 className='text-gray-700 font-bold text-5xl leading-tight tracking-tighter font-inter'>{count_data?.site_count ? count_data?.site_count : '00'}</h4>
+                            <p className='font-semibold text-xl capitalize'>Sites</p>
+                        </CardBody>
+                    </Card>
+
+                    <Card className='drop-shadow-sm shadow-lg border rounded-md'>
+                        <CardBody className='px-6 py-6'>
+                            <h4 className='text-gray-700 font-bold text-5xl leading-tight tracking-tighter font-inter'>{count_data?.home_cell_count ? count_data?.home_cell_count : '00'}</h4>
+                            <p className='font-semibold text-xl capitalize'>Cells</p>
+                        </CardBody>
+                    </Card>
+
+                    <Card className='drop-shadow-sm shadow-lg border rounded-md'>
+                        <CardBody className='px-6 py-6'>
+                            <h4 className='text-gray-700 font-bold text-5xl leading-tight tracking-tighter font-inter'>{count_data?.traffic_profile_count ? count_data?.traffic_profile_count : '00'}</h4>
+                            <p className='font-semibold text-xl capitalize'>Heavy users locs</p>
                         </CardBody>
                     </Card>
                 </div>
@@ -160,50 +150,41 @@ export default function Dashboard({ auth }) {
                     <div className="item">
                         <Typography variant='h5' color='blue-gray' className='text-left mx-auto pb-8'>WNTD Version</Typography>
                         <div className="h-full md:w-[500px] md:h-[500px] md:mx-auto lg:h-[500px] relative">
-                            <Doughnut
-                                options={{ responsive: true, plugins: { legend: { position: 'bottom', }, } }}
-                                data={version_data}
-                            />
+                            <Doughnut options={{ responsive: true, plugins: { legend: { position: 'bottom', }, } }} data={version_data} />
                         </div>
                     </div>
                     <div className="item">
                         <Typography variant='h5' color='blue-gray' className='text-left mx-auto pb-8'>Solution Type</Typography>
                         <div className="h-full md:w-[500px] md:h-[500px] md:mx-auto lg:h-[500px] relative">
-                            <Doughnut
-                                options={{ responsive: true, plugins: { legend: { position: 'bottom', }, } }}
-                                data={solution_data}
-                            />
+                            <Doughnut options={{ responsive: true, plugins: { legend: { position: 'bottom', }, } }} data={solution_data} />
                         </div>
                     </div>
                     <div className="item">
                         <Typography variant='h5' color='blue-gray' className='text-left mx-auto pb-8'>Tasks</Typography>
                         <div className="h-full md:w-[500px] md:h-[500px] md:mx-auto lg:h-[500px] relative">
-                            <Doughnut
-                                options={{ responsive: true, plugins: { legend: { position: 'bottom', }, } }}
-                                data={status_data}
-                            />
+                            <Doughnut options={{ responsive: true, plugins: { legend: { position: 'bottom', }, } }} data={status_data} />
                         </div>
                     </div>
                 </div>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-24 clear-both">
-                    <div className='item'>
-                        <Typography variant='h5' color='blue-gray' className='pb-6'>Open LocId</Typography>
-                        <div className="overflow-scroll">
-                            <table className="w-full table-auto">
-                                <thead>
-                                    <tr>
-                                        {TABLE_HEAD.map((head) => (
-                                            <React.Fragment key={head}>
-                                                <th className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-2 border cursor-pointer">
-                                                    <Typography variant="small" className="leading-none text-gray-800 font-medium text-sm">{head}</Typography>
-                                                </th>
-                                            </React.Fragment>))}
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {open_locs?.map((site, index) => {
-                                        return (
-                                            <tr key={site.id} className="even:bg-blue-gray-50/50">
+                    {open_locs?.length > 0 && (
+                        <div className='item'>
+                            <Typography variant='h5' color='blue-gray' className='pb-6'>Open LocId</Typography>
+                            <div className="overflow-scroll">
+                                <table className="w-full table-auto">
+                                    <thead>
+                                        <tr>
+                                            {TABLE_HEAD.map((head) => (
+                                                <React.Fragment key={head}>
+                                                    <th className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-2 border cursor-pointer">
+                                                        <Typography variant="small" className="leading-none text-gray-800 font-medium text-sm">{head}</Typography>
+                                                    </th>
+                                                </React.Fragment>))}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {open_locs?.map((site, index) => (
+                                            <tr key={site.id} className="even:bg-blue-gray-50/50 border-b">
                                                 <td className="border-l h-10 text-[12px] font-medium ps-2">{index + 1}</td>
                                                 <td className="border-l h-10 text-[12px] font-medium ps-2">
                                                     <Link href={route('wireless.show.location.index', site?.loc_id)} className='font-semibold underline'>
@@ -213,45 +194,49 @@ export default function Dashboard({ auth }) {
                                                 <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.wntd}</td>
                                                 <td className="border-l border-r h-10 text-[12px] font-medium ps-2">{site?.imsi}</td>
                                             </tr>
-                                        )
-                                    })}
-                                </tbody>
-                            </table>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                    </div>
-                    <div className='item'>
-                        <Typography variant='h5' color='blue-gray' className='pb-6'>Closed LocId</Typography>
-                        <div className='overflow-scroll'>
-                            <table className="w-full table-auto">
-                                <thead>
-                                    <tr>
-                                        {TABLE_HEAD.map((head) => (
-                                            <React.Fragment key={head}>
-                                                <th className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-2 border cursor-pointer">
-                                                    <Typography variant="small" className="leading-none text-gray-800 font-medium text-sm">{head}</Typography>
-                                                </th>
-                                            </React.Fragment>))}
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {closed_locs?.map((site, index) => {
-                                        return (
-                                            <tr key={site.id} className="even:bg-blue-gray-50/50">
-                                                <td className="border-l h-10 text-[12px] font-medium ps-2">{index + 1}</td>
-                                                <td className="border-l h-10 text-[12px] font-medium ps-2">
-                                                    <Link href={route('wireless.show.location.index', site?.loc_id)} className='font-semibold underline'>
-                                                        {site?.loc_id}
-                                                    </Link>
-                                                </td>
-                                                <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.wntd}</td>
-                                                <td className="border-l h-10 text-[12px] font-medium ps-2 border-r">{site?.imsi}</td>
+                    )}
+                    {
+                        closed_locs?.length > 0 && (
+                            <div className='item'>
+                                <Typography variant='h5' color='blue-gray' className='pb-6'>Closed LocId</Typography>
+                                <div className='overflow-scroll'>
+                                    <table className="w-full table-auto">
+                                        <thead>
+                                            <tr>
+                                                {TABLE_HEAD.map((head) => (
+                                                    <React.Fragment key={head}>
+                                                        <th className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-2 border cursor-pointer">
+                                                            <Typography variant="small" className="leading-none text-gray-800 font-medium text-sm">{head}</Typography>
+                                                        </th>
+                                                    </React.Fragment>
+                                                ))}
                                             </tr>
-                                        )
-                                    })}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                                        </thead>
+                                        <tbody>
+                                            {closed_locs?.map((site, index) => (
+                                                <tr key={site.id} className="even:bg-blue-gray-50/50 border-b">
+                                                    <td className="border-l h-10 text-[12px] font-medium ps-2">{index + 1}</td>
+                                                    <td className="border-l h-10 text-[12px] font-medium ps-2">
+                                                        <Link href={route('wireless.show.location.index', site?.loc_id)} className='font-semibold underline'>
+                                                            {site?.loc_id}
+                                                        </Link>
+                                                    </td>
+                                                    <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.wntd}</td>
+                                                    <td className="border-l h-10 text-[12px] font-medium ps-2 border-r">{site?.imsi}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        )
+                    }
+
                 </div>
             </div>
         </AuthenticatedLayout>

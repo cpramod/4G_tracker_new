@@ -16,6 +16,7 @@ export default withMT({
         extend: {
             fontFamily: {
                 sans: ['Poppins', ...defaultTheme.fontFamily.sans],
+                inter: ["Inter", 'sans-serif']
             },
         },
     },
