@@ -14,7 +14,7 @@ class PageController extends Controller
 {
     public function dashboard()
     {
-        $results = Location::selectRaw('COUNT(DISTINCT loc_id) as loc_count,COUNT(DISTINCT wntd) as wntd_count,COUNT(DISTINCT avc) as avc_count,COUNT(DISTINCT site_name) as site_count,COUNT(DISTINCT home_cell) as home_cell_count,COUNT(CASE WHEN traffic_profile != 'N' THEN 1 END) as traffic_profile_count')->first();
+        $results = Location::selectRaw('COUNT(DISTINCT loc_id) as loc_count,COUNT(DISTINCT wntd) as wntd_count,COUNT(DISTINCT avc) as avc_count,COUNT(DISTINCT site_name) as site_count,COUNT(DISTINCT home_cell) as home_cell_count,COUNT(CASE WHEN traffic_profile != "N" THEN 1 END) as traffic_profile_count')->first();
         $version = Location::selectRaw('version, COUNT(wntd) as count')->groupBy('version')->get();
         $site_solution_type = array(
             'device_upgrade' => array('label' => 'Device Upgrade', 'count' => 0),
