@@ -14,7 +14,14 @@ class PageController extends Controller
 {
     public function dashboard()
     {
-        $results = Location::selectRaw('COUNT(DISTINCT loc_id) as loc_count,COUNT(DISTINCT wntd) as wntd_count,COUNT(DISTINCT avc) as avc_count,COUNT(DISTINCT site_name) as site_count,COUNT(DISTINCT home_cell) as home_cell_count,COUNT(CASE WHEN traffic_profile != "N" THEN 1 END) as traffic_profile_count')->first();
+        $results = Location::selectRaw('
+            COUNT(DISTINCT loc_id) as loc_count,
+            COUNT(DISTINCT wntd) as wntd_count,
+            COUNT(DISTINCT avc) as avc_count,
+            COUNT(DISTINCT site_name) as site_count,
+            COUNT(DISTINCT home_cell) as home_cell_count,
+            COUNT(CASE WHEN traffic_profile != \'N\' THEN 1 ELSE NULL END) as traffic_profile_count
+        ')->first();
         $version = Location::selectRaw('version, COUNT(wntd) as count')->groupBy('version')->get();
         $site_solution_type = array(
             'device_upgrade' => array('label' => 'Device Upgrade', 'count' => 0),
@@ -33,14 +40,14 @@ class PageController extends Controller
                 $join->on('locations.id', '=', 'location_trackings.site_id')->whereRaw('location_trackings.id = (SELECT MAX(id) FROM location_trackings  WHERE location_trackings.site_id = locations.id)');
             })->selectRaw(
                 'locations.id,locations.loc_id,
-                COALESCE(SUM(CASE WHEN location_trackings.key = "status" AND location_trackings.value = "in_progress" THEN 1 ELSE 0 END), 0) AS in_progress_count,
-                COALESCE(SUM(CASE WHEN location_trackings.key = "status" AND location_trackings.value = "not_started" THEN 1 ELSE 0 END), 0) AS not_started_count,
-                COALESCE(SUM(CASE WHEN location_trackings.key = "status" AND location_trackings.value = "completed" THEN 1 ELSE 0 END), 0) AS completed_count,
-                COALESCE(SUM(CASE WHEN location_trackings.key = "status" THEN 0 ELSE 1 END), 0) AS none_count,
-                COALESCE(SUM(CASE WHEN location_trackings.key = "solution_type" AND location_trackings.value = "device_upgrade" THEN 1 ELSE 0 END), 0) AS device_upgrade_count,
-                COALESCE(SUM(CASE WHEN location_trackings.key = "solution_type" AND location_trackings.value = "reparent" THEN 1 ELSE 0 END), 0) AS reparent_count,
-                COALESCE(SUM(CASE WHEN location_trackings.key = "solution_type" AND location_trackings.value = "repan" THEN 1 ELSE 0 END), 0) AS repan_count,
-                COALESCE(SUM(CASE WHEN location_trackings.key = "solution_type" THEN 0 ELSE 1 END), 0) AS none_solution_type_count'
+                COALESCE(SUM(CASE WHEN location_trackings.key = \'status\' AND location_trackings.value = \'in_progress\' THEN 1 ELSE 0 END), 0) AS in_progress_count,
+                COALESCE(SUM(CASE WHEN location_trackings.key = \'status\' AND location_trackings.value = \'not_started\' THEN 1 ELSE 0 END), 0) AS not_started_count,
+                COALESCE(SUM(CASE WHEN location_trackings.key = \'status\' AND location_trackings.value = \'completed\' THEN 1 ELSE 0 END), 0) AS completed_count,
+                COALESCE(SUM(CASE WHEN location_trackings.key = \'status\' THEN 0 ELSE 1 END), 0) AS none_count,
+                COALESCE(SUM(CASE WHEN location_trackings.key = \'solution_type\' AND location_trackings.value = \'device_upgrade\' THEN 1 ELSE 0 END), 0) AS device_upgrade_count,
+                COALESCE(SUM(CASE WHEN location_trackings.key = \'solution_type\' AND location_trackings.value = \'reparent\' THEN 1 ELSE 0 END), 0) AS reparent_count,
+                COALESCE(SUM(CASE WHEN location_trackings.key = \'solution_type\' AND location_trackings.value = \'repan\' THEN 1 ELSE 0 END), 0) AS repan_count,
+                COALESCE(SUM(CASE WHEN location_trackings.key = \'solution_type\' THEN 0 ELSE 1 END), 0) AS none_solution_type_count'
             )->groupBy('locations.id', 'locations.loc_id')->orderBy('locations.id')->get();
 
         foreach ($sites as $site) {

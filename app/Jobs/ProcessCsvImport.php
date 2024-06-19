@@ -32,7 +32,7 @@ class ProcessCsvImport implements ShouldQueue
     public function handle(): void
     {
         foreach ($this->information as $row) {
-            $existingLoc = Location::where('loc_id', $this->input['loc_id'])->first();
+            $existingLoc = Location::where('loc_id', $row[$this->input['loc_id']])->first();
             if (!$existingLoc) {
                 Location::create([
                     'loc_id' => $row[$this->input['loc_id']],
