@@ -106,41 +106,41 @@ export default function Dashboard({ auth }) {
                 <div className="items-row grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 pt-12">
 
                     <Card className='drop-shadow-sm shadow-lg border rounded-md'>
-                        <CardBody className='px-6 py-6'>
+                        <CardBody className='p-3'>
                             <h4 className='text-gray-700 font-bold text-5xl leading-tight tracking-tighter font-inter'>{count_data?.loc_count ? count_data?.loc_count : '00'}</h4>
                             <p className='font-semibold text-xl capitalize'>locations</p>
                         </CardBody>
                     </Card>
 
                     <Card className='drop-shadow-sm shadow-lg border rounded-md'>
-                        <CardBody className='px-6 py-6'>
+                        <CardBody className='p-3'>
                             <h4 className='text-gray-700 font-bold text-5xl leading-tight tracking-tighter font-inter'>{count_data?.wntd_count ? count_data?.wntd_count : '00'}</h4>
                             <p className='font-semibold text-xl capitalize'>WNTD</p>
                         </CardBody>
                     </Card>
 
                     <Card className='drop-shadow-sm shadow-lg border rounded-md '>
-                        <CardBody className='px-6 py-6'>
+                        <CardBody className='p-3'>
                             <h4 className='text-gray-700 font-bold text-5xl leading-tight tracking-tighter font-inter'>{count_data?.avc_count ? count_data?.avc_count : '00'}</h4>
                             <p className='font-semibold text-xl capitalize'>AVC</p>
                         </CardBody>
                     </Card>
                     <Card className='drop-shadow-sm shadow-lg border rounded-md'>
-                        <CardBody className='px-6 py-6'>
+                        <CardBody className='p-3'>
                             <h4 className='text-gray-700 font-bold text-5xl leading-tight tracking-tighter font-inter'>{count_data?.site_count ? count_data?.site_count : '00'}</h4>
                             <p className='font-semibold text-xl capitalize'>Sites</p>
                         </CardBody>
                     </Card>
 
                     <Card className='drop-shadow-sm shadow-lg border rounded-md'>
-                        <CardBody className='px-6 py-6'>
+                        <CardBody className='p-3'>
                             <h4 className='text-gray-700 font-bold text-5xl leading-tight tracking-tighter font-inter'>{count_data?.home_cell_count ? count_data?.home_cell_count : '00'}</h4>
                             <p className='font-semibold text-xl capitalize'>Cells</p>
                         </CardBody>
                     </Card>
 
                     <Card className='drop-shadow-sm shadow-lg border rounded-md'>
-                        <CardBody className='px-6 py-6'>
+                        <CardBody className='p-3'>
                             <h4 className='text-gray-700 font-bold text-5xl leading-tight tracking-tighter font-inter'>{count_data?.traffic_profile_count ? count_data?.traffic_profile_count : '00'}</h4>
                             <p className='font-semibold text-xl capitalize'>Heavy users locs</p>
                         </CardBody>
