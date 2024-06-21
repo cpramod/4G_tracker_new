@@ -9,6 +9,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SiteController;
 use App\Http\Controllers\SQLImportController;
+use App\Http\Controllers\TableWizardController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -43,8 +44,10 @@ Route::controller(ColumnController::class)->middleware(['auth', 'role:super-admi
     Route::post('/dashboard/restore-table/', 'restore_table')->name('restore.table');
 });
 
-Route::get('/dashboard', [PageController::class, 'dashboard'])->middleware(['auth', 'verified'])->name('dashboard');
-Route::get('/import/progress', [PageController::class, 'get_progress'])->middleware(['auth', 'verified'])->name('import.progress');
+Route::controller(PageController::class)->middleware('auth')->group(function () {
+    Route::get('/dashboard', 'dashboard')->name('dashboard');
+    Route::get('/import/progress', 'get_progress')->name('import.progress');
+});
 
 Route::controller(SQLImportController::class)->middleware(['auth', 'role:super-admin'])->group(function () {
     Route::get('/dashboard/sql-import', 'index')->name('sql.import');
@@ -69,5 +72,17 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+Route::controller(TableWizardController::class)->middleware(['auth', 'role:super-admin'])->group(function () {
+    Route::get('/dashboard/table-wizard', 'index')->name('table.wizard.index');
+    Route::post('/dashboard/table-wizard/store', 'store')->name('table.wizard.store');
+    Route::get('/dashboard/table-wizard/{id}/columns', 'column_index')->name('table.wizard.column.index');
+    Route::post('/dashboard/table-wizard/columns/store', 'column_store')->name('table.wizard.column.store');
+
+    Route::get('/dashboard/{slug}/table', 'view_table_item')->name('view.table.item');
+    Route::post('/dashboard/table/import_csv/', 'import_from_csv')->name('table.import.csv');
+    Route::post('/dashboard/table/map_csv/', 'map_and_save_csv')->name('table.map.save');
+});
+
 
 require __DIR__ . '/auth.php';
