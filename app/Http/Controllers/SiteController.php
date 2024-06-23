@@ -280,4 +280,10 @@ class SiteController extends Controller
             'trackings' => $trackings
         ]);
     }
+
+    public function destroy($id)
+    {
+        $location = Site::findOrFail($id);
+        $location->delete();
+    }
 }

@@ -22,6 +22,7 @@ Route::controller(LocationController::class)->middleware('auth')->group(function
     Route::post('/dashboard/wireless-sites/', 'save_item')->name('wireless.sites.save.item');
     Route::get('/dashboard/wireless-sites/show/{id}', 'location_site')->name('wireless.show.location.index');
     Route::get('/dashboard/wireless-sites/export', 'export')->name('wireless.sites.export');
+    Route::delete('/dashboard/wireless-sites/{id}/delete', 'destroy')->name('wireless.sites.destroy');
 });
 
 Route::controller(SiteController::class)->middleware('auth')->group(function () {
@@ -32,6 +33,7 @@ Route::controller(SiteController::class)->middleware('auth')->group(function () 
     Route::post('/dashboard/fw-sites/', 'save_item')->name('site.field.name.save.item');
     Route::get('/dashboard/fw-sites/show/{id}', 'show')->name('site.field.name.show');
     Route::get('/dashboard/fw-sites/export', 'export')->name('site.field.name.export');
+    Route::delete('/dashboard/fw-sites/{id}/delete', 'destroy')->name('site.field.name.destroy');
 });
 
 Route::controller(ColumnController::class)->middleware(['auth', 'role:super-admin'])->group(function () {

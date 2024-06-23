@@ -281,4 +281,10 @@ class LocationController extends Controller
             return '';
         }
     }
+
+    public function destroy($id)
+    {
+        $location = Location::findOrFail($id);
+        $location->delete();
+    }
 }
