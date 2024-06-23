@@ -14,6 +14,7 @@ import EditableItem from '@/Components/Wntd/EditableItem';
 import SaveBtn from '@/Components/Wntd/SaveBtn';
 import UploadItemField from '@/Components/Wntd/UploadItemField';
 import RestoreTable from '@/Components/RestoreTable';
+import DeleteButton from '@/Components/Wntd/DeleteButton';
 
 export default function Index({ auth, sites, get_data, batch, additional_columns, hidden_columns, renamed_columns, deleted_columns, arrange_columns }) {
     const { role } = auth
@@ -371,7 +372,10 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
                                                 )
                                             })}
                                             <td className='border-l h-10 px-3'>
-                                                <SaveBtn site_id={site?.id} changedItems={changedItems} setChangedItems={setChangedItems} />
+                                                <div className="flex gap-1">
+                                                    <SaveBtn site_id={site?.id} changedItems={changedItems} setChangedItems={setChangedItems} />
+                                                    <DeleteButton site_id={site?.id} />
+                                                </div>
                                             </td>
                                         </tr>
                                     )
