@@ -363,7 +363,11 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
                                                                             {item?.input_type !== 'upload' && <EditableItem item={item} site={site} handleEditAbleItem={handleEditAbleItem} />}
                                                                             {item?.input_type === 'upload' && <UploadItemField value={item?.value} name='artifacts' locId={site.loc_id} siteId={site.id} />}
                                                                         </React.Fragment>
-                                                                        : item?.value}
+                                                                        :
+                                                                        <React.Fragment>
+                                                                            {item?.key === 'imsi' ? parseFloat(item?.value) : item?.value}
+                                                                        </React.Fragment>
+                                                                    }
                                                                 </React.Fragment>
                                                             }
                                                         </td>
