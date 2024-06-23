@@ -2,7 +2,7 @@ import { useState } from 'react';
 import Dropdown from '@/Components/Dropdown';
 import { Link, usePage } from '@inertiajs/react';
 import { Card, List, ListItem, ListItemPrefix, Typography } from '@material-tailwind/react';
-import { AlignJustifyIcon, ChevronDownIcon, DatabaseZapIcon, GaugeCircleIcon, GlobeIcon, LocateFixedIcon, NfcIcon, Settings2Icon, SettingsIcon, UserRoundCogIcon } from 'lucide-react';
+import { AlignJustifyIcon, ChevronDownIcon, DatabaseZapIcon, FileCog2Icon, FileCogIcon, GaugeCircleIcon, GlobeIcon, LocateFixedIcon, NfcIcon, Settings2Icon, SettingsIcon, UserRoundCogIcon } from 'lucide-react';
 import { Toaster } from 'react-hot-toast';
 
 export default function Authenticated({ user, header, children }) {
@@ -76,6 +76,12 @@ export default function Authenticated({ user, header, children }) {
                                         <ListItem>
                                             <ListItemPrefix className='mr-3'><DatabaseZapIcon size={20} /></ListItemPrefix>
                                             <span className='font-semibold text-sm'>SQL Import</span>
+                                        </ListItem>
+                                    </Link>
+                                    <Link href={route('mo.file.generator')} className={`${currentRoute === "mo.file.generator" ? "bg-blue-gray-50/50 rounded-lg" : ""}`}>
+                                        <ListItem>
+                                            <ListItemPrefix className='mr-3'><FileCog2Icon size={20} /></ListItemPrefix>
+                                            <span className='font-semibold text-sm'>MO File Generator</span>
                                         </ListItem>
                                     </Link>
                                     <Link href={route('roles.index')} className={`${currentRoute === "roles.index" ? "bg-blue-gray-50/50 rounded-lg" : ""}`}>
