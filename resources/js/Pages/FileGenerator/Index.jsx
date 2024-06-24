@@ -27,11 +27,11 @@ export default function Index({ auth }) {
                     link.click();
                     document.body.removeChild(link);
                 });
-
+            } else {
+                toast.error(`${res?.data?.output?.error}`);
             }
         } catch (error) {
             console.log(error);
-            // toast.error(`${error?.response?.data?.output?.error}`);
         }
     };
 

@@ -34,7 +34,9 @@ class MoFileGeneratorController extends Controller
     {
         $scriptPath = storage_path('python/enm_script_generator.py ' . $filePath);
         $venvActivatePath = storage_path('python/venv/bin/activate'); // For macOS/Linux
-        $command = "source $venvActivatePath && python $scriptPath";
+
+        $pythonPath = storage_path('python/venv/bin/python');
+        $command = "$pythonPath $scriptPath";
         $output = shell_exec($command);
         $filePaths = json_decode($output, true);
         $filePathsWithUrl = [];
