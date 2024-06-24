@@ -11,8 +11,12 @@ class Entity extends Model
     use HasFactory, SoftDeletes;
     protected $fillable = ['title', 'slug', 'user_id'];
 
-    public function table_columns()
+    public function attributes()
     {
-        $this->hasMany(Attribute::class, 'entity_id');
+        return $this->hasMany(Attribute::class, 'entity_id');
+    }
+    public function values()
+    {
+        return $this->hasMany(Value::class, 'entity_id');
     }
 }

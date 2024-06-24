@@ -128,7 +128,7 @@ export default function ColumnIndex({ auth, table }) {
                                 </div>
                                 {item.input_type === 'dropdown' && (
                                     <div className="form-item col-span-4">
-                                        <InputLabel value={'Options (seprated by |)'} className='mb-1' />
+                                        <InputLabel value={'Options seprated by (|)'} className='mb-1' />
                                         <textarea className='w-full border-gray-300 rounded-md text-sm' rows={6} value={item?.options} name={'options'} onChange={(e) => { handleInputChange(item.id, e, false) }} />
                                         <InputError message={errors[`items.${index}.options`]} className='mt-1 font-medium tracking-tight' />
                                     </div>

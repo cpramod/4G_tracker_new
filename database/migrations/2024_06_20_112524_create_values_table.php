@@ -12,6 +12,8 @@ return new class extends Migration {
     {
         Schema::create('values', function (Blueprint $table) {
             $table->id();
+            $table->bigInteger('entity_id');
+            $table->json('values');
             $table->timestamps();
             $table->softDeletes();
         });

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Attribute;
 use App\Models\Entity;
+use App\Models\Value;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -61,8 +62,8 @@ class TableWizardController extends Controller
         ]);
         foreach ($request->items as $item) {
             Attribute::create([
-                'table_item_id' => $request->table_id,
-                'column_name' => $item['name'],
+                'entity_id' => $request->table_id,
+                'name' => $item['name'],
                 'slug' => $item['slug'],
                 'sortable' => $item['sortable'],
                 'position' => $item['position'],
@@ -79,12 +80,15 @@ class TableWizardController extends Controller
     public function view_table_item($slug)
     {
         $table = Entity::with([
-            'table_columns' => function ($query) {
+            'attributes' => function ($query) {
                 $query->orderBy('position', 'asc');
+            },
+            'values' => function ($query) {
+                $query->select('id', 'entity_id', 'values');
             }
         ])->where('slug', $slug)->firstOrFail();
         return Inertia::render('TableWizard/ViewTableItem', [
-            'table_item' => $table
+            'entity' => $table
         ]);
     }
 
@@ -111,17 +115,26 @@ class TableWizardController extends Controller
     public function map_and_save_csv(Request $request)
     {
         $filePath = $request->input('file_path');
-        $input = $request->all();
+        $inputColumns = $request->all();
         $csv = Reader::createFromPath(storage_path('app/' . $filePath), 'r');
         $csv->setHeaderOffset(0);
         $rows = $csv->getRecords();
-        $dataFromCsv = [];
-        foreach ($rows as $key => $row) {
-            dd($key);
-            // $dataFromCsv[] = $row;
+        foreach ($rows as $rowKey => $row) {
+            $rowItem = [];
+            foreach ($inputColumns as $columnKey => $column) {
+                foreach ($row as $key => $value) {
+                    if ($key === $column) {
+                        $rowItem[] = array($columnKey => $value);
+                    }
+                }
+            }
+            Value::create([
+                'entity_id' => $request->input('entity_id'),
+                'values' => json_encode(array_values($rowItem)),
+            ]);
         }
-        foreach ($dataFromCsv as $index => $dataCsv) {
-
-        }
+        return response()->json([
+            'success' => ['message' => 'Data imported successfully.'],
+        ], 200);
     }
 }

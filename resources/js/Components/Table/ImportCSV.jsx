@@ -3,7 +3,7 @@ import { Button } from '@material-tailwind/react'
 import toast from 'react-hot-toast';
 import CSVMapping from '@/Components/Table/CSVMapping';
 
-export default function ImportCSV({ table_header }) {
+export default function ImportCSV({ columns }) {
     const hiddenFileInput = useRef(null);
     const [mappingDialog, setMappingDialog] = useState(false)
     const [mappingData, setMappingData] = useState('')
@@ -35,7 +35,7 @@ export default function ImportCSV({ table_header }) {
                 mappingDialog={mappingDialog}
                 setMappingDialog={setMappingDialog}
                 mappingData={mappingData}
-                table_header={table_header}
+                columns={columns}
             />
         </>
     )
