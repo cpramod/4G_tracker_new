@@ -27,7 +27,7 @@ export default function Index({ auth }) {
                     link.click();
                     document.body.removeChild(link);
                 });
-            } else {
+            } else if (res?.data?.output?.error) {
                 toast.error(`${res?.data?.output?.error}`);
             }
         } catch (error) {
