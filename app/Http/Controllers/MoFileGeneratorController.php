@@ -30,6 +30,23 @@ class MoFileGeneratorController extends Controller
         return $response;
 
     }
+    // public function runPythonScript($filePath)
+    // {
+    //     $scriptPath = storage_path('python/enm_script_generator.py ' . $filePath);
+    //     $venvActivatePath = storage_path('python/venv/bin/activate'); // For macOS/Linux
+    //     $command = "source $venvActivatePath && python $scriptPath";
+    //     $output = shell_exec($command);
+    //     $filePaths = json_decode($output, true);
+    //     $filePathsWithUrl = [];
+    //     if (is_array($filePaths)) {
+    //         foreach ($filePaths['filePaths'] as $value) {
+    //             $filePathsWithUrl[] = url('/') . '/' . $value;
+    //         }
+    //     }
+    //     return response()->json([
+    //         'output' => $filePaths ? array('filePaths' => $filePathsWithUrl) : ['error' => 'Something went wrong'],
+    //     ]);
+    // }
     public function runPythonScript($filePath)
     {
         $scriptPath = storage_path('python/enm_script_generator.py ' . $filePath);
