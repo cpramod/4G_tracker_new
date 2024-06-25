@@ -6,9 +6,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
+use App\Services\FreqTuningService;
 
 class MoFileGeneratorController extends Controller
 {
+    protected $freqTuningService;
+    public function __construct(FreqTuningService $freqTuningService)
+    {
+        $this->freqTuningService = $freqTuningService;
+    }
+
     public function index()
     {
         return Inertia::render('FileGenerator/Index');
@@ -26,9 +33,9 @@ class MoFileGeneratorController extends Controller
         $fileName = now()->timestamp . "_{$file->getClientOriginalName()}";
         $filePath = $file->storeAs('generator', $fileName);
         $absolutePath = storage_path('app/' . $filePath);
-        $response = $this->runPythonScript($absolutePath);
+        $response = $this->freqTuningService->generateScript($absolutePath);
+        // $response = $this->runPythonScript($absolutePath);
         return $response;
-
     }
     // public function runPythonScript($filePath)
     // {
