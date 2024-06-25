@@ -37,7 +37,7 @@ export default function Index({ auth }) {
 
     return (
         <Authenticated user={auth?.user}>
-            <Head title='MO File Generator' />
+            <Head title='Frequency Retune' />
             <div className="top-section p-4">
                 <div className='flex items-center justify-between'>
                     <div className="">
@@ -45,7 +45,7 @@ export default function Index({ auth }) {
                         <ul className='flex gap-1 text-gray-600 text-sm'>
                             <li><Link href={route('dashboard')}>Dashboard</Link></li>
                             <li>/</li>
-                            <li><Link href={route('mo.file.generator')}>MO File Generator</Link></li>
+                            <li><Link href={route('mo.file.generator')}>Frequency Retune</Link></li>
                         </ul>
                     </div>
                 </div>
