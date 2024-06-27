@@ -58,7 +58,6 @@ Route::controller(SQLImportController::class)->middleware(['auth', 'role:super-a
 Route::controller(SettingsController::class)->middleware(['auth', 'role:super-admin'])->group(function () {
     Route::get('/dashboard/settings', 'index')->name('settings.index');
     Route::post('/dashboard/settings', 'import_db_save')->name('import.db.store');
-
 });
 
 Route::controller(RoleController::class)->middleware(['auth', 'role:super-admin'])->group(function () {
@@ -82,6 +81,14 @@ Route::controller(TableWizardController::class)->middleware(['auth', 'role:super
     Route::get('/dashboard/{slug}/table', 'view_table_item')->name('view.table.item');
     Route::post('/dashboard/table/import_csv/', 'import_from_csv')->name('table.import.csv');
     Route::post('/dashboard/table/map_csv/', 'map_and_save_csv')->name('table.map.save');
+
+    Route::post('/dashboard/table/add/column/', 'add_column')->name('table.add.column');
+    Route::post('/dashboard/table/hide/column/', 'hide_column')->name('table.hide.column');
+    Route::post('/dashboard/table/rename/column/', 'rename_column')->name('table.rename.column');
+    Route::post('/dashboard/table/delete/column/', 'delete_column')->name('table.delete.column');
+    Route::post('/dashboard/table/rearrange/column/', 'rearrange_column')->name('table.rearrange.column');
+    Route::post('/dashboard/table/restore/', 'restore_column')->name('table.restore.column');
+    Route::get('/dashboard/table/export/{id}', 'export_column')->name('table.restore.column');
 });
 
 

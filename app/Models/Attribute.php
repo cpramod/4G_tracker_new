@@ -9,5 +9,5 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Attribute extends Model
 {
     use HasFactory, SoftDeletes;
-    protected $fillable = ['entity_id', 'name', 'slug', 'position', 'sortable', 'editable', 'input_type', 'input_options', 'user_id'];
+    protected $fillable = ['entity_id', 'name', 'slug', 'type', 'position', 'sortable', 'editable', 'input_type', 'input_options', 'user_id', 'hidden', 'alternative_name'];
 }

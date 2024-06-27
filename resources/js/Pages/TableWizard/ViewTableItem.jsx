@@ -6,10 +6,11 @@ import TextInput from '@/Components/TextInput'
 import { ChevronDownIcon, ChevronUpIcon, SearchIcon } from 'lucide-react'
 import ImportCSV from '@/Components/Table/ImportCSV'
 import ColumnOptions from '@/Components/Table/ColumnOptions'
+import RestoreTable from '@/Components/Table/RestoreTable'
+import ExportTable from '@/Components/Table/ExportTable'
 
 export default function ViewTableItem({ auth, entity }) {
     const { role } = auth
-    console.log(entity);
     function getColumnValue(data, key) {
         for (let i = 0; i < data.length; i++) {
             if (key in data[i]) {
@@ -56,7 +57,9 @@ export default function ViewTableItem({ auth, entity }) {
                             {role === 'super-admin' && (
                                 <React.Fragment>
                                     <ImportCSV columns={entity?.attributes} />
-                                    <ColumnOptions />
+                                    <ColumnOptions columns={entity?.attributes} />
+                                    <RestoreTable entity_id={entity?.id} />
+                                    {/* <ExportTable entity_id={entity?.id} /> */}
                                 </React.Fragment>
                             )}
                         </div>
@@ -68,9 +71,9 @@ export default function ViewTableItem({ auth, entity }) {
                                     <thead>
                                         <tr>
                                             {entity?.attributes?.map((head, index) => (
-                                                <th key={index} className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-2 border-l cursor-pointer">
+                                                <th key={index} className={`border-y border-blue-gray-100 bg-blue-gray-50/50 p-2 border-l cursor-pointer ${head?.hidden ? 'hidden' : ''}`}>
                                                     <div className="flex justify-between">
-                                                        <Typography variant="small" className="leading-none text-gray-800 font-medium text-sm">{head.name}</Typography>
+                                                        <Typography variant="small" className="leading-none text-gray-800 font-medium text-sm">{head?.alternative_name ? head?.alternative_name : head.name}</Typography>
                                                         {head?.sortable && (
                                                             <div className="relative mt-1">
                                                                 <span className='absolute -top-2 right-0 hover:bg-blue-gray-100 rounded-sm'><ChevronUpIcon size={12} strokeWidth={2} onClick={() => { sortData(head.slug, 'asc') }} /></span>
@@ -91,7 +94,7 @@ export default function ViewTableItem({ auth, entity }) {
                                                     {
                                                         entity?.attributes?.map((head, index) => {
                                                             return (
-                                                                <td key={index} className='border-l h-10 text-[12px] font-medium ps-2'>{getColumnValue(values, head.slug)}</td>
+                                                                <td key={index} className={`border-l h-10 text-[12px] font-medium ps-2 ${head?.hidden ? 'hidden' : ''}`}>{getColumnValue(values, head.slug)}</td>
                                                             )
                                                         })
                                                     }

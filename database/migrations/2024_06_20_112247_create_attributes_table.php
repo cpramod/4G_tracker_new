@@ -15,11 +15,14 @@ return new class extends Migration {
             $table->bigInteger('entity_id');
             $table->string('name');
             $table->string('slug');
+            $table->string('type');
             $table->boolean('sortable');
             $table->integer('position');
             $table->boolean('editable');
             $table->string('input_type')->nullable();
             $table->json('input_options')->nullable();
+            $table->boolean('hidden')->default(false);
+            $table->string('alternative_name')->nullable();
             $table->integer('user_id');
             $table->timestamps();
             $table->softDeletes();

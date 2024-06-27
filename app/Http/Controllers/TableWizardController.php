@@ -35,7 +35,6 @@ class TableWizardController extends Controller
         if ($item) {
             return to_route('table.wizard.column.index', $item->id);
         }
-
     }
 
     public function column_index($id)
@@ -65,6 +64,7 @@ class TableWizardController extends Controller
                 'entity_id' => $request->table_id,
                 'name' => $item['name'],
                 'slug' => $item['slug'],
+                'type' => 'main',
                 'sortable' => $item['sortable'],
                 'position' => $item['position'],
                 'editable' => $item['editable'],
@@ -136,5 +136,100 @@ class TableWizardController extends Controller
         return response()->json([
             'success' => ['message' => 'Data imported successfully.'],
         ], 200);
+    }
+
+    public function add_column(Request $request)
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'slug' => ['required', new LowercaseWithUnderscore, 'string', 'unique:' . Attribute::class],
+            'input_type' => ['required_if:editable,true'],
+            'options' => ['required_if:input_type,dropdown'],
+        ]);
+        $attributesCount = Attribute::where('entity_id', $request->entity_id)->count();
+        $attribue = Attribute::create([
+            'entity_id' => $request->entity_id,
+            'name' => $request->name,
+            'slug' => $request->slug,
+            'type' => 'additional',
+            'sortable' => $request->sortable,
+            'position' => $attributesCount + 1,
+            'editable' => $request->editable,
+            'input_type' => $request->input_type,
+            'input_options' => json_encode($request->options),
+            'user_id' => Auth::id(),
+        ]);
+    }
+
+    public function hide_column(Request $request)
+    {
+        $items = $request->items;
+        $unHiddenItems = $request->unHiddenItems;
+
+        if (count($items) > 0) {
+            foreach ($items as $item) {
+                $arrtibute = Attribute::where('id', $item)->first();
+                $arrtibute->hidden = true;
+                $arrtibute->update();
+            }
+        }
+        if (count($unHiddenItems) > 0) {
+            foreach ($unHiddenItems as $unHiddenItem) {
+                $arrtibute = Attribute::where('id', $unHiddenItem)->first();
+                $arrtibute->hidden = false;
+                $arrtibute->update();
+            }
+        }
+    }
+
+    public function rename_column(Request $request)
+    {
+        $items = $request->items;
+        if (is_array($items)) {
+            foreach ($items as $item) {
+                $arrtibute = Attribute::where('id', $item['id'])->first();
+                $arrtibute->alternative_name = $item['name'];
+                $arrtibute->update();
+            }
+        }
+    }
+
+    public function delete_column(Request $request)
+    {
+        $items = $request->items;
+        if (is_array($items)) {
+            foreach ($items as $item) {
+                $arrtibute = Attribute::where('id', $item)->first();
+                $arrtibute->delete();
+            }
+        }
+    }
+
+    public function rearrange_column(Request $request)
+    {
+        $items = $request->items;
+        if (is_array($items)) {
+            foreach ($items as $item) {
+                $arrtibute = Attribute::where('slug', $item['slug'])->first();
+                $arrtibute->position = $item['position'];
+                $arrtibute->update();
+            }
+        }
+    }
+
+    public function restore_column(Request $request)
+    {
+        $entity_id = $request->entity_id;
+        $attributes = Attribute::where('entity_id', $entity_id)->get();
+        foreach ($attributes as $attribute) {
+            $attribute->hidden = false;
+            $attribute->alternative_name = null;
+            $attribute->update();
+        }
+    }
+
+    public function export_column($id)
+    {
+        dd($id);
     }
 }

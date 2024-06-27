@@ -1,10 +1,18 @@
 import React, { useState } from 'react'
 import { Button, Menu, MenuHandler, MenuItem, MenuList } from '@material-tailwind/react'
-import AddColumn from './AddColumn'
+import AddColumn from '@/Components/Table/AddColumn'
+import HideColumn from '@/Components/Table/HideColumn'
+import RenameColumn from '@/Components/Table/RenameColumn'
+import DeleteColumn from '@/Components/Table/DeleteColumn'
+import RearrangeColumn from '@/Components/Table/RearrangeColumn'
 
-export default function ColumnOptions() {
+export default function ColumnOptions({ columns }) {
 
     const [addColumnDialog, setAddColumnDialog] = useState(false)
+    const [hideColumnDialog, setHideColumnDialog] = useState(false)
+    const [renameColumnDialog, setRenameColumnDialog] = useState(false);
+    const [deleteColumnDialog, setDeleteColumnDialog] = useState(false)
+    const [arrangeColumnDialog, setArrangeColumnDialog] = useState(false)
 
     return (
         <>
@@ -14,13 +22,36 @@ export default function ColumnOptions() {
                 </MenuHandler>
                 <MenuList className='font-semibold text-gray-600'>
                     <MenuItem onClick={() => { setAddColumnDialog(true) }}>Add Column</MenuItem>
-                    <MenuItem>Show/Hide Columns</MenuItem>
-                    <MenuItem>Rename Columns</MenuItem>
-                    <MenuItem>Rearrange Columns</MenuItem>
-                    <MenuItem className='text-red-500'>Delete Columns</MenuItem>
+                    <MenuItem onClick={() => { setHideColumnDialog(true) }}>Show/Hide Columns</MenuItem>
+                    <MenuItem onClick={() => { setRenameColumnDialog(true) }}>Rename Columns</MenuItem>
+                    <MenuItem onClick={() => { setArrangeColumnDialog(true) }}>Rearrange Columns</MenuItem>
+                    <MenuItem className='text-red-500' onClick={() => { setDeleteColumnDialog(true) }}>Delete Columns</MenuItem>
                 </MenuList>
             </Menu>
-            <AddColumn addColumnDialog={addColumnDialog} setAddColumnDialog={setAddColumnDialog} />
+            <AddColumn
+                addColumnDialog={addColumnDialog}
+                setAddColumnDialog={setAddColumnDialog}
+            />
+            <HideColumn
+                columns={columns}
+                hideColumnDialog={hideColumnDialog}
+                setHideColumnDialog={setHideColumnDialog}
+            />
+            <RenameColumn
+                renameColumnDialog={renameColumnDialog}
+                setRenameColumnDialog={setRenameColumnDialog}
+                columns={columns}
+            />
+            <DeleteColumn
+                deleteColumnDialog={deleteColumnDialog}
+                setDeleteColumnDialog={setDeleteColumnDialog}
+                columns={columns}
+            />
+            <RearrangeColumn
+                arrangeColumnDialog={arrangeColumnDialog}
+                setArrangeColumnDialog={setArrangeColumnDialog}
+                columns={columns}
+            />
         </>
     )
 }
