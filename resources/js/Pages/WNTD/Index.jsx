@@ -14,6 +14,7 @@ import EditableItem from '@/Components/Wntd/EditableItem';
 import SaveBtn from '@/Components/Wntd/SaveBtn';
 import UploadItemField from '@/Components/Wntd/UploadItemField';
 import RestoreTable from '@/Components/RestoreTable';
+import DeleteButton from '@/Components/Wntd/DeleteButton';
 
 export default function Index({ auth, sites, get_data, batch, additional_columns, hidden_columns, renamed_columns, deleted_columns, arrange_columns }) {
     const { role } = auth
@@ -277,7 +278,7 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
             </div>
             <div className="filter-wrapper md:px-4">
                 <div className="flex filter-details justify-end gap-2">
-                    <div className="search-wrapper w-1/3 flex relative">
+                    <div className="search-wrapper w-1/5 flex relative">
                         <TextInput
                             placeholder="Search..."
                             className="w-full text-sm rounded-md rounded-r-none border-r-0 focus:ring-0 h-8"
@@ -363,7 +364,11 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
                                                                             {item?.input_type !== 'upload' && <EditableItem item={item} site={site} handleEditAbleItem={handleEditAbleItem} />}
                                                                             {item?.input_type === 'upload' && <UploadItemField value={item?.value} name='artifacts' locId={site.loc_id} siteId={site.id} />}
                                                                         </React.Fragment>
-                                                                        : item?.value}
+                                                                        :
+                                                                        <React.Fragment>
+                                                                            {item?.key === 'imsi' ? parseFloat(item?.value) : item?.value}
+                                                                        </React.Fragment>
+                                                                    }
                                                                 </React.Fragment>
                                                             }
                                                         </td>
@@ -371,7 +376,10 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
                                                 )
                                             })}
                                             <td className='border-l h-10 px-3'>
-                                                <SaveBtn site_id={site?.id} changedItems={changedItems} setChangedItems={setChangedItems} />
+                                                <div className="flex gap-1">
+                                                    <SaveBtn site_id={site?.id} changedItems={changedItems} setChangedItems={setChangedItems} />
+                                                    <DeleteButton site_id={site?.id} />
+                                                </div>
                                             </td>
                                         </tr>
                                     )

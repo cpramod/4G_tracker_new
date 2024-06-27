@@ -3,6 +3,7 @@
 use App\Http\Controllers\ColumnController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\LocationController;
+use App\Http\Controllers\MoFileGeneratorController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
@@ -23,6 +24,7 @@ Route::controller(LocationController::class)->middleware('auth')->group(function
     Route::post('/dashboard/wireless-sites/', 'save_item')->name('wireless.sites.save.item');
     Route::get('/dashboard/wireless-sites/show/{id}', 'location_site')->name('wireless.show.location.index');
     Route::get('/dashboard/wireless-sites/export', 'export')->name('wireless.sites.export');
+    Route::delete('/dashboard/wireless-sites/{id}/delete', 'destroy')->name('wireless.sites.destroy');
 });
 
 Route::controller(SiteController::class)->middleware('auth')->group(function () {
@@ -33,6 +35,7 @@ Route::controller(SiteController::class)->middleware('auth')->group(function () 
     Route::post('/dashboard/fw-sites/', 'save_item')->name('site.field.name.save.item');
     Route::get('/dashboard/fw-sites/show/{id}', 'show')->name('site.field.name.show');
     Route::get('/dashboard/fw-sites/export', 'export')->name('site.field.name.export');
+    Route::delete('/dashboard/fw-sites/{id}/delete', 'destroy')->name('site.field.name.destroy');
 });
 
 Route::controller(ColumnController::class)->middleware(['auth', 'role:super-admin'])->group(function () {
@@ -72,6 +75,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+
 Route::controller(TableWizardController::class)->middleware(['auth', 'role:super-admin'])->group(function () {
     Route::get('/dashboard/table-wizard', 'index')->name('table.wizard.index');
     Route::post('/dashboard/table-wizard/store', 'store')->name('table.wizard.store');
@@ -91,5 +95,9 @@ Route::controller(TableWizardController::class)->middleware(['auth', 'role:super
     Route::get('/dashboard/table/export/{id}', 'export_column')->name('table.restore.column');
 });
 
+Route::controller(MoFileGeneratorController::class)->middleware(['auth', 'role:super-admin'])->group(function () {
+    Route::get('/dashboard/mo-file-generator', 'index')->name('mo.file.generator');
+    Route::post('/dashboard/mo-file-generator/upload', 'upload')->name('mo.file.generator.upload');
+});
 
 require __DIR__ . '/auth.php';

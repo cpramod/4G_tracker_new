@@ -14,6 +14,7 @@ import SaveBtn from '@/Components/FWSites/SaveBtn';
 import ColumnOptions from '@/Components/FWSites/ColumnOptions';
 import EditableItem from '@/Components/FWSites/EditableItem';
 import RestoreTable from '@/Components/RestoreTable';
+import DeleteButton from '@/Components/FWSites/DeleteButton';
 
 
 
@@ -282,7 +283,7 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
             </div>
             <div className="filter-wrapper md:px-4">
                 <div className="flex filter-details justify-end gap-1">
-                    <div className="search-wrapper w-1/3 flex relative">
+                    <div className="search-wrapper w-1/5 flex relative">
                         <TextInput
                             placeholder="Search..."
                             className="w-full text-sm rounded-md rounded-r-none border-r-0 focus:ring-0 h-8"
@@ -375,7 +376,10 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
                                                 )
                                             })}
                                             <td className='border-l h-10 px-3'>
-                                                <SaveBtn site_id={siteItem?.id} changedItems={changedItems} setChangedItems={setChangedItems} />
+                                                <div className="flex gap-1">
+                                                    <SaveBtn site_id={siteItem?.id} changedItems={changedItems} setChangedItems={setChangedItems} />
+                                                    <DeleteButton site_id={siteItem?.id} />
+                                                </div>
                                             </td>
                                         </tr>
                                     )

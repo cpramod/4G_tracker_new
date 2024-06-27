@@ -575,6 +575,7 @@ class ComposerStaticInitb3c3b7c1ee3b69d12359b9c698576689
         'App\\Http\\Controllers\\ColumnController' => __DIR__ . '/../..' . '/app/Http/Controllers/ColumnController.php',
         'App\\Http\\Controllers\\Controller' => __DIR__ . '/../..' . '/app/Http/Controllers/Controller.php',
         'App\\Http\\Controllers\\LocationController' => __DIR__ . '/../..' . '/app/Http/Controllers/LocationController.php',
+        'App\\Http\\Controllers\\MoFileGeneratorController' => __DIR__ . '/../..' . '/app/Http/Controllers/MoFileGeneratorController.php',
         'App\\Http\\Controllers\\PageController' => __DIR__ . '/../..' . '/app/Http/Controllers/PageController.php',
         'App\\Http\\Controllers\\ProfileController' => __DIR__ . '/../..' . '/app/Http/Controllers/ProfileController.php',
         'App\\Http\\Controllers\\RoleController' => __DIR__ . '/../..' . '/app/Http/Controllers/RoleController.php',
