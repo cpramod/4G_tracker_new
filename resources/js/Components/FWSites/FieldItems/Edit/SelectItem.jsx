@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
 
-export default function SelectItemField({ siteId, locId, name, value, options, handleEditAbleItem }) {
+export default function SelectItem({ siteId, name, value, options, handleEditAbleItem }) {
 
     const [item, setItem] = useState(value ? value : '');
     const uploadInputValue = (val) => {
         setItem(val)
-        handleEditAbleItem(siteId, locId, name, val)
+        handleEditAbleItem(siteId, name, val)
     }
 
     return (
@@ -16,7 +16,7 @@ export default function SelectItemField({ siteId, locId, name, value, options, h
                 className='border-none focus:ring-0 w-full bg-transparent !shadow-none text-[12px] font-medium'
             >
                 <option value="">Select</option>
-                {options?.length > 0 && options.map((option, index) => { return <option key={index} value={option.value}>{option.label}</option> })}
+                {options.length > 0 && options.map((option, index) => { return <option key={index} value={option.value}>{option.label}</option> })}
             </select>
         </div>
     )

@@ -1,17 +1,15 @@
+import React, { useState } from 'react'
 import { useForm } from '@inertiajs/react';
 import { Button, Dialog, DialogBody, DialogFooter, DialogHeader, Tooltip } from '@material-tailwind/react';
 import { FileBarChartIcon, ImageIcon } from 'lucide-react';
-import React from 'react'
 import { useDropzone } from 'react-dropzone';
 
-export default function UploadItemField({ locId, siteId, name, value, single = false }) {
-
+export default function UploadItem({ siteId, name, value, single = false }) {
     const handleOpen = () => setOpen(!open);
-    const [open, setOpen] = React.useState(false);
+    const [open, setOpen] = useState(false);
 
     const { data, setData, post, processing, reset } = useForm({
         site_id: siteId,
-        location_id: locId,
         field_name: name,
         artifacts: []
     });
@@ -33,7 +31,7 @@ export default function UploadItemField({ locId, siteId, name, value, single = f
     ));
 
     const handleUpload = () => {
-        post(route('wireless.sites.update.artifacts'), {
+        post(route('site.field.name.update.artifacts'), {
             preserveScroll: true,
             onSuccess: () => {
                 reset();
@@ -60,6 +58,16 @@ export default function UploadItemField({ locId, siteId, name, value, single = f
                     {existingFiles.map((file, index) => (
                         <div key={index} className={`${!single ? '' : 'pt-2'}`}>
                             {getFileExtension(file) === 'csv' && (
+                                <Tooltip content={getFileName(file)}>
+                                    <FileBarChartIcon size={18} />
+                                </Tooltip>
+                            )}
+                            {getFileExtension(file) === 'xlsx' && (
+                                <Tooltip content={getFileName(file)}>
+                                    <FileBarChartIcon size={18} />
+                                </Tooltip>
+                            )}
+                            {getFileExtension(file) === 'xls' && (
                                 <Tooltip content={getFileName(file)}>
                                     <FileBarChartIcon size={18} />
                                 </Tooltip>

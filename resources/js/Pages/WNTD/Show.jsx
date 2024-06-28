@@ -2,7 +2,7 @@ import { Head, Link } from '@inertiajs/react'
 import React from 'react'
 import Authenticated from '@/Layouts/AuthenticatedLayout';
 import { Card, Timeline, TimelineBody, TimelineConnector, TimelineHeader, TimelineIcon, TimelineItem, Tooltip, Typography } from '@material-tailwind/react';
-import UploadItemField from '@/Components/Wntd/UploadItemField';
+import UploadItem from '@/Components/Wntd/FieldItems/Edit/UploadItem';
 import { format } from 'date-fns';
 import { FileBarChartIcon, ImageIcon } from 'lucide-react';
 
@@ -145,7 +145,7 @@ export default function Show({ auth, site, trackings }) {
                                         {getTrackingValue(site?.tracking, 'remarks')}
                                     </td>
                                     <td className="border-l h-10">
-                                        <UploadItemField value={getTrackingValue(site?.tracking, 'artifacts')} name='artifacts' locId={site.loc_id} siteId={site.id} single={true} />
+                                        <UploadItem value={getTrackingValue(site?.tracking, 'artifacts')} name='artifacts' locId={site.loc_id} siteId={site.id} single={true} />
                                     </td>
                                 </tr>
                             </tbody>

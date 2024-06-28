@@ -7,14 +7,14 @@ import toast from 'react-hot-toast';
 import Pagination from '@/Components/Pagination';
 import TextInput from '@/Components/TextInput';
 import Authenticated from '@/Layouts/AuthenticatedLayout'
-import UploadItemField from '@/Components/FWSites/UploadItemField';
 import CSVMapping from '@/Components/FWSites/CSVMapping';
 import ExportButton from '@/Components/ExportButton';
 import SaveBtn from '@/Components/FWSites/SaveBtn';
-import ColumnOptions from '@/Components/FWSites/ColumnOptions';
-import EditableItem from '@/Components/FWSites/EditableItem';
+import ColumnOptions from '@/Components/FWSites/ColumnOptions/ColumnOptions';
+import EditableComponent from '@/Components/FWSites/FieldItems/Edit/EditableComponent';
 import RestoreTable from '@/Components/RestoreTable';
 import DeleteButton from '@/Components/FWSites/DeleteButton';
+import AddNewRow from '@/Components/FWSites/NewRow/AddNewRow';
 
 
 
@@ -33,11 +33,11 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
         { name: 'PCI', sortable: false, key: 'pci', position: 9, editable: false },
         { name: 'Azimuth', sortable: false, key: 'azimuth', position: 10, editable: false },
         { name: 'Height', sortable: false, key: 'height', position: 11, editable: false },
-        { name: 'Last EPO', sortable: false, key: 'last_epo', position: 12, editable: false },
-        { name: 'Next EPO', sortable: false, key: 'next_epo', position: 13, editable: false },
-        { name: 'Solution Type', sortable: false, key: 'solution_type', position: 14, editable: true, input_type: "dropdown" },
+        { name: 'Last EPO', sortable: false, key: 'last_epo', position: 12, editable: false, input_type: "date" },
+        { name: 'Next EPO', sortable: false, key: 'next_epo', position: 13, editable: false, input_type: "date" },
         { name: 'Start Date', sortable: false, key: 'start_date', position: 15, editable: true, input_type: "date" },
         { name: 'End Date', sortable: false, key: 'end_date', position: 16, editable: true, input_type: "date" },
+        { name: 'Solution Type', sortable: false, key: 'solution_type', position: 14, editable: true, input_type: "dropdown" },
         { name: 'Status', sortable: false, key: 'status', position: 17, editable: true, input_type: "dropdown" },
         { name: 'Remarks', sortable: false, key: 'remarks', position: 18, editable: true, input_type: "text" },
         { name: 'Artifacts', sortable: false, key: 'artifacts', position: 19, editable: true, input_type: "upload" },
@@ -123,6 +123,7 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
     const [mappingData, setMappingData] = useState('')
     const [batchId, setBatchId] = useState(null)
     const [changedItems, setChangedItems] = useState([])
+    const [addNewRow, setAddNewRow] = useState(false)
 
     const handleClick = event => {
         hiddenFileInput.current.click();
@@ -365,8 +366,7 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
                                                                 <React.Fragment>
                                                                     {item?.editable ?
                                                                         <React.Fragment>
-                                                                            {item?.input_type !== 'upload' && <EditableItem item={item} site={siteItem} handleEditAbleItem={handleEditAbleItem} />}
-                                                                            {item?.input_type === 'upload' && <UploadItemField value={item?.value} siteId={siteItem?.id} name='artifacts' />}
+                                                                            <EditableComponent item={item} site={siteItem} handleEditAbleItem={handleEditAbleItem} />
                                                                         </React.Fragment>
                                                                         : item?.value}
                                                                 </React.Fragment>
@@ -384,27 +384,35 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
                                         </tr>
                                     )
                                 })}
+                                {addNewRow && <AddNewRow tableHeader={tableHeader} setAddNewRow={setAddNewRow} />}
                             </tbody>
                         </table>
                         {siteItems?.data?.length === 0 && <Typography variant="h6" color="blue-gray" className='text-center py-6' >No data found</Typography>}
-                        <div className='md:flex grid justify-start md:justify-end items-center pt-6 mb-8 gap-3 px-4'>
-                            <div className='flex items-center gap-2'>
-                                <div className='text-sm font-medium'>Rows per Page</div>
-                                <select
-                                    className='rounded-md text-sm font-medium border-gray-400 focus:ring-0 py-2'
-                                    value={perPage}
-                                    onChange={(e) => { handlePerPageChange(e.target.value) }}
-                                >
-                                    <option value="10">10</option>
-                                    <option value="15">15</option>
-                                    <option value="20">20</option>
-                                    <option value="20">25</option>
-                                    <option value="50">50</option>
-                                    <option value="all">All</option>
-                                </select>
+                        <div className="pagination flex justify-between items-center">
+                            <div className="px-4">
+                                <Button variant='gradient' size='sm' className='capitalize rounded' onClick={() => { setAddNewRow(true) }}>
+                                    Add New Row
+                                </Button>
                             </div>
-                            <div className='text-sm font-medium'>{`${sites?.from}-${sites?.to} of ${sites?.total} Records`}</div>
-                            <Pagination links={siteItems?.links} perPage={perPage} />
+                            <div className='md:flex grid justify-start md:justify-end items-center pt-6 mb-8 gap-3 px-4'>
+                                <div className='flex items-center gap-2'>
+                                    <div className='text-sm font-medium'>Rows per Page</div>
+                                    <select
+                                        className='rounded-md text-sm font-medium border-gray-400 focus:ring-0 py-2'
+                                        value={perPage}
+                                        onChange={(e) => { handlePerPageChange(e.target.value) }}
+                                    >
+                                        <option value="10">10</option>
+                                        <option value="15">15</option>
+                                        <option value="20">20</option>
+                                        <option value="20">25</option>
+                                        <option value="50">50</option>
+                                        <option value="all">All</option>
+                                    </select>
+                                </div>
+                                <div className='text-sm font-medium'>{`${sites?.from}-${sites?.to} of ${sites?.total} Records`}</div>
+                                <Pagination links={siteItems?.links} perPage={perPage} />
+                            </div>
                         </div>
                     </div>
                 </Card>

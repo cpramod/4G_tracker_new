@@ -89,7 +89,6 @@ class LocationController extends Controller
         return response()->json([
             'success' => ['message' => 'Changes saved successfully.'],
         ], 200);
-
     }
 
     public function save_artifacts(Request $request)
@@ -286,5 +285,36 @@ class LocationController extends Controller
     {
         $location = Location::findOrFail($id);
         $location->delete();
+    }
+
+    public function add_row(Request $request)
+    {
+        $item = $request->newItem;
+        $location = Location::create([
+            'loc_id' => $item['loc_id'],
+            'wntd' => $item['wntd'] ? $item['wntd'] : '',
+            'imsi' => $item['imsi'] ? $item['imsi'] : '',
+            'version' => $item['version'] ? $item['version'] : '',
+            'avc' => $item['avc'] ? $item['avc'] : '',
+            'bw_profile' => $item['bw_profile'] ? $item['bw_profile'] : '',
+            'lon' => $item['lon'] ? $item['lon'] : '',
+            'lat' => $item['lat'] ? $item['lat'] : '',
+            'site_name' => $item['site_name'] ? $item['site_name'] : '',
+            'home_cell' => $item['home_cell'] ? $item['home_cell'] : '',
+            'home_pci' => $item['home_pci'] ? $item['home_pci'] : '',
+            'traffic_profile' => $item['traffic_profile'] ? $item['traffic_profile'] : '',
+        ]);
+        $mainTable = array('loc_id', 'wntd', 'imsi', 'version', 'avc', 'bw_profile', 'lon', 'lat', 'site_name', 'home_cell', 'home_pci', 'traffic_profile');
+        foreach ($item as $key => $value) {
+            if (!in_array($key, $mainTable)) {
+                LocationTracking::create([
+                    'site_id' => $location->id,
+                    'loc_id' => $item['loc_id'],
+                    'user_id' => Auth::id(),
+                    'key' => $key,
+                    'value' => $value
+                ]);
+            }
+        }
     }
 }

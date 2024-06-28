@@ -286,4 +286,37 @@ class SiteController extends Controller
         $location = Site::findOrFail($id);
         $location->delete();
     }
+
+    public function add_row(Request $request)
+    {
+        $item = $request->newItem;
+
+        $site = Site::create([
+            'site_name' => $item['site_name'] ? $item['site_name'] : '',
+            'cell_name' => $item['cell_name'] ? $item['cell_name'] : '',
+            'lon' => $item['lon'] ? $item['lon'] : '',
+            'lat' => $item['lat'] ? $item['lat'] : '',
+            'bb_type' => $item['bb_type'] ? $item['bb_type'] : '',
+            'rru_type' => $item['rru_type'] ? $item['rru_type'] : '',
+            'antenna_type' => $item['antenna_type'] ? $item['antenna_type'] : '',
+            'frequency' => $item['frequency'] ? $item['frequency'] : '',
+            'pci' => $item['pci'] ? $item['pci'] : '',
+            'azimuth' => $item['azimuth'] ? $item['azimuth'] : '',
+            'height' => $item['height'] ? $item['height'] : '',
+            'last_epo' => $item['last_epo'] ? $item['last_epo'] : '',
+            'next_epo' => $item['next_epo'] ? $item['next_epo'] : '',
+        ]);
+
+        $mainTable = array('site_name', 'cell_name', 'lon', 'lat', 'bb_type', 'rru_type', 'antenna_type', 'frequency', 'pci', 'azimuth', 'height', 'last_epo', 'next_epo');
+        foreach ($item as $key => $value) {
+            if (!in_array($key, $mainTable)) {
+                SiteTracking::create([
+                    'site_area_id' => $site->id,
+                    'user_id' => Auth::id(),
+                    'key' => $key,
+                    'value' => $value
+                ]);
+            }
+        }
+    }
 }

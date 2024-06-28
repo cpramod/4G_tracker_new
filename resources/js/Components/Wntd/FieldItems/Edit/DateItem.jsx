@@ -2,11 +2,11 @@ import React, { useState } from 'react'
 import ReactDatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 
-export default function DateItemField({ siteId, name, value, handleEditAbleItem }) {
+export default function DateItem({ siteId, locId, name, value, handleEditAbleItem }) {
     const [item, setItem] = useState(value ? value : '');
     const handleOnChange = (dateString) => {
         setItem(dateString)
-        handleEditAbleItem(siteId, name, dateString)
+        handleEditAbleItem(siteId, locId, name, dateString)
     }
     return (
         <div className='w-full h-full'>

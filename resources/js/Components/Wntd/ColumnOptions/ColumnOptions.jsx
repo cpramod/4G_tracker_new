@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
 import { Menu, MenuHandler, MenuList, MenuItem, Button, } from "@material-tailwind/react";
-import AddColumn from '@/Components/FWSites/AddColumn';
-import HideColumn from '@/Components/FWSites/HideColumn';
-import RenameColumn from '@/Components/FWSites/RenameColumn';
-import DeleteColumn from '@/Components/FWSites/DeleteColumn';
-import RearrangeColumn from '@/Components/FWSites/RearrangeColumn';
+import AddColumn from '@/Components/Wntd/ColumnOptions/AddColumn';
+import HideColumn from '@/Components/Wntd/ColumnOptions/HideColumn';
+import RenameColumn from '@/Components/Wntd/ColumnOptions/RenameColumn';
+import DeleteColumn from '@/Components/Wntd/ColumnOptions/DeleteColumn';
+import RearrangeColumn from '@/Components/Wntd/ColumnOptions/RearrangeColumn';
 
 export default function ColumnOptions({ columns, hidden_columns, deleted_columns }) {
     const [addColumnDialog, setAddColumnDialog] = useState(false)
@@ -12,6 +12,7 @@ export default function ColumnOptions({ columns, hidden_columns, deleted_columns
     const [renameColumnDialog, setRenameColumnDialog] = useState(false);
     const [deleteColumnDialog, setDeleteColumnDialog] = useState(false);
     const [arrangeColumnDialog, setArrangeColumnDialog] = useState(false)
+
     return (
         <>
             <Menu>
@@ -52,6 +53,7 @@ export default function ColumnOptions({ columns, hidden_columns, deleted_columns
                 columns={columns}
                 deleted_columns={deleted_columns}
             />
+
         </>
     )
 }

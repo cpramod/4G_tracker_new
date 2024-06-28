@@ -6,15 +6,15 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import Authenticated from '@/Layouts/AuthenticatedLayout'
 import TextInput from '@/Components/TextInput';
-import ColumnOptions from '@/Components/Wntd/ColumnOptions';
+import ColumnOptions from '@/Components/Wntd/ColumnOptions/ColumnOptions';
 import ExportButton from '@/Components/ExportButton';
 import CSVMapping from '@/Components/Wntd/CSVMapping';
 import Pagination from '@/Components/Pagination';
-import EditableItem from '@/Components/Wntd/EditableItem';
 import SaveBtn from '@/Components/Wntd/SaveBtn';
-import UploadItemField from '@/Components/Wntd/UploadItemField';
 import RestoreTable from '@/Components/RestoreTable';
 import DeleteButton from '@/Components/Wntd/DeleteButton';
+import AddNewRow from '@/Components/Wntd/NewRow/AddNewRow';
+import EditableComponent from '@/Components/Wntd/FieldItems/Edit/EditableComponent';
 
 export default function Index({ auth, sites, get_data, batch, additional_columns, hidden_columns, renamed_columns, deleted_columns, arrange_columns }) {
     const { role } = auth
@@ -119,6 +119,7 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
     const [mappingData, setMappingData] = useState('')
     const [batchId, setBatchId] = useState(null)
     const [changedItems, setChangedItems] = useState([])
+    const [addNewRow, setAddNewRow] = useState(false)
 
     const handleClick = event => {
         hiddenFileInput.current.click();
@@ -352,29 +353,22 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
                                     const siteArray = convert_item_object_to_array(site)
                                     return (
                                         <tr key={site.id} className="even:bg-blue-gray-50/50">
-                                            {siteArray?.map((item, index) => {
-                                                return (
-                                                    <React.Fragment key={index} >
-                                                        <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hiddenColumnItems?.includes(item?.key) ? 'hidden' : ''}`}>
-                                                            {item?.key === "loc_id" ?
-                                                                <Link href={route('wireless.show.location.index', item?.value)} className='font-semibold underline'>{item?.value}</Link> :
-                                                                <React.Fragment>
-                                                                    {item?.editable ?
-                                                                        <React.Fragment>
-                                                                            {item?.input_type !== 'upload' && <EditableItem item={item} site={site} handleEditAbleItem={handleEditAbleItem} />}
-                                                                            {item?.input_type === 'upload' && <UploadItemField value={item?.value} name='artifacts' locId={site.loc_id} siteId={site.id} />}
-                                                                        </React.Fragment>
-                                                                        :
-                                                                        <React.Fragment>
-                                                                            {item?.key === 'imsi' ? parseFloat(item?.value) : item?.value}
-                                                                        </React.Fragment>
-                                                                    }
-                                                                </React.Fragment>
-                                                            }
-                                                        </td>
-                                                    </React.Fragment>
-                                                )
-                                            })}
+                                            {siteArray?.map((item, index) => (
+                                                <React.Fragment key={index} >
+                                                    <td className={`border-l h-10 text-[12px] font-medium ps-1 ${hiddenColumnItems?.includes(item?.key) ? 'hidden' : ''}`}>
+                                                        {item?.key === "loc_id" ?
+                                                            <Link href={route('wireless.show.location.index', item?.value)} className='font-semibold underline'>{item?.value}</Link> :
+                                                            <React.Fragment>
+                                                                {item?.editable ? <EditableComponent item={item} site={site} handleEditAbleItem={handleEditAbleItem} /> :
+                                                                    <React.Fragment>
+                                                                        {item?.key === 'imsi' ? parseFloat(item?.value) : item?.value}
+                                                                    </React.Fragment>
+                                                                }
+                                                            </React.Fragment>
+                                                        }
+                                                    </td>
+                                                </React.Fragment>
+                                            ))}
                                             <td className='border-l h-10 px-3'>
                                                 <div className="flex gap-1">
                                                     <SaveBtn site_id={site?.id} changedItems={changedItems} setChangedItems={setChangedItems} />
@@ -384,27 +378,35 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
                                         </tr>
                                     )
                                 })}
+                                {addNewRow && <AddNewRow tableHeader={tableHeader} setAddNewRow={setAddNewRow} />}
                             </tbody>
                         </table>
                         {siteItems?.data?.length === 0 && <Typography variant="h6" color="blue-gray" className='text-center py-6' >No data found</Typography>}
-                        <div className='md:flex grid justify-start md:justify-end items-center pt-6 mb-8 gap-3 px-4'>
-                            <div className='flex items-center gap-2'>
-                                <div className='text-sm font-medium'>Rows per Page</div>
-                                <select
-                                    className='rounded-md text-sm font-medium border-gray-400 focus:ring-0 py-2'
-                                    value={perPage}
-                                    onChange={(e) => { handlePerPageChange(e.target.value) }}
-                                >
-                                    <option value="10">10</option>
-                                    <option value="15">15</option>
-                                    <option value="20">20</option>
-                                    <option value="20">25</option>
-                                    <option value="50">50</option>
-                                    <option value="all">All</option>
-                                </select>
+                        <div className="pagination flex justify-between items-center">
+                            <div className="px-4">
+                                <Button variant='gradient' size='sm' className='capitalize rounded' onClick={() => { setAddNewRow(true) }}>
+                                    Add New Row
+                                </Button>
                             </div>
-                            <div className='text-sm font-medium'>{`${sites?.from}-${sites?.to} of ${sites?.total} Records`}</div>
-                            <Pagination links={siteItems?.links} perPage={perPage} />
+                            <div className='md:flex grid justify-start md:justify-end items-center pt-6 mb-8 gap-3 px-4'>
+                                <div className='flex items-center gap-2'>
+                                    <div className='text-sm font-medium'>Rows per Page</div>
+                                    <select
+                                        className='rounded-md text-sm font-medium border-gray-400 focus:ring-0 py-2'
+                                        value={perPage}
+                                        onChange={(e) => { handlePerPageChange(e.target.value) }}
+                                    >
+                                        <option value="10">10</option>
+                                        <option value="15">15</option>
+                                        <option value="20">20</option>
+                                        <option value="20">25</option>
+                                        <option value="50">50</option>
+                                        <option value="all">All</option>
+                                    </select>
+                                </div>
+                                <div className='text-sm font-medium'>{`${sites?.from}-${sites?.to} of ${sites?.total} Records`}</div>
+                                <Pagination links={siteItems?.links} perPage={perPage} />
+                            </div>
                         </div>
                     </div>
                 </Card>
