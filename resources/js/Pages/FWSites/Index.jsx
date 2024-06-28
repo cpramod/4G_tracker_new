@@ -360,8 +360,8 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
                                                 return (
                                                     <React.Fragment key={index} >
                                                         <td className={`border-l h-10 text-[12px] font-medium ps-2 ${hiddenColumnItems?.includes(item?.key) ? 'hidden' : ''}`}>
-                                                            {item?.key === "loc_id" ?
-                                                                <Link href={route('wireless.show.location.index', item?.value)} className='font-semibold underline'>{item?.value}</Link> :
+                                                            {item?.key === "site_name" ?
+                                                                <Link href={route('site.field.name.show', siteItem?.id)} className='font-semibold underline'>{item?.value}</Link> :
                                                                 <React.Fragment>
                                                                     {item?.editable ?
                                                                         <React.Fragment>
