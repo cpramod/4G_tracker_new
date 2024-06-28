@@ -1,6 +1,6 @@
 import { Button, Dialog, DialogBody, DialogFooter, DialogHeader } from '@material-tailwind/react'
 import React, { useEffect } from 'react'
-import TextInput from '../TextInput'
+import TextInput from '@/Components/TextInput'
 import { useForm } from '@inertiajs/react'
 
 export default function RenameColumn({ renameColumnDialog, setRenameColumnDialog, columns, deleted_columns }) {

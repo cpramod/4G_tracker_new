@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-export default function InputItemField({ siteId, name, value, handleEditAbleItem }) {
+export default function InputItem({ siteId, name, value, handleEditAbleItem }) {
 
     const [item, setItem] = useState(value ? value : '');
     const uploadInputValue = (val) => {

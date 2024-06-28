@@ -1,16 +1,18 @@
 import React from 'react'
-import InputItemField from './InputItemField'
-import DateItemField from './DateItemField'
-import SelectItemField from './SelectItemField'
+import InputItem from './InputItem'
+import DateItem from './DateItem'
+import SelectItem from './SelectItem'
+import UploadItem from './UploadItem'
 
 const fieldComponents = {
-    text: InputItemField,
-    date: DateItemField,
-    dropdown: SelectItemField
+    text: InputItem,
+    date: DateItem,
+    dropdown: SelectItem,
+    upload: UploadItem
 }
 
-export default function EditableItem({ item, site, handleEditAbleItem }) {
-    const FieldItem = fieldComponents[item['input_type']]
+export default function EditableComponent({ item, handleItemOnChange }) {
+    const FieldItem = fieldComponents[item['input_type'] ? item['input_type'] : 'text']
     const options = {
         status: [
             { label: 'In Progress', value: 'in_progress' },
@@ -25,10 +27,9 @@ export default function EditableItem({ item, site, handleEditAbleItem }) {
     }
     return (
         <FieldItem
-            siteId={site?.id}
             name={item.key}
             value={item.value}
-            handleEditAbleItem={handleEditAbleItem}
+            handleItemOnChange={handleItemOnChange}
             options={options[item.key]}
         />
     )

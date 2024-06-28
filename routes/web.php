@@ -25,6 +25,7 @@ Route::controller(LocationController::class)->middleware('auth')->group(function
     Route::get('/dashboard/wireless-sites/show/{id}', 'location_site')->name('wireless.show.location.index');
     Route::get('/dashboard/wireless-sites/export', 'export')->name('wireless.sites.export');
     Route::delete('/dashboard/wireless-sites/{id}/delete', 'destroy')->name('wireless.sites.destroy');
+    Route::post('/dashnoard/wireless-sites/add-row/', 'add_row')->middleware(['auth', 'role:super-admin'])->name('wireless.sites.add.row');
 });
 
 Route::controller(SiteController::class)->middleware('auth')->group(function () {
@@ -36,6 +37,7 @@ Route::controller(SiteController::class)->middleware('auth')->group(function () 
     Route::get('/dashboard/fw-sites/show/{id}', 'show')->name('site.field.name.show');
     Route::get('/dashboard/fw-sites/export', 'export')->name('site.field.name.export');
     Route::delete('/dashboard/fw-sites/{id}/delete', 'destroy')->name('site.field.name.destroy');
+    Route::post('/dashnoard/fw-sites/add-row/', 'add_row')->middleware(['auth', 'role:super-admin'])->name('site.field.name.add.row');
 });
 
 Route::controller(ColumnController::class)->middleware(['auth', 'role:super-admin'])->group(function () {

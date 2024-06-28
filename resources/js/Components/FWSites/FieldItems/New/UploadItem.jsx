@@ -4,7 +4,7 @@ import { Button, Dialog, DialogBody, DialogFooter, DialogHeader, Tooltip } from 
 import { FileBarChartIcon, ImageIcon } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
 
-export default function UploadItemField({ siteId, name, value, single = false }) {
+export default function UploadItem({ siteId, name, value, single = false }) {
     const handleOpen = () => setOpen(!open);
     const [open, setOpen] = useState(false);
 

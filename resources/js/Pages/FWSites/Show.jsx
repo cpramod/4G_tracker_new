@@ -1,10 +1,10 @@
 import React from 'react'
-import UploadItemField from '@/Components/FWSites/UploadItemField';
 import Authenticated from '@/Layouts/AuthenticatedLayout'
 import { Head, Link } from '@inertiajs/react';
 import { Card, Timeline, TimelineBody, TimelineConnector, TimelineHeader, TimelineIcon, TimelineItem, Tooltip, Typography } from '@material-tailwind/react';
 import { FileBarChartIcon, ImageIcon } from 'lucide-react';
 import { format } from 'date-fns';
+import UploadItem from '@/Components/FWSites/FieldItems/Edit/UploadItem';
 
 export default function Show({ auth, site, trackings }) {
     const TABLE_HEAD = [
@@ -153,7 +153,7 @@ export default function Show({ auth, site, trackings }) {
                                     <td className="border-l h-10 text-[12px] font-medium ps-2 capitalize">{getTrackingValue(site?.tracking, 'status')}</td>
                                     <td className="border-l h-10 text-[12px] font-medium ps-2 capitalize">{getTrackingValue(site?.tracking, 'remarks')}</td>
                                     <td className="border-l h-10">
-                                        <UploadItemField value={getTrackingValue(site?.tracking, 'artifacts')} name='artifacts' locId={site.loc_id} siteId={site.id} single={true} />
+                                        <UploadItem value={getTrackingValue(site?.tracking, 'artifacts')} name='artifacts' locId={site.loc_id} siteId={site.id} single={true} />
                                     </td>
                                 </tr>
                             </tbody>
