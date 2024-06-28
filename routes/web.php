@@ -10,6 +10,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SiteController;
 use App\Http\Controllers\SQLImportController;
+use App\Http\Controllers\TableWizardController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -46,8 +47,10 @@ Route::controller(ColumnController::class)->middleware(['auth', 'role:super-admi
     Route::post('/dashboard/restore-table/', 'restore_table')->name('restore.table');
 });
 
-Route::get('/dashboard', [PageController::class, 'dashboard'])->middleware(['auth', 'verified'])->name('dashboard');
-Route::get('/import/progress', [PageController::class, 'get_progress'])->middleware(['auth', 'verified'])->name('import.progress');
+Route::controller(PageController::class)->middleware('auth')->group(function () {
+    Route::get('/dashboard', 'dashboard')->name('dashboard');
+    Route::get('/import/progress', 'get_progress')->name('import.progress');
+});
 
 Route::controller(SQLImportController::class)->middleware(['auth', 'role:super-admin'])->group(function () {
     Route::get('/dashboard/sql-import', 'index')->name('sql.import');
@@ -58,7 +61,6 @@ Route::controller(SQLImportController::class)->middleware(['auth', 'role:super-a
 Route::controller(SettingsController::class)->middleware(['auth', 'role:super-admin'])->group(function () {
     Route::get('/dashboard/settings', 'index')->name('settings.index');
     Route::post('/dashboard/settings', 'import_db_save')->name('import.db.store');
-
 });
 
 Route::controller(RoleController::class)->middleware(['auth', 'role:super-admin'])->group(function () {
@@ -71,6 +73,26 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+
+Route::controller(TableWizardController::class)->middleware(['auth', 'role:super-admin'])->group(function () {
+    Route::get('/dashboard/table-wizard', 'index')->name('table.wizard.index');
+    Route::post('/dashboard/table-wizard/store', 'store')->name('table.wizard.store');
+    Route::get('/dashboard/table-wizard/{id}/columns', 'column_index')->name('table.wizard.column.index');
+    Route::post('/dashboard/table-wizard/columns/store', 'column_store')->name('table.wizard.column.store');
+
+    Route::get('/dashboard/{slug}/table', 'view_table_item')->name('view.table.item');
+    Route::post('/dashboard/table/import_csv/', 'import_from_csv')->name('table.import.csv');
+    Route::post('/dashboard/table/map_csv/', 'map_and_save_csv')->name('table.map.save');
+
+    Route::post('/dashboard/table/add/column/', 'add_column')->name('table.add.column');
+    Route::post('/dashboard/table/hide/column/', 'hide_column')->name('table.hide.column');
+    Route::post('/dashboard/table/rename/column/', 'rename_column')->name('table.rename.column');
+    Route::post('/dashboard/table/delete/column/', 'delete_column')->name('table.delete.column');
+    Route::post('/dashboard/table/rearrange/column/', 'rearrange_column')->name('table.rearrange.column');
+    Route::post('/dashboard/table/restore/', 'restore_column')->name('table.restore.column');
+    Route::get('/dashboard/table/export/{id}', 'export_column')->name('table.restore.column');
 });
 
 Route::controller(MoFileGeneratorController::class)->middleware(['auth', 'role:super-admin'])->group(function () {

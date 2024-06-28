@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Entity;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Tighten\Ziggy\Ziggy;
@@ -46,6 +47,7 @@ class HandleInertiaRequests extends Middleware
                 'batch_site_id' => session('batch_site_id') ? session('batch_site_id') : null,
                 'batch_field_id' => session('batch_field_id') ? session('batch_field_id') : null,
             ],
+            'entities' => Entity::where('user_id', $user ? $user->id : null)->get(['id', 'title', 'slug']),
             'ziggy' => fn() => [
                 ...(new Ziggy)->toArray(),
                 'location' => $request->url(),

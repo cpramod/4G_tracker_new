@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import Dropdown from '@/Components/Dropdown';
 import { Link, usePage } from '@inertiajs/react';
-import { Card, List, ListItem, ListItemPrefix, Typography } from '@material-tailwind/react';
-import { AlignJustifyIcon, ChevronDownIcon, DatabaseZapIcon, FileCog2Icon, FileCogIcon, GaugeCircleIcon, GlobeIcon, LocateFixedIcon, NfcIcon, Settings2Icon, SettingsIcon, UserRoundCogIcon } from 'lucide-react';
+import { Button, Card, List, ListItem, ListItemPrefix, Typography } from '@material-tailwind/react';
+import { AlignJustifyIcon, ChevronDownIcon, DatabaseZapIcon, FileCog2Icon, FileCogIcon, GaugeCircleIcon, GitCommitVerticalIcon, GlobeIcon, LocateFixedIcon, NfcIcon, Settings2Icon, SettingsIcon, UserRoundCogIcon } from 'lucide-react';
 import { Toaster } from 'react-hot-toast';
 
-export default function Authenticated({ user, header, children }) {
+export default function Authenticated({ user, children }) {
     const { role } = usePage().props?.auth
+    const { entities } = usePage().props
     const currentRoute = route().current();
     const [showSidebar, setShowSidebar] = useState(false)
 
@@ -29,22 +30,31 @@ export default function Authenticated({ user, header, children }) {
                         </div>
                     </div>
                     <div className="right">
-                        <Dropdown>
-                            <Dropdown.Trigger>
-                                <span className="inline-flex rounded-md">
-                                    <button type="button" className="flex items-center gap-2 text-gray-600 font-semibold">
-                                        {user.name}
-                                        <ChevronDownIcon />
-                                    </button>
-                                </span>
-                            </Dropdown.Trigger>
-                            <Dropdown.Content>
-                                <Dropdown.Link href={route('profile.edit')}>Profile</Dropdown.Link>
-                                <Dropdown.Link href={route('logout')} method="post" as="button">
-                                    Log Out
-                                </Dropdown.Link>
-                            </Dropdown.Content>
-                        </Dropdown>
+                        <div className="flex items-center gap-4">
+                            {currentRoute !== 'table.wizard.index' && (
+                                <Link href={route('table.wizard.index')}>
+                                    <Button variant='gradient' size='sm' className='capitalize rounded-md'>
+                                        Create Table
+                                    </Button>
+                                </Link>
+                            )}
+                            <Dropdown>
+                                <Dropdown.Trigger>
+                                    <span className="inline-flex rounded-md">
+                                        <button type="button" className="flex items-center gap-2 text-gray-600 font-semibold">
+                                            {user.name}
+                                            <ChevronDownIcon />
+                                        </button>
+                                    </span>
+                                </Dropdown.Trigger>
+                                <Dropdown.Content>
+                                    <Dropdown.Link href={route('profile.edit')}>Profile</Dropdown.Link>
+                                    <Dropdown.Link href={route('logout')} method="post" as="button">
+                                        Log Out
+                                    </Dropdown.Link>
+                                </Dropdown.Content>
+                            </Dropdown>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -70,6 +80,16 @@ export default function Authenticated({ user, header, children }) {
                                     <span className='font-semibold text-base'>FW Site</span>
                                 </ListItem>
                             </Link>
+                            {entities?.length > 0 && entities?.map((item, index) => (
+                                <React.Fragment key={index}>
+                                    <Link href={route('view.table.item', item?.slug)}>
+                                        <ListItem>
+                                            <ListItemPrefix className='mr-3'><GitCommitVerticalIcon size={20} /></ListItemPrefix>
+                                            <span className='font-semibold text-sm'>{item?.title}</span>
+                                        </ListItem>
+                                    </Link>
+                                </React.Fragment>
+                            ))}
                             {role === 'super-admin' && (
                                 <>
                                     <Link href={route('sql.import')} className={`${currentRoute === "sql.import" ? "bg-blue-gray-50/50 rounded-lg" : ""}`}>

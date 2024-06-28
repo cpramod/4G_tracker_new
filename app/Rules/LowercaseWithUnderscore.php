@@ -14,6 +14,6 @@ class LowercaseWithUnderscore implements Rule
 
     public function message()
     {
-        return 'The :attribute must be in lowercase with underscores replacing spaces.';
+        return 'This field must be in lowercase with underscores replacing spaces.';
     }
 }
