@@ -7,6 +7,7 @@ use App\Models\JobBatch;
 use App\Models\Location;
 use Illuminate\Http\Request;
 use App\Models\LocationTracking;
+use App\Models\Site;
 use Illuminate\Support\Facades\DB;
 
 
@@ -18,10 +19,13 @@ class PageController extends Controller
             COUNT(DISTINCT loc_id) as loc_count,
             COUNT(DISTINCT wntd) as wntd_count,
             COUNT(DISTINCT avc) as avc_count,
-            COUNT(DISTINCT site_name) as site_count,
-            COUNT(DISTINCT home_cell) as home_cell_count,
-            COUNT(CASE WHEN traffic_profile != \'N\' THEN 1 ELSE NULL END) as traffic_profile_count
+            COUNT(DISTINCT bw_profile) as bw_profile_count
         ')->first();
+        $fw_results = Site::selectRaw('
+            COUNT(DISTINCT site_name) as site_count,
+            COUNT(DISTINCT cell_name) as home_cell_count
+        ')->first();
+        $results = array_merge($results->toArray(), $fw_results->toArray());
         $version = Location::selectRaw('version, COUNT(wntd) as count')->groupBy('version')->get();
         $site_solution_type = array(
             'device_upgrade' => array('label' => 'Device Upgrade', 'count' => 0),
@@ -60,12 +64,17 @@ class PageController extends Controller
             $site_solution_type['repan']['count'] += $site->repan_count;
             $site_solution_type['none']['count'] += $site->none_solution_type_count;
         }
-        $open_locs = Location::with('locTracking')->whereHas('locTracking', function ($query) {
-            $query->where('key', 'status')->where('value', 'in_progress');
-        })->take(10)->get();
-        $closed_locs = Location::with('locTracking')->whereHas('locTracking', function ($query) {
-            $query->where('key', 'status')->where('value', 'completed');
-        })->take(10)->get();
+
+        $open_locs_ids = LocationTracking::select('site_id')->where('key', 'status')->where('value', 'in_progress')->whereIn('created_at', function ($query) {
+            $query->selectRaw('MAX(created_at)')->from('location_trackings')->where('key', 'status')->groupBy('site_id');
+        })->distinct()->limit(10)->pluck('site_id');
+        $open_locs = Location::whereIn('id', $open_locs_ids)->get();
+
+        $closed_locs_ids = LocationTracking::select('site_id')->where('key', 'status')->where('value', 'completed')->whereIn('created_at', function ($query) {
+            $query->selectRaw('MAX(created_at)')->from('location_trackings')->where('key', 'status')->groupBy('site_id');
+        })->distinct()->limit(10)->pluck('site_id');
+        $closed_locs = Location::whereIn('id', $closed_locs_ids)->get();
+
 
         return Inertia::render('Dashboard', [
             'count_data' => $results,

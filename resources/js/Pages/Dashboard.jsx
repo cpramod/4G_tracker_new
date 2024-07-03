@@ -97,7 +97,7 @@ export default function Dashboard({ auth }) {
             },
         ],
     }
-    const TABLE_HEAD = ['SN', 'LOCID', "WNTD", "IMSI"]
+    const TABLE_HEAD = ['SN', 'LOCID', "WNTD", "AVC"]
     return (
         <AuthenticatedLayout user={auth.user}>
             <Head title="Dashboard" />
@@ -125,6 +125,12 @@ export default function Dashboard({ auth }) {
                             <p className='font-semibold text-xl capitalize'>AVC</p>
                         </CardBody>
                     </Card>
+                    <Card className='drop-shadow-sm shadow-lg border rounded-md '>
+                        <CardBody className='p-3'>
+                            <h4 className='text-gray-700 font-bold text-5xl leading-tight tracking-tighter font-inter'>{count_data?.bw_profile_count ? count_data?.bw_profile_count : '00'}</h4>
+                            <p className='font-semibold text-xl capitalize'>BW Profile</p>
+                        </CardBody>
+                    </Card>
                     <Card className='drop-shadow-sm shadow-lg border rounded-md'>
                         <CardBody className='p-3'>
                             <h4 className='text-gray-700 font-bold text-5xl leading-tight tracking-tighter font-inter'>{count_data?.site_count ? count_data?.site_count : '00'}</h4>
@@ -136,13 +142,6 @@ export default function Dashboard({ auth }) {
                         <CardBody className='p-3'>
                             <h4 className='text-gray-700 font-bold text-5xl leading-tight tracking-tighter font-inter'>{count_data?.home_cell_count ? count_data?.home_cell_count : '00'}</h4>
                             <p className='font-semibold text-xl capitalize'>Cells</p>
-                        </CardBody>
-                    </Card>
-
-                    <Card className='drop-shadow-sm shadow-lg border rounded-md'>
-                        <CardBody className='p-3'>
-                            <h4 className='text-gray-700 font-bold text-5xl leading-tight tracking-tighter font-inter'>{count_data?.traffic_profile_count ? count_data?.traffic_profile_count : '00'}</h4>
-                            <p className='font-semibold text-xl capitalize'>Heavy users locs</p>
                         </CardBody>
                     </Card>
                 </div>
@@ -192,7 +191,7 @@ export default function Dashboard({ auth }) {
                                                     </Link>
                                                 </td>
                                                 <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.wntd}</td>
-                                                <td className="border-l border-r h-10 text-[12px] font-medium ps-2">{site?.imsi}</td>
+                                                <td className="border-l border-r h-10 text-[12px] font-medium ps-2">{site?.avc}</td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -227,7 +226,7 @@ export default function Dashboard({ auth }) {
                                                         </Link>
                                                     </td>
                                                     <td className="border-l h-10 text-[12px] font-medium ps-2">{site?.wntd}</td>
-                                                    <td className="border-l h-10 text-[12px] font-medium ps-2 border-r">{site?.imsi}</td>
+                                                    <td className="border-l h-10 text-[12px] font-medium ps-2 border-r">{site?.avc}</td>
                                                 </tr>
                                             ))}
                                         </tbody>
