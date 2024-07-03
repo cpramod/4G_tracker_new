@@ -352,12 +352,12 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
                                 {siteItems?.data.map((site) => {
                                     const siteArray = convert_item_object_to_array(site)
                                     return (
-                                        <tr key={site.id} className="even:bg-blue-gray-50/50">
+                                        <tr key={site?.id} className="even:bg-blue-gray-50/50">
                                             {siteArray?.map((item, index) => (
                                                 <React.Fragment key={index} >
                                                     <td className={`border-l h-10 text-[12px] font-medium ps-1 ${hiddenColumnItems?.includes(item?.key) ? 'hidden' : ''}`}>
                                                         {item?.key === "loc_id" ?
-                                                            <Link href={route('wireless.show.location.index', item?.value)} className='font-semibold underline'>{item?.value}</Link> :
+                                                            <Link href={route('wireless.show.location.index', site?.id)} className='font-semibold underline'>{item?.value}</Link> :
                                                             <React.Fragment>
                                                                 {item?.editable ? <EditableComponent item={item} site={site} handleEditAbleItem={handleEditAbleItem} /> :
                                                                     <React.Fragment>
