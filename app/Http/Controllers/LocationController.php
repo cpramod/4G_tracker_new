@@ -178,7 +178,7 @@ class LocationController extends Controller
 
     public function location_site($id)
     {
-        $site = Location::where('loc_id', $id)->first();
+        $site = Location::findOrFail($id);
         $desiredKeys = ['remarks', 'start_date', 'end_date', 'solution_type', 'status', 'artifacts'];
         $locTrackingData = LocationTracking::where('site_id', $site->id)->whereIn('key', $desiredKeys)->get()->keyBy('key')->toArray();
         $site->tracking = $locTrackingData;

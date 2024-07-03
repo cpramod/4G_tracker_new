@@ -183,10 +183,10 @@ export default function Dashboard({ auth }) {
                                     </thead>
                                     <tbody>
                                         {open_locs?.map((site, index) => (
-                                            <tr key={site.id} className="even:bg-blue-gray-50/50 border-b">
+                                            <tr key={site?.id} className="even:bg-blue-gray-50/50 border-b">
                                                 <td className="border-l h-10 text-[12px] font-medium ps-2">{index + 1}</td>
                                                 <td className="border-l h-10 text-[12px] font-medium ps-2">
-                                                    <Link href={route('wireless.show.location.index', site?.loc_id)} className='font-semibold underline'>
+                                                    <Link href={route('wireless.show.location.index', site?.id)} className='font-semibold underline'>
                                                         {site?.loc_id}
                                                     </Link>
                                                 </td>
@@ -221,7 +221,7 @@ export default function Dashboard({ auth }) {
                                                 <tr key={site.id} className="even:bg-blue-gray-50/50 border-b">
                                                     <td className="border-l h-10 text-[12px] font-medium ps-2">{index + 1}</td>
                                                     <td className="border-l h-10 text-[12px] font-medium ps-2">
-                                                        <Link href={route('wireless.show.location.index', site?.loc_id)} className='font-semibold underline'>
+                                                        <Link href={route('wireless.show.location.index', site?.id)} className='font-semibold underline'>
                                                             {site?.loc_id}
                                                         </Link>
                                                     </td>
