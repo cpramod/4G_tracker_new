@@ -4,7 +4,6 @@ import { Head, Link } from '@inertiajs/react';
 import { Button, Typography } from '@material-tailwind/react';
 import toast from 'react-hot-toast';
 import axios from 'axios'; // Import axios
-import { route } from 'ziggy-js'; // Import route from ziggy-js if using Ziggy for route generation
 
 export default function Index({ auth }) {
     const hiddenFileInput = useRef(null);
