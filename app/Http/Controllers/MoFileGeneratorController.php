@@ -34,11 +34,11 @@ class MoFileGeneratorController extends Controller
 
         $file = $request->file('import_file');
         $fileName = now()->timestamp . "_{$file->getClientOriginalName()}";
-        $filePath = $file->storeAs('generator', $fileName);
+        $filePath = $file->storeAs('public/generator', $fileName);
         $absolutePath = storage_path('app/' . $filePath);
 
         $response = $this->freqTuningService->generateScript($absolutePath);
-
+        unlink($absolutePath);
         return $response;
     }
 }

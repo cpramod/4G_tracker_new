@@ -4,7 +4,6 @@ import { Head, Link } from '@inertiajs/react';
 import { Button, Typography } from '@material-tailwind/react';
 import toast from 'react-hot-toast';
 import axios from 'axios'; // Import axios
-import { route } from 'ziggy-js'; // Import route from ziggy-js if using Ziggy for route generation
 
 export default function Index({ auth }) {
     const hiddenFileInput = useRef(null);
@@ -22,8 +21,8 @@ export default function Index({ auth }) {
                     'Content-Type': 'multipart/form-data',
                 },
             });
-            if (res?.data?.output?.filePaths) {
-                res.data.output.filePaths.forEach(filePath => {
+            if (res?.data?.filePaths) {
+                res.data.filePaths.forEach(filePath => {
                     const link = document.createElement('a');
                     link.href = filePath;
                     link.download = '';
@@ -31,11 +30,11 @@ export default function Index({ auth }) {
                     link.click();
                     document.body.removeChild(link);
                 });
+                hiddenFileInput.current.value = null;
             } else if (res?.data?.output?.error) {
                 toast.error(`${res?.data?.output?.error}`);
             }
         } catch (error) {
-            console.error(error);
             toast.error('An error occurred during file upload.');
         }
     };
