@@ -274,7 +274,7 @@ class SiteController extends Controller
         $locTrackingData = SiteTracking::where('site_area_id', $site->id)->whereIn('key', $desiredKeys)->get()->keyBy('key')->toArray();
         $site->tracking = $locTrackingData;
 
-        $trackings = SiteTracking::with('user')->where('site_area_id', $id)->get();
+        $trackings = SiteTracking::with('user')->where('site_area_id', $id)->orderBy('created_at', 'desc')->get();
         return Inertia::render('FWSites/Show', [
             'site' => $site,
             'trackings' => $trackings
