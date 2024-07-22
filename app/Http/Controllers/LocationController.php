@@ -183,7 +183,7 @@ class LocationController extends Controller
         $locTrackingData = LocationTracking::where('site_id', $site->id)->whereIn('key', $desiredKeys)->get()->keyBy('key')->toArray();
         $site->tracking = $locTrackingData;
 
-        $trackings = LocationTracking::with('user')->where('loc_id', $id)->get();
+        $trackings = LocationTracking::with('user')->where('site_id', $id)->orderBy('created_at', 'desc')->get();
         return Inertia::render('WNTD/Show', [
             'site' => $site,
             'trackings' => $trackings

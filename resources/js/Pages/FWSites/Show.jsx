@@ -181,9 +181,7 @@ export default function Show({ auth, site, trackings }) {
                                             </Typography>
                                         ) :
                                             <Typography variant="small" color="gray" className="font-normal text-gray-600"><span className='font-semibold'>{tracking?.user.name}</span> changed value of <span className='capitalize font-semibold'>{tracking.key ? tracking.key.replace(/_/g, ' ') : ''}</span> to
-                                                <span className='capitalize block'>
-                                                    {tracking?.key === 'start_date' || tracking?.key === 'end_date' ? showFromattedDate(tracking.value) : ''}</span>
-                                                {tracking?.key === 'status' || tracking?.key === 'solution_type' ? getDropDownValue(tracking.value) : tracking.value}
+                                                <span className='capitalize block'>{(tracking?.key === 'start_date' || tracking?.key === 'end_date') ? showFromattedDate(tracking.value) : <>{(tracking?.key === 'status' || tracking?.key === 'solution_type') ? getDropDownValue(tracking.value) : tracking.value}</>}</span>
                                             </Typography>
                                         }
                                     </TimelineBody>
