@@ -8,6 +8,7 @@ import ImportCSV from '@/Components/Table/ImportCSV'
 import ColumnOptions from '@/Components/Table/ColumnOptions'
 import RestoreTable from '@/Components/Table/RestoreTable'
 import DeleteTable from '@/Components/Table/DeleteTable'
+import DeleteButton from '@/Components/Table/DeleteButton'
 
 export default function ViewTableItem({ auth, entity }) {
     const { role } = auth
@@ -112,7 +113,9 @@ export default function ViewTableItem({ auth, entity }) {
                                                             )
                                                         })
                                                     }
-                                                    <td className='border-l h-10 text-[12px] font-medium ps-2'></td>
+                                                    <td className='border-l h-10 text-[12px] font-medium ps-2'>
+                                                        <DeleteButton valueId={entity_values?.id} />
+                                                    </td>
                                                 </tr>
                                             )
                                         })}

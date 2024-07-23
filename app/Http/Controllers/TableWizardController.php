@@ -205,6 +205,12 @@ class TableWizardController extends Controller
         }
     }
 
+    public function delete_row($id)
+    {
+        $value = Value::findOrFail($id);
+        $value->delete();
+    }
+
     public function rearrange_column(Request $request)
     {
         $items = $request->items;
