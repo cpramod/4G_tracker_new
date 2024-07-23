@@ -232,4 +232,11 @@ class TableWizardController extends Controller
     {
         dd($id);
     }
+
+    public function delete_table($id)
+    {
+        $entity = Entity::findOrFail($id);
+        $entity->delete();
+        return to_route('dashboard');
+    }
 }
