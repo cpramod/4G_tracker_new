@@ -1,13 +1,13 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Authenticated from '@/Layouts/AuthenticatedLayout'
 import { Head, Link } from '@inertiajs/react'
-import { Button, Card, IconButton, Typography } from '@material-tailwind/react'
+import { Button, Card, IconButton, Menu, MenuHandler, MenuItem, MenuList, Typography } from '@material-tailwind/react'
 import TextInput from '@/Components/TextInput'
-import { ChevronDownIcon, ChevronUpIcon, SearchIcon } from 'lucide-react'
+import { ChevronDownIcon, ChevronUpIcon, EllipsisVerticalIcon, SearchIcon } from 'lucide-react'
 import ImportCSV from '@/Components/Table/ImportCSV'
 import ColumnOptions from '@/Components/Table/ColumnOptions'
 import RestoreTable from '@/Components/Table/RestoreTable'
-import ExportTable from '@/Components/Table/ExportTable'
+import DeleteTable from '@/Components/Table/DeleteTable'
 
 export default function ViewTableItem({ auth, entity }) {
     const { role } = auth
@@ -19,6 +19,7 @@ export default function ViewTableItem({ auth, entity }) {
         }
         return '';
     }
+    const [deleteTableDialog, setDeleteTableDialog] = useState(false);
 
     return (
         <Authenticated user={auth?.user}>
@@ -32,6 +33,19 @@ export default function ViewTableItem({ auth, entity }) {
                             <li>/</li>
                             <li><Link href={route('view.table.item', entity?.slug)}>{entity?.title}</Link></li>
                         </ul>
+                    </div>
+                    <div>
+                        <Menu>
+                            <MenuHandler>
+                                <Button variant='text' size='sm'>
+                                    <EllipsisVerticalIcon size={18} color='gray' />
+                                </Button>
+                            </MenuHandler>
+                            <MenuList className='font-semibold text-gray-600 max-w-32'>
+                                <MenuItem onClick={() => { setDeleteTableDialog(true) }} className='text-red-500 hover:!text-red-500'>Delete</MenuItem>
+                            </MenuList>
+                        </Menu>
+                        <DeleteTable deleteTableDialog={deleteTableDialog} setDeleteTableDialog={setDeleteTableDialog} tableId={entity?.id} />
                     </div>
                 </div>
             </div>
