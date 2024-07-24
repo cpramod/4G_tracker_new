@@ -9,6 +9,7 @@ import ColumnOptions from '@/Components/Table/ColumnOptions'
 import RestoreTable from '@/Components/Table/RestoreTable'
 import DeleteTable from '@/Components/Table/DeleteTable'
 import DeleteButton from '@/Components/Table/DeleteButton'
+import TableRow from '@/Components/Table/TableRow'
 
 export default function ViewTableItem({ auth, entity }) {
     const { role } = auth
@@ -104,19 +105,14 @@ export default function ViewTableItem({ auth, entity }) {
                                     <tbody>
                                         {entity?.values?.length > 0 && entity?.values?.map((entity_values, index) => {
                                             const values = JSON.parse(entity_values?.values)
+                                            const headers = entity?.attributes
                                             return (
-                                                <tr key={index} className="even:bg-blue-gray-50/50">
-                                                    {
-                                                        entity?.attributes?.map((head, index) => {
-                                                            return (
-                                                                <td key={index} className={`border-l h-10 text-[12px] font-medium ps-2 ${head?.hidden ? 'hidden' : ''}`}>{getColumnValue(values, head.slug)}</td>
-                                                            )
-                                                        })
-                                                    }
-                                                    <td className='border-l h-10 text-[12px] font-medium ps-2'>
-                                                        <DeleteButton valueId={entity_values?.id} />
-                                                    </td>
-                                                </tr>
+                                                <TableRow
+                                                    key={index}
+                                                    headers={headers}
+                                                    values={values}
+                                                    valueId={entity_values?.id}
+                                                />
                                             )
                                         })}
                                     </tbody>

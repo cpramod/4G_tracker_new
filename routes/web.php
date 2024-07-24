@@ -95,7 +95,6 @@ Route::controller(TableWizardController::class)->middleware(['auth', 'role:super
     Route::delete('/dashboard/table/delete/{id}/row/', 'delete_row')->name('table.delete.row');
     Route::post('/dashboard/table/rearrange/column/', 'rearrange_column')->name('table.rearrange.column');
     Route::post('/dashboard/table/restore/', 'restore_column')->name('table.restore.column');
-    Route::get('/dashboard/table/export/{id}', 'export_column')->name('table.restore.column');
     Route::delete('/dashboard/table/{id}/delete', 'delete_table')->name('table.delete');
 });
 

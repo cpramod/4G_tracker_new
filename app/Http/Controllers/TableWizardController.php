@@ -94,15 +94,14 @@ class TableWizardController extends Controller
 
     public function import_from_csv(Request $request)
     {
-        // $validator = Validator::make($request->all(), [
-        //     'import_file' => 'required|file|mimes:csv',
-        // ]);
-        // if ($validator->fails()) {
-        //     return response()->json(['error' => array('message' => $validator->errors()->first())], 500);
-        // }
-        // $file = $request->file('import_file');
-        // $filePath = $file->storeAs('import', now()->timestamp . "_{$file->getClientOriginalName()}");
-        $filePath = "import/1718876099_test.csv";
+        $validator = Validator::make($request->all(), [
+            'import_file' => 'required|file|mimes:csv',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['error' => array('message' => $validator->errors()->first())], 500);
+        }
+        $file = $request->file('import_file');
+        $filePath = $file->storeAs('import', now()->timestamp . "_{$file->getClientOriginalName()}");
         $csv = Reader::createFromPath(storage_path('app/' . $filePath), 'r');
         $csv->setHeaderOffset(0);
         $header = $csv->getHeader();
@@ -225,19 +224,19 @@ class TableWizardController extends Controller
 
     public function restore_column(Request $request)
     {
-        $entity_id = $request->entity_id;
-        $attributes = Attribute::where('entity_id', $entity_id)->get();
-        foreach ($attributes as $attribute) {
-            $attribute->hidden = false;
-            $attribute->alternative_name = null;
-            $attribute->update();
-        }
+        // $entity_id = $request->entity_id;
+        // $attributes = Attribute::where('entity_id', $entity_id)->get();
+        // foreach ($attributes as $attribute) {
+        //     $attribute->hidden = false;
+        //     $attribute->alternative_name = null;
+        //     $attribute->update();
+        // }
     }
 
-    public function export_column($id)
-    {
-        dd($id);
-    }
+    // public function export_column($id)
+    // {
+    //     dd($id);
+    // }
 
     public function delete_table($id)
     {
