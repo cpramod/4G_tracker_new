@@ -13,14 +13,6 @@ import TableRow from '@/Components/Table/TableRow'
 
 export default function ViewTableItem({ auth, entity }) {
     const { role } = auth
-    function getColumnValue(data, key) {
-        for (let i = 0; i < data.length; i++) {
-            if (key in data[i]) {
-                return data[i][key];
-            }
-        }
-        return '';
-    }
     const [deleteTableDialog, setDeleteTableDialog] = useState(false);
 
     return (

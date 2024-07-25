@@ -69,7 +69,7 @@ class TableWizardController extends Controller
                 'position' => $item['position'],
                 'editable' => $item['editable'],
                 'input_type' => $item['input_type'],
-                'input_options' => json_encode($item['options']),
+                'input_options' => $item['options'] ? json_encode(explode('|', $item['options'])) : null,
                 'user_id' => Auth::id(),
             ]);
         }
@@ -84,7 +84,8 @@ class TableWizardController extends Controller
                 $query->orderBy('position', 'asc');
             },
             'values' => function ($query) {
-                $query->select('id', 'entity_id', 'values');
+                $query->orderBy('id', 'asc')
+                    ->select('id', 'entity_id', 'values');
             }
         ])->where('slug', $slug)->firstOrFail();
         return Inertia::render('TableWizard/ViewTableItem', [
@@ -201,6 +202,39 @@ class TableWizardController extends Controller
                 $arrtibute = Attribute::where('id', $item)->first();
                 $arrtibute->delete();
             }
+        }
+    }
+
+    public function upload_artifacts(Request $request)
+    {
+        $paths_array = [];
+        if ($request->hasFile('artifacts')) {
+            $files = $request->file('artifacts');
+            foreach ($files as $file) {
+                $name = now()->timestamp . "_{$file->getClientOriginalName()}";
+                $path = $file->storeAs('artifacts', $name, 'public');
+                $paths_array[] = "/storage/{$path}";
+            }
+        }
+        if (count($paths_array) > 0) {
+            $item = Value::findOrFail($request->columnId);
+            $values = json_decode($item->values);
+            foreach ($values as $key => $value) {
+                if (isset($value->{$request->headerSlug})) {
+                    $value->{$request->headerSlug} = json_encode($paths_array);
+                }
+            }
+            $item->values = json_encode($values);
+            $item->save();
+        }
+    }
+
+    public function save_row(Request $request, $id)
+    {
+        $item = Value::findOrFail($id);
+        if ($item) {
+            $item->values = json_encode($request->changedItems);
+            $item->update();
         }
     }
 

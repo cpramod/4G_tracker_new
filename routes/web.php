@@ -92,6 +92,8 @@ Route::controller(TableWizardController::class)->middleware(['auth', 'role:super
     Route::post('/dashboard/table/hide/column/', 'hide_column')->name('table.hide.column');
     Route::post('/dashboard/table/rename/column/', 'rename_column')->name('table.rename.column');
     Route::post('/dashboard/table/delete/column/', 'delete_column')->name('table.delete.column');
+    Route::post('/dashboard/table/save/{id}/row/', 'save_row')->name('table.save.row');
+    Route::post('/dashboard/table/upload/{id}/row/artifacts', 'upload_artifacts')->name('table.upload.row.artifacts');
     Route::delete('/dashboard/table/delete/{id}/row/', 'delete_row')->name('table.delete.row');
     Route::post('/dashboard/table/rearrange/column/', 'rearrange_column')->name('table.rearrange.column');
     Route::post('/dashboard/table/restore/', 'restore_column')->name('table.restore.column');
