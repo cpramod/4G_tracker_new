@@ -118,6 +118,7 @@ export default function ColumnIndex({ auth, table }) {
                                                 <select className='w-full text-sm rounded-md border-gray-300 text-gray-500 font-normal' value={item?.input_type} name={'input_type'} onChange={(e) => { handleInputChange(item.id, e, false) }}>
                                                     <option value="">Select</option>
                                                     <option value="text">Text</option>
+                                                    <option value="date">Date</option>
                                                     <option value="dropdown">Dropdown</option>
                                                     <option value="upload">Upload</option>
                                                 </select>

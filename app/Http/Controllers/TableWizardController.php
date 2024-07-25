@@ -69,7 +69,7 @@ class TableWizardController extends Controller
                 'position' => $item['position'],
                 'editable' => $item['editable'],
                 'input_type' => $item['input_type'],
-                'input_options' => json_encode($item['options']),
+                'input_options' => $item['options'] ? json_encode(explode('|', $item['options'])) : null,
                 'user_id' => Auth::id(),
             ]);
         }
@@ -84,7 +84,8 @@ class TableWizardController extends Controller
                 $query->orderBy('position', 'asc');
             },
             'values' => function ($query) {
-                $query->select('id', 'entity_id', 'values');
+                $query->orderBy('id', 'asc')
+                    ->select('id', 'entity_id', 'values');
             }
         ])->where('slug', $slug)->firstOrFail();
         return Inertia::render('TableWizard/ViewTableItem', [
@@ -94,15 +95,14 @@ class TableWizardController extends Controller
 
     public function import_from_csv(Request $request)
     {
-        // $validator = Validator::make($request->all(), [
-        //     'import_file' => 'required|file|mimes:csv',
-        // ]);
-        // if ($validator->fails()) {
-        //     return response()->json(['error' => array('message' => $validator->errors()->first())], 500);
-        // }
-        // $file = $request->file('import_file');
-        // $filePath = $file->storeAs('import', now()->timestamp . "_{$file->getClientOriginalName()}");
-        $filePath = "import/1718876099_test.csv";
+        $validator = Validator::make($request->all(), [
+            'import_file' => 'required|file|mimes:csv',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['error' => array('message' => $validator->errors()->first())], 500);
+        }
+        $file = $request->file('import_file');
+        $filePath = $file->storeAs('import', now()->timestamp . "_{$file->getClientOriginalName()}");
         $csv = Reader::createFromPath(storage_path('app/' . $filePath), 'r');
         $csv->setHeaderOffset(0);
         $header = $csv->getHeader();
@@ -205,6 +205,39 @@ class TableWizardController extends Controller
         }
     }
 
+    public function upload_artifacts(Request $request)
+    {
+        $paths_array = [];
+        if ($request->hasFile('artifacts')) {
+            $files = $request->file('artifacts');
+            foreach ($files as $file) {
+                $name = now()->timestamp . "_{$file->getClientOriginalName()}";
+                $path = $file->storeAs('artifacts', $name, 'public');
+                $paths_array[] = "/storage/{$path}";
+            }
+        }
+        if (count($paths_array) > 0) {
+            $item = Value::findOrFail($request->columnId);
+            $values = json_decode($item->values);
+            foreach ($values as $key => $value) {
+                if (isset($value->{$request->headerSlug})) {
+                    $value->{$request->headerSlug} = json_encode($paths_array);
+                }
+            }
+            $item->values = json_encode($values);
+            $item->save();
+        }
+    }
+
+    public function save_row(Request $request, $id)
+    {
+        $item = Value::findOrFail($id);
+        if ($item) {
+            $item->values = json_encode($request->changedItems);
+            $item->update();
+        }
+    }
+
     public function delete_row($id)
     {
         $value = Value::findOrFail($id);
@@ -225,19 +258,19 @@ class TableWizardController extends Controller
 
     public function restore_column(Request $request)
     {
-        $entity_id = $request->entity_id;
-        $attributes = Attribute::where('entity_id', $entity_id)->get();
-        foreach ($attributes as $attribute) {
-            $attribute->hidden = false;
-            $attribute->alternative_name = null;
-            $attribute->update();
-        }
+        // $entity_id = $request->entity_id;
+        // $attributes = Attribute::where('entity_id', $entity_id)->get();
+        // foreach ($attributes as $attribute) {
+        //     $attribute->hidden = false;
+        //     $attribute->alternative_name = null;
+        //     $attribute->update();
+        // }
     }
 
-    public function export_column($id)
-    {
-        dd($id);
-    }
+    // public function export_column($id)
+    // {
+    //     dd($id);
+    // }
 
     public function delete_table($id)
     {
