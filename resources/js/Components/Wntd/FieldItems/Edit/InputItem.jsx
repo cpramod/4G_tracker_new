@@ -12,7 +12,7 @@ export default function InputItem({ siteId, locId, name, value, handleEditAbleIt
         <div className='w-full h-full'>
             <textarea
                 className='border-none focus:ring-0 bg-transparent !shadow-none text-[12px] font-medium w-full'
-                value={item}
+                value={name === 'imsi' ? parseFloat(item) : item}
                 rows={1}
                 onChange={(e) => { uploadInputValue(e.target.value) }}
             />
