@@ -21,7 +21,7 @@ class SiteController extends Controller
     public function index(Request $request)
     {
         $order = $request->input('order');
-        $order_by = $request->input('order_by') ? $request->input('order_by') : 'site_name';
+        $order_by = $request->input('order_by') ? $request->input('order_by') : 'id';
         $search_query = $request->input('search');
         $per_page = $request->input('per_page') && strtolower($request->input('per_page')) === 'all' ? PHP_INT_MAX : ($request->input('per_page') ? $request->input('per_page') : 10);
 
@@ -77,13 +77,20 @@ class SiteController extends Controller
     public function save_item(Request $request)
     {
         $items = $request->items;
+        $static_items = ["cell_name", "lon", "lat", "bb_type", "rru_type", "antenna_type", "frequency", "pci", "azimuth", "height", "last_epo", "next_epo"];
         foreach ($items as $key => $item) {
-            $tracking = SiteTracking::create([
-                'site_area_id' => $request->site_id,
-                'user_id' => Auth::id(),
-                'key' => $key,
-                'value' => $item,
-            ]);
+            if (in_array($key, $static_items)) {
+                $toUpdateItem = Site::findOrFail($request->site_id);
+                $toUpdateItem->{$key} = $item;
+                $toUpdateItem->save();
+            } else {
+                $tracking = SiteTracking::create([
+                    'site_area_id' => $request->site_id,
+                    'user_id' => Auth::id(),
+                    'key' => $key,
+                    'value' => $item,
+                ]);
+            }
         }
         return response()->json([
             'success' => ['message' => 'Changes saved successfully.'],

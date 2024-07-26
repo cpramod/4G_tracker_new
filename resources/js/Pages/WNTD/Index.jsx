@@ -20,17 +20,17 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
     const { role } = auth
     const wntd_header = [
         { name: 'LOCID', sortable: true, key: 'loc_id', position: 1, editable: false },
-        { name: 'WNTD', sortable: true, key: 'wntd', position: 2, editable: false },
-        { name: 'IMSI', sortable: true, key: 'imsi', position: 3, editable: false },
-        { name: 'VERSION', sortable: true, key: 'version', position: 4, editable: false },
-        { name: 'AVC', sortable: true, key: 'avc', position: 5, editable: false },
-        { name: 'BW Profile', sortable: true, key: 'bw_profile', position: 6, editable: false },
-        { name: 'Lon', sortable: true, key: 'lon', position: 7, editable: false },
-        { name: 'Lat', sortable: true, key: 'lat', position: 8, editable: false },
-        { name: 'SiteName', sortable: true, key: 'site_name', position: 9, editable: false },
-        { name: 'HomeCell', sortable: true, key: 'home_cell', position: 10, editable: false },
-        { name: 'HomePCI', sortable: true, key: 'home_pci', position: 11, editable: false },
-        { name: 'Traffic Profile', sortable: true, key: 'traffic_profile', position: 12 },
+        { name: 'WNTD', sortable: true, key: 'wntd', position: 2, editable: true, input_type: "text" },
+        { name: 'IMSI', sortable: true, key: 'imsi', position: 3, editable: true, input_type: "text" },
+        { name: 'VERSION', sortable: true, key: 'version', position: 4, editable: true, input_type: "text" },
+        { name: 'AVC', sortable: true, key: 'avc', position: 5, editable: true, input_type: "text" },
+        { name: 'BW Profile', sortable: true, key: 'bw_profile', position: 6, editable: true, input_type: "text" },
+        { name: 'Lon', sortable: true, key: 'lon', position: 7, editable: true, input_type: "text" },
+        { name: 'Lat', sortable: true, key: 'lat', position: 8, editable: true, input_type: "text" },
+        { name: 'SiteName', sortable: true, key: 'site_name', position: 9, editable: true, input_type: "text" },
+        { name: 'HomeCell', sortable: true, key: 'home_cell', position: 10, editable: true, input_type: "text" },
+        { name: 'HomePCI', sortable: true, key: 'home_pci', position: 11, editable: true, input_type: "text" },
+        { name: 'Traffic Profile', sortable: true, key: 'traffic_profile', position: 12, editable: true, input_type: "text" },
         { name: 'Start Date', sortable: false, key: 'start_date', position: 13, editable: true, input_type: "date" },
         { name: 'End Date', sortable: false, key: 'end_date', position: 14, editable: true, input_type: "date" },
         { name: 'Solution Type', sortable: false, key: 'solution_type', position: 15, editable: true, input_type: "dropdown" },
@@ -382,31 +382,31 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
                             </tbody>
                         </table>
                         {siteItems?.data?.length === 0 && <Typography variant="h6" color="blue-gray" className='text-center py-6' >No data found</Typography>}
-                        <div className="pagination flex justify-between items-center">
-                            <div className="px-4">
-                                <Button variant='gradient' size='sm' className='capitalize rounded' onClick={() => { setAddNewRow(true) }}>
-                                    Add New Row
-                                </Button>
+                    </div>
+                    <div className="pagination flex justify-between items-center">
+                        <div className="px-4">
+                            <Button variant='gradient' size='sm' className='capitalize rounded' onClick={() => { setAddNewRow(true) }}>
+                                Add New Row
+                            </Button>
+                        </div>
+                        <div className='md:flex grid justify-start md:justify-end items-center pt-6 mb-8 gap-3 px-4'>
+                            <div className='flex items-center gap-2'>
+                                <div className='text-sm font-medium'>Rows per Page</div>
+                                <select
+                                    className='rounded-md text-sm font-medium border-gray-400 focus:ring-0 py-2'
+                                    value={perPage}
+                                    onChange={(e) => { handlePerPageChange(e.target.value) }}
+                                >
+                                    <option value="10">10</option>
+                                    <option value="15">15</option>
+                                    <option value="20">20</option>
+                                    <option value="20">25</option>
+                                    <option value="50">50</option>
+                                    <option value="all">All</option>
+                                </select>
                             </div>
-                            <div className='md:flex grid justify-start md:justify-end items-center pt-6 mb-8 gap-3 px-4'>
-                                <div className='flex items-center gap-2'>
-                                    <div className='text-sm font-medium'>Rows per Page</div>
-                                    <select
-                                        className='rounded-md text-sm font-medium border-gray-400 focus:ring-0 py-2'
-                                        value={perPage}
-                                        onChange={(e) => { handlePerPageChange(e.target.value) }}
-                                    >
-                                        <option value="10">10</option>
-                                        <option value="15">15</option>
-                                        <option value="20">20</option>
-                                        <option value="20">25</option>
-                                        <option value="50">50</option>
-                                        <option value="all">All</option>
-                                    </select>
-                                </div>
-                                <div className='text-sm font-medium'>{`${sites?.from}-${sites?.to} of ${sites?.total} Records`}</div>
-                                <Pagination links={siteItems?.links} perPage={perPage} />
-                            </div>
+                            <div className='text-sm font-medium'>{`${sites?.from}-${sites?.to} of ${sites?.total} Records`}</div>
+                            <Pagination links={siteItems?.links} perPage={perPage} />
                         </div>
                     </div>
                 </Card>

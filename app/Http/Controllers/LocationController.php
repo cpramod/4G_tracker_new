@@ -21,7 +21,7 @@ class LocationController extends Controller
     public function index(Request $request)
     {
         $order = $request->input('order');
-        $order_by = $request->input('order_by') ? $request->input('order_by') : 'loc_id';
+        $order_by = $request->input('order_by') ? $request->input('order_by') : 'id';
         $search_query = $request->input('search');
         $per_page = $request->input('per_page') && strtolower($request->input('per_page')) === 'all' ? PHP_INT_MAX : ($request->input('per_page') ? $request->input('per_page') : 10);
 
@@ -77,14 +77,21 @@ class LocationController extends Controller
     public function save_item(Request $request)
     {
         $items = $request->items;
+        $static_items = ["wntd", "imsi", "version", "avc", "bw_profile", "lon", "lat", "site_name", "home_cell", "home_pci", "traffic_profile"];
         foreach ($items as $key => $item) {
-            $tracking = LocationTracking::create([
-                'site_id' => $request->site_id,
-                'loc_id' => $request->location_id,
-                'user_id' => Auth::id(),
-                'key' => $key,
-                'value' => $item,
-            ]);
+            if (in_array($key, $static_items)) {
+                $trackingItem = Location::findOrFail($request->site_id);
+                $trackingItem->{$key} = $item;
+                $trackingItem->save();
+            } else {
+                $tracking = LocationTracking::create([
+                    'site_id' => $request->site_id,
+                    'loc_id' => $request->location_id,
+                    'user_id' => Auth::id(),
+                    'key' => $key,
+                    'value' => $item,
+                ]);
+            }
         }
         return response()->json([
             'success' => ['message' => 'Changes saved successfully.'],
