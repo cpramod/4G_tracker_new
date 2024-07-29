@@ -3,7 +3,14 @@ import ReactDatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 
 export default function DateItem({ siteId, name, value, handleEditAbleItem }) {
-    const [item, setItem] = useState(value ? value : '');
+
+    function isValidDate(stringDate) {
+        return !isNaN(Date.parse(stringDate));
+    }
+
+    const [item, setItem] = useState(isValidDate(value) ? value : '');
+
+    
     const handleOnChange = (dateString) => {
         setItem(dateString)
         handleEditAbleItem(siteId, name, dateString)
