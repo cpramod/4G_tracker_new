@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
 import { Button, Menu, MenuHandler, MenuItem, MenuList } from '@material-tailwind/react'
-import AddColumn from '@/Components/Table/AddColumn'
-import HideColumn from '@/Components/Table/HideColumn'
-import RenameColumn from '@/Components/Table/RenameColumn'
-import DeleteColumn from '@/Components/Table/DeleteColumn'
-import RearrangeColumn from '@/Components/Table/RearrangeColumn'
+import AddColumn from '@/Components/Table/ColumnOptions/AddColumn'
+import HideColumn from '@/Components/Table/ColumnOptions/HideColumn'
+import RenameColumn from '@/Components/Table/ColumnOptions/RenameColumn'
+import DeleteColumn from '@/Components/Table/ColumnOptions/DeleteColumn'
+import RearrangeColumn from '@/Components/Table/ColumnOptions/RearrangeColumn'
 
 export default function ColumnOptions({ columns }) {
 

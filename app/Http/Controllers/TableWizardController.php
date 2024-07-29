@@ -84,10 +84,13 @@ class TableWizardController extends Controller
                 $query->orderBy('position', 'asc');
             },
             'values' => function ($query) {
-                $query->orderBy('id', 'asc')
+                $query->orderBy('id', 'DESC')
                     ->select('id', 'entity_id', 'values');
             }
         ])->where('slug', $slug)->firstOrFail();
+        $perPage = 10;
+        $paginatedValues = $table->values()->paginate($perPage);
+        $table->setRelation('values', $paginatedValues);
         return Inertia::render('TableWizard/ViewTableItem', [
             'entity' => $table
         ]);
@@ -237,6 +240,23 @@ class TableWizardController extends Controller
             $item->update();
         }
     }
+
+    public function add_row(Request $request)
+    {
+        if (isset($request->entity_id)) {
+            $toInsert = [];
+            if (isset($request->newItem)) {
+                foreach ($request->newItem as $key => $value) {
+                    $toInsert[] = [$key => $value];
+                }
+            }
+            $item = Value::create([
+                'entity_id' => $request->entity_id,
+                'values' => json_encode($toInsert),
+            ]);
+        }
+    }
+
 
     public function delete_row($id)
     {
