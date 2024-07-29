@@ -1,5 +1,5 @@
 import React from 'react'
-import EditableComponent from './FieldOptions/EditableComponent'
+import EditableComponent from './FieldOptions/Edit/EditableComponent'
 
 export default function TableColumn({ columnId, header, itemValue, handleItemChange }) {
     return (

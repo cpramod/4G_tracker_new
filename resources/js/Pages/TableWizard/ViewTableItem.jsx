@@ -5,15 +5,23 @@ import { Button, Card, IconButton, Menu, MenuHandler, MenuItem, MenuList, Typogr
 import TextInput from '@/Components/TextInput'
 import { ChevronDownIcon, ChevronUpIcon, EllipsisVerticalIcon, SearchIcon } from 'lucide-react'
 import ImportCSV from '@/Components/Table/ImportCSV'
-import ColumnOptions from '@/Components/Table/ColumnOptions'
-import RestoreTable from '@/Components/Table/RestoreTable'
+import ColumnOptions from '@/Components/Table/ColumnOptions/ColumnOptions'
+import RestoreTable from '@/Components/Table/ColumnOptions/RestoreTable'
 import DeleteTable from '@/Components/Table/DeleteTable'
-import DeleteButton from '@/Components/Table/DeleteButton'
 import TableRow from '@/Components/Table/TableRow'
+import Pagination from '@/Components/Pagination'
+import AddNewRow from '@/Components/Table/AddNewRow'
 
 export default function ViewTableItem({ auth, entity }) {
+
     const { role } = auth
     const [deleteTableDialog, setDeleteTableDialog] = useState(false);
+    const [perPage, setPerPage] = useState(10);
+    const [addNewRow, setAddNewRow] = useState(false)
+
+    const handlePerPageChange = (val) => {
+        setPerPage(val);
+    }
 
     return (
         <Authenticated user={auth?.user}>
@@ -67,7 +75,6 @@ export default function ViewTableItem({ auth, entity }) {
                                     <ImportCSV columns={entity?.attributes} />
                                     <ColumnOptions columns={entity?.attributes} />
                                     <RestoreTable entity_id={entity?.id} />
-                                    {/* <ExportTable entity_id={entity?.id} /> */}
                                 </React.Fragment>
                             )}
                         </div>
@@ -95,7 +102,7 @@ export default function ViewTableItem({ auth, entity }) {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {entity?.values?.length > 0 && entity?.values?.map((entity_values, index) => {
+                                        {entity?.values?.data?.length > 0 && entity?.values?.data?.map((entity_values, index) => {
                                             const values = JSON.parse(entity_values?.values)
                                             const headers = entity?.attributes
                                             return (
@@ -107,8 +114,35 @@ export default function ViewTableItem({ auth, entity }) {
                                                 />
                                             )
                                         })}
+                                        {addNewRow && <AddNewRow tableHeader={entity?.attributes} setAddNewRow={setAddNewRow} />}
                                     </tbody>
                                 </table>
+                            </div>
+                            <div className="pagination flex justify-between items-center">
+                                <div className="px-4">
+                                    <Button variant='gradient' size='sm' className='capitalize rounded' onClick={() => { setAddNewRow(true) }}>
+                                        Add New Row
+                                    </Button>
+                                </div>
+                                <div className='md:flex grid justify-start md:justify-end items-center pt-6 mb-8 gap-3 px-4'>
+                                    <div className='flex items-center gap-2'>
+                                        <div className='text-sm font-medium'>Rows per Page</div>
+                                        <select
+                                            className='rounded-md text-sm font-medium border-gray-400 focus:ring-0 py-2'
+                                            value={perPage}
+                                            onChange={(e) => { handlePerPageChange(e.target.value) }}
+                                        >
+                                            <option value="10">10</option>
+                                            <option value="15">15</option>
+                                            <option value="20">20</option>
+                                            <option value="20">25</option>
+                                            <option value="50">50</option>
+                                            <option value="all">All</option>
+                                        </select>
+                                    </div>
+                                    <div className='text-sm font-medium'>{`${entity?.values?.from}-${entity?.values?.to} of ${entity?.values?.total} Records`}</div>
+                                    <Pagination links={entity?.values?.links} perPage={perPage} />
+                                </div>
                             </div>
                         </Card>
                     </div>
