@@ -33,6 +33,14 @@ class SiteController extends Controller
                     $query->orWhere($column, 'LIKE', '%' . $search_query . '%');
                 }
             })->orderBy($order_by, $order ? $order : 'asc')->paginate($per_page);
+
+        } elseif ($request->input('filter_by') && $request->input('value')) {
+
+            $sites = Site::whereHas('tracking', function ($query) use ($request) {
+                $query->where('key', $request->input('filter_by'));
+                $query->where('value', $request->input('value'));
+            })->orderBy($order_by, $order ? $order : 'asc')->paginate($per_page);
+
         } else {
             $sites = Site::orderBy($order_by, $order ? $order : 'asc')->paginate($per_page);
         }
@@ -53,16 +61,7 @@ class SiteController extends Controller
                 $site->{$key} = $value['value'];
             }
         }
-        if ($request->input('filter_by') && $request->input('value')) {
-            $filterBy = $request->input('filter_by');
-            $sitesArray = $sites->items();
-            $filteredSites = array_filter($sitesArray, function ($site) use ($filterBy, $request) {
-                return isset($site->tracking[$filterBy]) &&
-                    isset($site->tracking[$filterBy]['value']) &&
-                    $site->tracking[$filterBy]['value'] === $request->input('value');
-            });
-            $sites->setCollection(collect($filteredSites));
-        }
+
         return Inertia::render('FWSites/Index', [
             'sites' => $sites,
             'get_data' => $request->all(),
