@@ -22,6 +22,10 @@ export default function EditableComponent({ item, handleItemOnChange }) {
             { label: 'Device Upgrade', value: 'device_upgrade' },
             { label: 'Reparent', value: 'reparent' },
             { label: 'Repan', value: 'repan' },
+            { label: 'Opti Type 1', value: 'opti_type_1' },
+            { label: 'Opti Type 5', value: 'opti_type_5' },
+            { label: 'Opti Type 6', value: 'opti_type_6' },
+            { label: 'EPO', value: 'epo' },
         ]
     }
     return (
