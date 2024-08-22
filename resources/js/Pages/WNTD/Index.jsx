@@ -310,6 +310,10 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
                             <option value="device_upgrade">Device Upgrade</option>
                             <option value="reparent">Reparent</option>
                             <option value="repan">Repan</option>
+                            <option value="opti_type_1">Opti Type 1</option>
+                            <option value="opti_type_5">Opti Type 5</option>
+                            <option value="opti_type_6">Opti Type 6</option>
+                            <option value="epo">EPO</option>
                         </select>
                     </div>
                     {role === 'super-admin' && (
