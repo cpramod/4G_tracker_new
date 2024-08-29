@@ -43,6 +43,8 @@ export default function Index({ auth }) {
         <Authenticated user={auth?.user}>
             <Head title="Frequency Retune" />
             <div className="top-section p-4">
+            <div className="bg-white shadow rounded py-3 px-5 flex justify-between items-center">
+
                 <div className="flex items-center justify-between">
                     <div>
                         <Typography variant={'h3'} className="tracking-tight">MO File Generator</Typography>
@@ -52,6 +54,7 @@ export default function Index({ auth }) {
                             <li><Link href={route('mo.file.generator')}>Frequency Retune</Link></li>
                         </ul>
                     </div>
+                </div>
                 </div>
             </div>
             <div className="content mt-6">

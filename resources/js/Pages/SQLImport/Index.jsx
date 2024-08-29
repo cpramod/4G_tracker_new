@@ -103,6 +103,8 @@ export default function Index({ auth }) {
         <Authenticated user={auth?.user}>
             <Head title='Wireless Sites' />
             <div className="top-section p-4">
+            <div className="bg-white shadow rounded py-3 px-5 flex justify-between items-center">
+
                 <div className='flex items-center justify-between'>
                     <div className="">
                         <Typography variant={'h3'} className='tracking-tight'>SQL Import</Typography>
@@ -112,6 +114,7 @@ export default function Index({ auth }) {
                             <li><Link href={route('sql.import')}>SQL Import</Link></li>
                         </ul>
                     </div>
+                </div>
                 </div>
             </div>
             <div className="filter-wrapper px-4">

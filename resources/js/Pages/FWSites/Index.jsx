@@ -271,6 +271,7 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
         <Authenticated user={auth?.user}>
             <Head title='FW Sites' />
             <div className="top-section p-4">
+            <div className="bg-white shadow rounded py-3 px-5 flex justify-between items-center">
                 <div className='flex items-center justify-between'>
                     <div className="">
                         <Typography variant={'h3'} className='tracking-tight'>FW Site</Typography>
@@ -280,9 +281,8 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
                             <li><Link href={route('site.field.name.index')}>FW Site</Link></li>
                         </ul>
                     </div>
-                </div>
-            </div>
-            <div className="filter-wrapper md:px-4">
+                    </div>
+                    <div className="filter-wrapper md:px-4">
                 <div className="flex filter-details justify-end gap-1">
                     <div className="search-wrapper w-1/5 flex relative">
                         <TextInput
@@ -330,6 +330,9 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
                     <ExportButton route_name={'site.field.name.export'} file_name={'FW Sites_Export'} />
                 </div>
             </div>
+                </div>
+            </div>
+         
             <div className="content mt-6">
                 <Card className="h-full w-full rounded-none">
                     <div className="overflow-x-auto overflow-hidden">
@@ -390,9 +393,10 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
                         {siteItems?.data?.length === 0 && <Typography variant="h6" color="blue-gray" className='text-center py-6' >No data found</Typography>}
                         <div className="pagination flex justify-between items-center">
                             <div className="px-4">
-                                <Button variant='gradient' size='sm' className='capitalize rounded' onClick={() => { setAddNewRow(true) }}>
-                                    Add New Row
-                                </Button>
+                            <Button variant='gradient' size='sm' className='capitalize rounded text-sm' onClick={() => { setAddNewRow(true) }}>
+                        Add New Row
+                        </Button>
+                               
                             </div>
                             <div className='md:flex grid justify-start md:justify-end items-center pt-6 mb-8 gap-3 px-4'>
                                 <div className='flex items-center gap-2'>

@@ -9,6 +9,8 @@ export default function Index({ auth, roles, noRoles }) {
         <Authenticated user={auth?.user}>
             <Head title='Wireless Sites' />
             <div className="top-section p-4">
+            <div className="bg-white shadow rounded py-3 px-5 flex justify-between items-center">
+
                 <div className='flex items-center justify-between'>
                     <div className="">
                         <Typography variant={'h3'} className='tracking-tight'>Role Management</Typography>
@@ -18,6 +20,7 @@ export default function Index({ auth, roles, noRoles }) {
                             <li><Link href={route('roles.index')}>Role Management</Link></li>
                         </ul>
                     </div>
+                </div>
                 </div>
             </div>
             <div className="filter-wrapper md:px-4">

@@ -34,6 +34,8 @@ export default function Index({ auth, db }) {
         <Authenticated user={auth?.user}>
             <Head title='Wireless Sites' />
             <div className="top-section p-4">
+            <div className="bg-white shadow rounded py-3 px-5 flex justify-between items-center">
+
                 <div className='flex items-center justify-between'>
                     <div className="">
                         <Typography variant={'h3'} className='tracking-tight'>Settings</Typography>
@@ -42,6 +44,7 @@ export default function Index({ auth, db }) {
                             <li>/</li>
                             <li><Link href={route('settings.index')}>Settings</Link></li>
                         </ul>
+                    </div>
                     </div>
                 </div>
             </div>

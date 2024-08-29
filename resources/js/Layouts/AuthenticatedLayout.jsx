@@ -2,128 +2,164 @@ import React, { useState } from 'react';
 import Dropdown from '@/Components/Dropdown';
 import { Link, usePage } from '@inertiajs/react';
 import { Button, Card, List, ListItem, ListItemPrefix, Typography } from '@material-tailwind/react';
-import { AlignJustifyIcon, ChevronDownIcon, DatabaseZapIcon, FileCog2Icon, FileCogIcon, GaugeCircleIcon, GitCommitVerticalIcon, GlobeIcon, LocateFixedIcon, NfcIcon, Settings2Icon, SettingsIcon, UserRoundCogIcon } from 'lucide-react';
+import {  AlignLeftIcon, BarChart3Icon, BellIcon, MoonIcon, SearchIcon, SettingsIcon, UploadIcon, XIcon ,AlignJustifyIcon, ChevronDownIcon, DatabaseZapIcon, FileCog2Icon, FileCogIcon, GaugeCircleIcon, GitCommitVerticalIcon, GlobeIcon, LocateFixedIcon, NfcIcon, Settings2Icon, User2Icon, UserRoundCogIcon } from 'lucide-react';
 import { Toaster } from 'react-hot-toast';
-
+import { setOpenCloseMenu } from '@/Store/Reducers/MenuSlice';
+import { useDispatch,useSelector } from 'react-redux';
 export default function Authenticated({ user, children }) {
+    const dispatch=useDispatch();
+    const { minimizedSidebar } = useSelector((state) => state.menu)
     const { role } = usePage().props?.auth
     const { entities } = usePage().props
     const currentRoute = route().current();
-    const [showSidebar, setShowSidebar] = useState(false)
+
 
     const handleHamburgerIcon = () => {
-        setShowSidebar(!showSidebar)
+        dispatch(setOpenCloseMenu());
     }
 
+ 
     return (
-        <div className="admin-layout">
-            <div className="header w-full py-4 bg-white border-b-2 sticky top-0 z-50">
-                <div className="full flex items-center justify-between px-6">
-                    <div className="left">
-                        <div className='flex items-center gap-4'>
-                            <div className="ham flex items-center">
-                                <button onClick={handleHamburgerIcon}><AlignJustifyIcon size={24} color='gray' strokeWidth={1.5} /></button>
-                            </div>
-                            <Typography variant="h5" color="blue-gray" className='text-center'>
-                                FWP Tracker
-                            </Typography>
-                        </div>
+        <div className="bg-[#f7f9fb] min-h-screen">
+        <div className="main-layout">
+            <div className="layout-wrapper flex flex-wrap">
+                <div className={`sidebar h-screen bg-gray-900 w-full shadow-sm rounded-none overflow-hidden ${minimizedSidebar ? "w-max sm:w-full sm:left-[-100px] sm:max-w-[64px]" : "w-max sm:w-full -left-full sm:max-w-[250px]"} transition-all ease-in-out duration-300 fixed sm:left-0 z-50`}>
+                    <div className="close sm:hidden rounded-full block w-max top-2 right-2 absolute p-1 " onClick={()=>{}}>
+                        <XIcon size={22} color="white" />
                     </div>
-                    <div className="right">
-                        <div className="flex items-center gap-4">
-                            {currentRoute !== 'table.wizard.index' && (
-                                <Link href={route('table.wizard.index')}>
-                                    <Button variant='gradient' size='sm' className='capitalize rounded-md'>
-                                        Create Table
-                                    </Button>
-                                </Link>
-                            )}
-                            <Dropdown>
-                                <Dropdown.Trigger>
-                                    <span className="inline-flex rounded-md">
-                                        <button type="button" className="flex items-center gap-2 text-gray-600 font-semibold">
-                                            {user.name}
-                                            <ChevronDownIcon />
-                                        </button>
-                                    </span>
-                                </Dropdown.Trigger>
-                                <Dropdown.Content>
-                                    <Dropdown.Link href={route('profile.edit')}>Profile</Dropdown.Link>
-                                    <Dropdown.Link href={route('logout')} method="post" as="button">
-                                        Log Out
-                                    </Dropdown.Link>
-                                </Dropdown.Content>
-                            </Dropdown>
-                        </div>
+                    <div className="logo-wrapper p-3 px-8 my-2">
+                    <Link href='/dashboard'>
+                            <h2 className='text-white font-bold text-xl'>FWP Tracker</h2>
+                            </Link>
                     </div>
-                </div>
-            </div>
-            <div className="page-content">
-                <aside className={`fixed w-full max-w-[15rem] transition-all ease-in-out duration-300 z-50 ${showSidebar ? "left-0" : "-left-full"}`}>
-                    <Card className="h-screen bg-gradient-to-tr from-gray-900 to-gray-800 rounded-none">
-                        <List className='text-white'>
-                            <Link href='/dashboard' className={`${currentRoute === "dashboard" ? "bg-blue-gray-50/50 rounded-lg" : ""}`}>
-                                <ListItem>
-                                    <ListItemPrefix className='mr-3'><GaugeCircleIcon size={20} /></ListItemPrefix>
+                    <div className="side-menu px-3">
+                        <List className={`p-0 rounded-none ${currentRoute === "dashboard" ? " border-l-4 border-green-700  bg-gray-700/90" : ""}`}>
+                        <Link href='/dashboard' className={``}>
+
+                                <ListItem className={`py-3 rounded-none text-white `}>
+                                <ListItemPrefix className='mr-3'><GaugeCircleIcon size={20} /></ListItemPrefix>
                                     <span className='font-semibold text-sm'>Dashboard</span>
                                 </ListItem>
                             </Link>
-                            <Link href={route('wireless.sites.index')} className={`${currentRoute === "wireless.sites.index" ? "bg-blue-gray-50/50 rounded-lg" : ""}`}>
-                                <ListItem>
-                                    <ListItemPrefix className='mr-3'><GlobeIcon size={20} /></ListItemPrefix>
+                        </List>
+                        <List className={`p-0 ${currentRoute === "wireless.sites.index" ?  " border-l-4 border-green-700  bg-gray-700/90" : ""}`} data-voyager="report-menu">
+                        <Link href={route('wireless.sites.index')} >
+                                <ListItem className={`py-3 rounded-none  text-white`}>
+                                <ListItemPrefix className='mr-3'><GlobeIcon size={20} /></ListItemPrefix>
                                     <span className='font-semibold text-base'>WNTD</span>
                                 </ListItem>
                             </Link>
-                            <Link href={route('site.field.name.index')} className={`${currentRoute === "site.field.name.index" ? "bg-blue-gray-50/50 rounded-lg" : ""}`}>
-                                <ListItem>
-                                    <ListItemPrefix className='mr-3'><NfcIcon size={20} /></ListItemPrefix>
+                        </List>
+                        <List className={`p-0 ${currentRoute === "site.field.name.index" ?  " border-l-4 border-green-700  bg-gray-700/90" : ""}`}>
+                        <Link href={route('site.field.name.index')} className=''>
+                                <ListItem className={`py-3 rounded-none text-white `}>
+                                <ListItemPrefix className='mr-3'><NfcIcon size={20} /></ListItemPrefix>
                                     <span className='font-semibold text-base'>FW Site</span>
                                 </ListItem>
                             </Link>
-                            {entities?.length > 0 && entities?.map((item, index) => (
-                                <React.Fragment key={index}>
+                        </List>
+                    
+                        {entities?.length > 0 && entities?.map((item, index) => (
+                                <List className='p-0' key={index}>
                                     <Link href={route('view.table.item', item?.slug)}>
-                                        <ListItem>
+                                    <ListItem className={`py-3 rounded-none`}>
+
                                             <ListItemPrefix className='mr-3'><GitCommitVerticalIcon size={20} /></ListItemPrefix>
                                             <span className='font-semibold text-sm'>{item?.title}</span>
                                         </ListItem>
                                     </Link>
-                                </React.Fragment>
+                                </List>
                             ))}
-                            {role === 'super-admin' && (
+                                  {role === 'super-admin' && (
                                 <>
+                                       <List className='p-0'>
                                     <Link href={route('sql.import')} className={`${currentRoute === "sql.import" ? "bg-blue-gray-50/50 rounded-lg" : ""}`}>
-                                        <ListItem>
+                                    <ListItem className={`py-3 rounded-none text-[#c3c3c3] "border-l-4 border-green-700  bg-gray-700/90" `}>
+
                                             <ListItemPrefix className='mr-3'><DatabaseZapIcon size={20} /></ListItemPrefix>
                                             <span className='font-semibold text-sm'>SQL Import</span>
                                         </ListItem>
                                     </Link>
+                                    </List>
+                                    <List className='p-0'>
                                     <Link href={route('mo.file.generator')} className={`${currentRoute === "mo.file.generator" ? "bg-blue-gray-50/50 rounded-lg" : ""}`}>
-                                        <ListItem>
+                                    <ListItem className={`py-3 rounded-none text-[#c3c3c3] "border-l-4 border-green-700  bg-gray-700/90" `}>
+
                                             <ListItemPrefix className='mr-3'><FileCog2Icon size={20} /></ListItemPrefix>
                                             <span className='font-semibold text-sm'>MO File Generator</span>
                                         </ListItem>
                                     </Link>
+                                    </List>
+                                    <List className='p-0'>
                                     <Link href={route('roles.index')} className={`${currentRoute === "roles.index" ? "bg-blue-gray-50/50 rounded-lg" : ""}`}>
-                                        <ListItem>
+                                    <ListItem className={`py-3 rounded-none text-[#c3c3c3] "border-l-4 border-green-700  bg-gray-700/90" `}>
+
                                             <ListItemPrefix className='mr-3'><UserRoundCogIcon size={20} /></ListItemPrefix>
                                             <span className='font-semibold text-sm'>Roles Management</span>
                                         </ListItem>
                                     </Link>
+                                    </List>
+                                    <List className='p-0'>
                                     <Link href={route('settings.index')} className={`${currentRoute === "settings.index" ? "bg-blue-gray-50/50 rounded-lg" : ""}`}>
-                                        <ListItem>
+                                    <ListItem className={`py-3 rounded-none text-[#c3c3c3] "border-l-4 border-green-700  bg-gray-700/90" `}>
+
                                             <ListItemPrefix className='mr-3'><Settings2Icon size={20} /></ListItemPrefix>
                                             <span className='font-semibold text-sm'>Settings</span>
                                         </ListItem>
                                     </Link>
+                                    </List>
                                 </>
                             )}
-                        </List>
-                    </Card>
-                </aside>
-                <main className='main-content lg:w-full lg:max-w-[calc(100%)]'>{children}</main>
+                    </div>
+                </div>
+                <div className={`main-content w-full ${minimizedSidebar ? "w-full  " : "sm:max-w-[calc(100%-250px)] sm:ms-[250px]"} transition-all ease-in-out duration-300`}>
+                    <header className='bg-white p-3 shadow border-b sticky top-0 z-50'>
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                                <div className="toggle-menu cursor-pointer">
+                                    <AlignLeftIcon onClick={handleHamburgerIcon} size={28} strokeWidth={1.5} color='rgba(61, 67, 74, 0.9)' />
+                                </div>
+                           
+                            </div>
+                            <div className="right-item flex items-center justify-center gap-4 ">
+                        
+                                <div className="user-item font-normal">
+                                <div className="flex items-center gap-4">
+                            {currentRoute !== 'table.wizard.index' && (
+                                <Link href={route('table.wizard.index')}>
+                                    <Button variant='gradient' size='sm' className='capitalize rounded text-sm'>
+                                        Create Table
+                                    </Button>
+                                </Link>
+                            )}
+                                    <Dropdown>
+                                        <Dropdown.Trigger>
+                                            <span className='flex items-center gap-2'>
+                                                <div className="border rounded-full w-10 h-10 bg-[#F4F7F9] flex items-center justify-center">
+                                                    <User2Icon color='rgba(61, 67, 74, 0.9)' size={18} strokeWidth={1.5} />
+                                                </div>
+                                                <button type="button" className="text-xs sm:text-base flex items-center gap-2 text-gray-600 font-semibold">{user?.name}<ChevronDownIcon /></button>
+                                            </span>
+                                        </Dropdown.Trigger>
+                                        <Dropdown.Content>
+                                            <Dropdown.Link href={route('profile.edit')}>Profile</Dropdown.Link>
+                                            <Dropdown.Link onClick={()=>{localStorage.removeItem('minimized')}} href={route('logout')} method="post" as="button">
+                                                Log Out
+                                            </Dropdown.Link>
+                                        </Dropdown.Content>
+                                    </Dropdown>
+                                </div>
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+                    <div className="content">
+                        {children}
+                    </div>
+                </div>
             </div>
-            <Toaster position="top-right" />
         </div>
+        <Toaster position='top-right' />
+    </div>
     );
 }

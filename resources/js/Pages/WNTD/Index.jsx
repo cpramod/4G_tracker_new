@@ -266,6 +266,7 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
         <Authenticated user={auth?.user}>
             <Head title='WNTD' />
             <div className="top-section p-4">
+            <div className="bg-white shadow rounded py-3 px-5 flex justify-between items-center">
                 <div className='flex items-center justify-between'>
                     <div className="">
                         <Typography variant={'h3'} className='tracking-tight'>WNTD</Typography>
@@ -276,8 +277,7 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
                         </ul>
                     </div>
                 </div>
-            </div>
-            <div className="filter-wrapper md:px-4">
+                <div className="filter-wrapper md:px-4">
                 <div className="flex filter-details justify-end gap-2">
                     <div className="search-wrapper w-1/5 flex relative">
                         <TextInput
@@ -329,6 +329,10 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
                     <ExportButton route_name={'wireless.sites.export'} file_name={'WNTD_Export'} />
                 </div>
             </div>
+                </div>
+                
+            </div>
+            
 
             <div className="content mt-6">
                 <Card className="h-full w-full rounded-none">
@@ -389,9 +393,10 @@ export default function Index({ auth, sites, get_data, batch, additional_columns
                     </div>
                     <div className="pagination flex justify-between items-center">
                         <div className="px-4">
-                            <Button variant='gradient' size='sm' className='capitalize rounded' onClick={() => { setAddNewRow(true) }}>
-                                Add New Row
-                            </Button>
+                        <Button variant='gradient' size='sm' className='capitalize rounded text-sm' onClick={() => { setAddNewRow(true) }}>
+                        Add New Row
+                        </Button>
+                          
                         </div>
                         <div className='md:flex grid justify-start md:justify-end items-center pt-6 mb-8 gap-3 px-4'>
                             <div className='flex items-center gap-2'>
