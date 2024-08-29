@@ -110,7 +110,7 @@ export default function Authenticated({ user, children }) {
                                     </List>
                                 </>
                             )}
-                    </div>
+                    </div>  
                 </div>
                 <div className={`main-content w-full ${minimizedSidebar ? "w-full  " : "sm:max-w-[calc(100%-250px)] sm:ms-[250px]"} transition-all ease-in-out duration-300`}>
                     <header className='bg-white p-3 shadow border-b sticky top-0 z-50'>
