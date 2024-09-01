@@ -4,13 +4,17 @@ import { Button, Dialog, DialogBody, DialogFooter, DialogHeader, Tooltip } from 
 import { FileBarChartIcon, ImageIcon } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
 
-export default function UploadItem({ siteId, name, value, single = false }) {
+export default function UploadItem(props) {
+   
+  const  { data:siteData }=props;
+  console.log(siteData);
+  let single = false ;
     const handleOpen = () => setOpen(!open);
     const [open, setOpen] = useState(false);
 
     const { data, setData, post, processing, reset } = useForm({
-        site_id: siteId,
-        field_name: name,
+        site_id: siteData?.id,
+        field_name: props?.colDef?.field,
         artifacts: []
     });
 
@@ -89,8 +93,9 @@ export default function UploadItem({ siteId, name, value, single = false }) {
 
     return (
         <div className='w-full h-full'>
+       
             {!single && <button className='font-medium text-[12px] opacity-0' onClick={handleOpen}>Uplaod</button>}
-            {value && <ShowFileIcons files={value ? value : ''} />}
+            {siteData?.value && <ShowFileIcons files={siteData?.value ? siteData?.value : ''} />}
             <Dialog open={open} handler={handleOpen} size='xs'>
                 <DialogHeader>Upload Artifacts</DialogHeader>
                 <DialogBody>

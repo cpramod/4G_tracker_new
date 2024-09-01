@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit"
 
 export const MenuSlice = createSlice({
-    name: 'SelectedChartItemSlice',
+    name: 'Menu',
     initialState: {
         minimizedSidebar:true,
     },

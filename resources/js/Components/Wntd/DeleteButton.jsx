@@ -3,7 +3,7 @@ import { Button, Popover, PopoverContent, PopoverHandler, Typography } from '@ma
 import { Trash2Icon } from 'lucide-react'
 import { router, useForm } from '@inertiajs/react';
 
-export default function DeleteButton({ site_id }) {
+export default function DeleteButton(props) {
     const { processing, delete: destroy } = useForm()
     const [openPopover, setOpenPopover] = useState(false);
     const triggers = {
@@ -12,7 +12,7 @@ export default function DeleteButton({ site_id }) {
     };
 
     const onDeleteHandle = () => {
-        destroy(route('wireless.sites.destroy', site_id), {
+        destroy(route('wireless.sites.destroy', props.data.id), {
             preserveScroll: true,
             onSuccess: () => {
                 router.visit(route('wireless.sites.index'))
