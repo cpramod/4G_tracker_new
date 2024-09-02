@@ -12,7 +12,7 @@ export default function Pagination({ links, perPage }) {
     }
 
     return (
-        links.length > 3 && (
+        links?.length > 3 && (
             <div className="flex flex-wrap flex-start md:justify-end gap-1">
                 {links.map((link, index) => (
                     link.url === null ? (

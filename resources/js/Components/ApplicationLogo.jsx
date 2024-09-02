@@ -1,7 +1,9 @@
+import React from "react";
+
 export default function ApplicationLogo(props) {
     return (
-        <div {...props}>
-            FWP Tracker
-        </div>
+        <React.Fragment>
+            <img src="/images/logo.png" className={`${props?.className}`} />
+        </React.Fragment>
     );
 }

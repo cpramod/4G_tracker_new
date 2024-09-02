@@ -30,8 +30,8 @@ export default function EditableComponent({ item, handleItemOnChange }) {
     }
     return (
         <FieldItem
-            name={item.key}
-            options={options[item.key]}
+            name={item.field}
+            options={options[item.field]}
             handleItemOnChange={handleItemOnChange}
         />
     )

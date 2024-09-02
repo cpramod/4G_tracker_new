@@ -6,6 +6,7 @@ import {  AlignLeftIcon, BarChart3Icon, BellIcon, MoonIcon, SearchIcon, Settings
 import { Toaster } from 'react-hot-toast';
 import { setOpenCloseMenu } from '@/Store/Reducers/MenuSlice';
 import { useDispatch,useSelector } from 'react-redux';
+import ApplicationLogo from '@/Components/ApplicationLogo';
 export default function Authenticated({ user, children }) {
     const dispatch=useDispatch();
     const { minimizedSidebar } = useSelector((state) => state.menu)
@@ -28,9 +29,10 @@ export default function Authenticated({ user, children }) {
                         <XIcon size={22} color="white" />
                     </div>
                     <div className="logo-wrapper p-3 px-8 my-2">
-                    <Link href='/dashboard'>
-                            <h2 className='text-white font-bold text-xl'>FWP Tracker</h2>
-                            </Link>
+                    <Link href='/dashboard' className='flex items-center'>
+                    <ApplicationLogo className="w-40" />
+                        {/* <h2 className='text-white font-bold text-xl'>FWP Tracker</h2> */}
+                    </Link>
                     </div>
                     <div className="side-menu px-3">
                         <List className={`p-0 rounded-none ${currentRoute === "dashboard" ? " border-l-4 border-green-700  bg-gray-700/90" : ""}`}>
@@ -60,9 +62,9 @@ export default function Authenticated({ user, children }) {
                         </List>
                     
                         {entities?.length > 0 && entities?.map((item, index) => (
-                                <List className='p-0' key={index}>
+                                <List className={`p-0 ${currentRoute === "view.table.item" ? "border-l-4 border-green-700  bg-gray-700/90" : ""}`} key={index}>
                                     <Link href={route('view.table.item', item?.slug)}>
-                                    <ListItem className={`py-3 rounded-none`}>
+                                    <ListItem className={`py-3 rounded-none text-white`}>
 
                                             <ListItemPrefix className='mr-3'><GitCommitVerticalIcon size={20} /></ListItemPrefix>
                                             <span className='font-semibold text-sm'>{item?.title}</span>
@@ -72,36 +74,35 @@ export default function Authenticated({ user, children }) {
                             ))}
                                   {role === 'super-admin' && (
                                 <>
-                                       <List className='p-0'>
-                                    <Link href={route('sql.import')} className={`${currentRoute === "sql.import" ? "bg-blue-gray-50/50 rounded-lg" : ""}`}>
-                                    <ListItem className={`py-3 rounded-none text-[#c3c3c3] "border-l-4 border-green-700  bg-gray-700/90" `}>
-
+                                       <List  className={`p-0 ${currentRoute === "sql.import" ?  " border-l-4 border-green-700  bg-gray-700/90" : ""}`}>
+                                    <Link href={route('sql.import')} >
+                                    <ListItem className={`py-3 rounded-none text-white`}>
                                             <ListItemPrefix className='mr-3'><DatabaseZapIcon size={20} /></ListItemPrefix>
                                             <span className='font-semibold text-sm'>SQL Import</span>
                                         </ListItem>
                                     </Link>
                                     </List>
-                                    <List className='p-0'>
-                                    <Link href={route('mo.file.generator')} className={`${currentRoute === "mo.file.generator" ? "bg-blue-gray-50/50 rounded-lg" : ""}`}>
-                                    <ListItem className={`py-3 rounded-none text-[#c3c3c3] "border-l-4 border-green-700  bg-gray-700/90" `}>
+                                    <List className={`p-0 ${currentRoute === "mo.file.generator" ?  " border-l-4 border-green-700  bg-gray-700/90" : ""}`}>
+                                    <Link href={route('mo.file.generator')} >
+                                    <ListItem className={`py-3 rounded-none text-white`}>
 
                                             <ListItemPrefix className='mr-3'><FileCog2Icon size={20} /></ListItemPrefix>
                                             <span className='font-semibold text-sm'>MO File Generator</span>
                                         </ListItem>
                                     </Link>
                                     </List>
-                                    <List className='p-0'>
-                                    <Link href={route('roles.index')} className={`${currentRoute === "roles.index" ? "bg-blue-gray-50/50 rounded-lg" : ""}`}>
-                                    <ListItem className={`py-3 rounded-none text-[#c3c3c3] "border-l-4 border-green-700  bg-gray-700/90" `}>
+                                    <List className={`p-0 ${currentRoute === "roles.index" ?  " border-l-4 border-green-700  bg-gray-700/90" : ""}`}>
+                                    <Link href={route('roles.index')} >
+                                    <ListItem className={`py-3 rounded-none text-white`}>
 
                                             <ListItemPrefix className='mr-3'><UserRoundCogIcon size={20} /></ListItemPrefix>
                                             <span className='font-semibold text-sm'>Roles Management</span>
                                         </ListItem>
                                     </Link>
                                     </List>
-                                    <List className='p-0'>
-                                    <Link href={route('settings.index')} className={`${currentRoute === "settings.index" ? "bg-blue-gray-50/50 rounded-lg" : ""}`}>
-                                    <ListItem className={`py-3 rounded-none text-[#c3c3c3] "border-l-4 border-green-700  bg-gray-700/90" `}>
+                                    <List className={`p-0 ${currentRoute === "settings.index" ?  " border-l-4 border-green-700  bg-gray-700/90" : ""}`}>
+                                    <Link href={route('settings.index')}>
+                                    <ListItem className={`py-3 rounded-none  text-white`}>
 
                                             <ListItemPrefix className='mr-3'><Settings2Icon size={20} /></ListItemPrefix>
                                             <span className='font-semibold text-sm'>Settings</span>
