@@ -14,7 +14,17 @@ export default function ColumnOptions({ columns, hidden_columns, deleted_columns
     const [arrangeColumnDialog, setArrangeColumnDialog] = useState(false)
     return (
         <>
-            <Menu>
+             <Button
+        variant="gradient"
+        size="sm"
+        className="capitalize rounded text-sm"
+        onClick={() => {
+          setAddColumnDialog(true);
+        }}
+      >
+        Add New Column
+      </Button>
+            {/* <Menu>
                 <MenuHandler>
                     <Button variant='gradient' size='sm' className='capitalize'>Column Options</Button>
                 </MenuHandler>
@@ -25,7 +35,7 @@ export default function ColumnOptions({ columns, hidden_columns, deleted_columns
                     <MenuItem onClick={() => { setArrangeColumnDialog(true) }}>Rearrange Columns</MenuItem>
                     <MenuItem onClick={() => { setDeleteColumnDialog(true) }} className='text-red-500'>Delete Columns</MenuItem>
                 </MenuList>
-            </Menu>
+            </Menu> */}
             <AddColumn addColumnDialog={addColumnDialog} setAddColumnDialog={setAddColumnDialog} />
             <HideColumn
                 hideColumnDialog={hideColumnDialog}

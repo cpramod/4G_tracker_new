@@ -14,13 +14,13 @@ const SaveDeleteComponent = () => {
     const dispatch = useDispatch();
     const { addNewRowDataFW } = useSelector((state) => state.table);
     const onSubmitHandler = (e) => {
-
+      console.log(addNewRowDataFW);
       e.preventDefault();
       if (!addNewRowDataFW['site_name']) {
    
         return toast.error('Site name is required')
     }
-      router.post(route("site.field.name.add.row"), addNewRowDataFW, {
+      router.post(route("site.field.name.add.row"), {newItem:addNewRowDataFW}, {
         onSuccess: () => {
           dispatch(setAddNewRowFW(false));
           toast.success("Row Added successfully");
@@ -58,7 +58,7 @@ const SaveDeleteComponent = () => {
 export default function AddNewRow({ setAddNewRow }) {
 
     const dispatch = useDispatch();
-    const { addNewRowData } = useSelector((state) => state.table);
+    const { addNewRowDataFW } = useSelector((state) => state.table);
   
     const solutionType = [
         "opti_type_1",
@@ -165,7 +165,8 @@ export default function AddNewRow({ setAddNewRow }) {
       },
     ]);
     const onCellValueChanged = (event) => {
-      const newItem = { ...addNewRowData };
+
+      const newItem = { ...addNewRowDataFW };
       dispatch(
         setAddNewRowDataFW({
           ...newItem,

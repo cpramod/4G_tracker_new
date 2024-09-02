@@ -1,4 +1,10 @@
-import React, { useEffect, useRef, useState, useMemo } from "react";
+import React, {
+  useEffect,
+  useRef,
+  useState,
+  useMemo,
+  useCallback,
+} from "react";
 import { Head, Link, router } from "@inertiajs/react";
 import { Button, Card, IconButton, Typography } from "@material-tailwind/react";
 import { ChevronDownIcon, ChevronUpIcon, SearchIcon } from "lucide-react";
@@ -18,18 +24,8 @@ import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
 import { useDispatch, useSelector } from "react-redux";
-import { setChangedData ,setAddNewRow} from "@/Store/Reducers/TableSlice";
+import { setChangedData, setAddNewRow } from "@/Store/Reducers/TableSlice";
 import UploadItem from "@/Components/FWSites/FieldItems/Edit/UploadItem";
-
-const SaveDeleteComponent = (props) => {
-  return (
-    <div className="flex gap-5 my-2">
-      <SaveBtn {...props} />
-      <DeleteButton {...props} />
-    </div>
-  );
-};
-
 const LinkLocId = (props) => {
   return (
     <Link
@@ -38,6 +34,15 @@ const LinkLocId = (props) => {
     >
       {props?.data?.loc_id}
     </Link>
+  );
+};
+
+const SaveDeleteComponent = (props) => {
+  return (
+    <div className="flex gap-5 my-2">
+      <SaveBtn {...props} />
+      <DeleteButton {...props} />
+    </div>
   );
 };
 
@@ -52,15 +57,7 @@ export default function Index({
   deleted_columns,
   arrange_columns,
 }) {
-  const dispatch = useDispatch();
-  const defaultColDef = useMemo(() => ({
-    editable: true,
-    filter: true,
-  }));
-  const {addNewRow}=useSelector(state=>state.table)
-  const { role } = auth;
-
-
+  const gridRef = useRef();
   const solutionType = [
     "device_upgrade",
     "reparent",
@@ -71,54 +68,32 @@ export default function Index({
     "epo",
   ];
   const status = ["in_progress", "not_started", "completed"];
-  useEffect(() => {
- 
-    if(sites?.data?.length>0){
- 
-    sites?.data.map((itm) => {
-      if (itm.end_date || itm.start_date) {
-        let newDate = itm?.end_date ? new Date(itm?.end_date) : new Date();
-        let newDateStart = itm?.start_date
-          ? new Date(itm?.start_date)
-          : new Date();
-        itm.start_date = newDateStart;
-        itm.end_date = newDate;
-      }
-      return itm;
-    });
-    setSitesItems(sites);
-         
-  }
-  }, [sites?.data]);
-
-  const [tableHeader] = useState([
+  const table_hader_constant = [
     {
       headerName: "LOCID",
       field: "loc_id",
       editable: false,
       cellRenderer: LinkLocId,
-
     },
-    { headerName: "WNTD", field: "wntd"},
-    { headerName: "IMSI", field: "imsi"},
-    { headerName: "VERSION", field: "version"},
-    { headerName: "AVC", field: "avc"},
-    { headerName: "BW Profile", field: "bw_profile"},
-    { headerName: "Lon", field: "lon"},
-    { headerName: "Lat", field: "lat"},
-    { headerName: "SiteName", field: "site_name"},
-    { headerName: "HomeCell", field: "home_cell"},
-    { headerName: "HomePCI", field: "home_pci"},
+    { headerName: "WNTD", field: "wntd" },
+    { headerName: "IMSI", field: "imsi" },
+    { headerName: "VERSION", field: "version" },
+    { headerName: "AVC", field: "avc" },
+    { headerName: "BW Profile", field: "bw_profile" },
+    { headerName: "Lon", field: "lon" },
+    { headerName: "Lat", field: "lat" },
+    { headerName: "SiteName", field: "site_name" },
+    { headerName: "HomeCell", field: "home_cell" },
+    { headerName: "HomePCI", field: "home_pci" },
 
     {
       headerName: "Traffic Profile",
       field: "traffic_profile",
-    
     },
     {
       headerName: "Start Date",
       field: "start_date",
-      input_type:"date",
+      input_type: "date",
       valueFormatter: (params) => {
         if (!params.value) {
           return "";
@@ -179,17 +154,35 @@ export default function Index({
       field: "artifacts",
       cellRenderer: UploadItem,
       editable: false,
-    
     },
-    {
-      headerName: "",
-      field: "",
-      editable: false,
-      filter:false,
-      cellRenderer: SaveDeleteComponent,
+  ];
 
-    },
-  ]);
+  const dispatch = useDispatch();
+  const defaultColDef = useMemo(() => ({
+    editable: true,
+    filter: true,
+  }));
+  const { addNewRow } = useSelector((state) => state.table);
+  const { role } = auth;
+
+  useEffect(() => {
+    if (sites?.data?.length > 0) {
+      sites?.data.map((itm) => {
+        if (itm.end_date || itm.start_date) {
+          let newDate = itm?.end_date ? new Date(itm?.end_date) : new Date();
+          let newDateStart = itm?.start_date
+            ? new Date(itm?.start_date)
+            : new Date();
+          itm.start_date = newDateStart;
+          itm.end_date = newDate;
+        }
+        return itm;
+      });
+      setSitesItems(sites);
+    }
+  }, [sites?.data]);
+
+  const [tableHeader, setTableHeader] = useState(table_hader_constant);
   const hiddenFileInput = useRef(null);
   const [searchText, setSearchText] = useState(
     get_data?.search ? get_data?.search : ""
@@ -203,6 +196,115 @@ export default function Index({
   const [mappingData, setMappingData] = useState("");
   const [batchId, setBatchId] = useState(null);
   const [changedItems, setChangedItems] = useState([]);
+
+  useEffect(() => {
+    function get_table_header(additional_columns) {
+      const updatedAdditionalTableHeader = additional_columns?.map((item) => {
+        let tempObj = {};
+        if (item?.input_type === "date") {
+          tempObj = {
+            headerName: item?.name.toUpperCase(),
+            field: item?.name,
+            valueFormatter: (params) => {
+              if (!params.value) {
+                return "";
+              }
+
+              const month = params.value.getMonth() + 1;
+              const day = params.value.getDate();
+              return `${params.value.getFullYear()}-${
+                month < 10 ? "0" + month : month
+              }-${day < 10 ? "0" + day : day}`;
+            },
+            cellEditor: "agDateCellEditor",
+            filter: false,
+          };
+        } else if (item?.input_type === "text") {
+          tempObj = { headerName: item?.name.toUpperCase(), field: item?.name };
+        } else if (item?.input_type === "dropdown") {
+          tempObj = {
+            headerName: item?.name.toUpperCase(),
+            field: item?.name,
+            cellEditorParams: {
+              values: JSON.parse(item?.options),
+            },
+          };
+        }
+        return tempObj;
+      });
+
+      // const sortByPosition = (a, b) => {
+      //     if (a.position !== undefined && b.position !== undefined) {
+      //         return a.position - b.position;
+      //     } else if (a.position !== undefined) {
+      //         return -1;
+      //     } else if (b.position !== undefined) {
+      //         return 1;
+      //     }
+      //     return 0;
+      // };
+
+      // if (renamed_columns) {
+      //     updatedTableHeader.forEach(column => {
+      //         const renamedColumn = renamed_columns.find(renamed => renamed.key === column.key);
+      //         if (renamedColumn) {
+      //             column.name = renamedColumn.name;
+      //         }
+      //     });
+      //     updatedAdditionalTableHeader.forEach(column => {
+      //         const renamedColumn = renamed_columns.find(renamed => renamed.key === column.key);
+      //         if (renamedColumn) {
+      //             column.name = renamedColumn.name;
+      //         }
+      //     });
+      // }
+      // if (hiddenColumnItems) {
+      //     updatedTableHeader.forEach(column => {
+      //         const hiddenColumn = hiddenColumnItems.find(hidden => hidden === column.key);
+      //         if (hiddenColumn) {
+      //             column.hidden = true;
+      //         }
+      //     });
+      //     updatedAdditionalTableHeader.forEach(column => {
+      //         const hiddenColumn = hiddenColumnItems.find(hidden => hidden === column.key);
+      //         if (hiddenColumn) {
+      //             column.hidden = true;
+      //         }
+      //     });
+      // }
+      // if (arrange_columns) {
+      //     updatedTableHeader.forEach(column => {
+      //         const arrangedColumn = arrange_columns.find(arranged => arranged.key === column.key);
+      //         if (arrangedColumn) {
+      //             column.position = arrangedColumn.position;
+      //         }
+      //     });
+      //     updatedAdditionalTableHeader.forEach(column => {
+      //         const arrangedColumn = arrange_columns.find(arranged => arranged.key === column.key);
+      //         if (arrangedColumn) {
+      //             column.position = arrangedColumn.position;
+      //         }
+      //     });
+      // }
+      // const combinedTableHeader = [...updatedTableHeader, ...updatedAdditionalTableHeader];
+      // const sortedTableHeader = combinedTableHeader.sort(sortByPosition);
+      // return sortedTableHeader
+      setTableHeader([
+        ...table_hader_constant,
+        ...updatedAdditionalTableHeader,
+        {
+          headerName: "",
+          field: "",
+          editable: false,
+          filter: false,
+          cellRenderer: SaveDeleteComponent,
+        },
+      ]);
+    }
+    if (additional_columns?.length > 0) {
+      get_table_header(additional_columns);
+    }
+  }, [additional_columns]);
 
   useEffect(() => {
     if (changedItems.length > 0) {
@@ -256,11 +358,6 @@ export default function Index({
       toast.error(`${error?.response?.data?.error?.message}`);
     }
   };
-
-  const handleSearch = async () => {
-    router.get(route("wireless.sites.index", { search: searchText }));
-  };
-
 
   const handlePerPageChange = (val) => {
     setPerPage(val);
@@ -319,8 +416,21 @@ export default function Index({
     return () => clearInterval(interval);
   }, [batchId]);
 
+  const onFilterChanged = () => {
 
+    const allColumns = gridRef.current.props?.columnDefs;
+    allColumns.forEach((column) => {
+        const columnFieldName = column.field; // Get the column field name
 
+        const filterInstanceFilterText = gridRef.current.api.getColumnFilterModel(columnFieldName);
+        console.log(filterInstanceFilterText);
+        // const filterInstanceId = gridRef.current.api.getColumn(columnFieldName).colId;
+        if (filterInstanceFilterText?.filter) {
+          router.get(route('wireless.sites.index', { 'search': filterInstanceFilterText?.filter }))
+      }
+ 
+    });
+  };
 
   return (
     <Authenticated user={auth?.user}>
@@ -345,48 +455,27 @@ export default function Index({
           </div>
           <div className="filter-wrapper md:px-4">
             <div className="flex filter-details justify-end gap-2">
-              <div className="search-wrapper w-full flex relative">
-                <TextInput
-                  placeholder="Search..."
-                  className="w-full text-sm rounded-md rounded-r-none border-r-0 focus:ring-0 h-8"
-                  value={searchText}
-                  onChange={(e) => setSearchText(e.target.value)}
-                />
-                <div className="search-icon">
-                  <IconButton
-                    size="sm"
-                    className="rounded-l-none"
-                    onClick={handleSearch}
-                  >
-                    <SearchIcon color="white" size={18} />
-                  </IconButton>
-                </div>
-              </div>
-      
               {role === "super-admin" && (
                 <>
-                  <div className="import-type-field">
+                  {/* <div className="import-type-field">
                     <Button
-                      variant="gradient"
-                      className="capitalize"
-                      size="sm"
                       onClick={handleClick}
+                      variant="gradient"
+                      size="sm"
+                      className="capitalize rounded text-sm"
                     >
                       Import from CSV
                     </Button>
+
                     <input
                       type="file"
                       onChange={handleChangeUpload}
                       ref={hiddenFileInput}
                       style={{ display: "none" }}
                     />
-                  </div>
-                  <ColumnOptions
-                    columns={tableHeader}
-                    hidden_columns={hidden_columns}
-                    deleted_columns={deleted_columns ? deleted_columns : []}
-                  />
-                  <RestoreTable type={"wntd"} />
+                  </div> */}
+
+                  {/* <RestoreTable type={"wntd"} /> */}
                 </>
               )}
               <ExportButton
@@ -401,25 +490,25 @@ export default function Index({
       <div className="content mt-6">
         <Card className="h-full w-full rounded-none">
           <div className="overflow-x-auto overflow-hidden">
-          {siteItems?.data && siteItems?.data?.length > 0 &&<> <div
-              className="ag-theme-quartz" // applying the Data Grid theme
-              style={{ height: 500 }} // the Data Grid will fill the size of the parent container
-            >
-              <AgGridReact
-                rowData={siteItems?.data}
-                columnDefs={tableHeader}
-                defaultColDef={defaultColDef}
-                onCellValueChanged={onCellValueChanged}
-              />
-            </div>
-         
-                {addNewRow && (
-                  <AddNewRow
-                    tableHeader={tableHeader}
-                
+            {siteItems?.data && siteItems?.data?.length > 0 && (
+              <>
+                <div
+                  className="ag-theme-quartz" // applying the Data Grid theme
+                  style={{ height: 500 }} // the Data Grid will fill the size of the parent container
+                >
+                  <AgGridReact
+                    ref={gridRef}
+                    rowData={siteItems?.data}
+                    columnDefs={tableHeader}
+                    defaultColDef={defaultColDef}
+                    onCellValueChanged={onCellValueChanged}
+                    onFilterChanged={onFilterChanged}
                   />
-                )}</>}
-              {/* </tbody> */}
+                </div>
+                {addNewRow && <AddNewRow tableHeader={tableHeader} />}
+              </>
+            )}
+            {/* </tbody> */}
             {/* </table>  */}
             {siteItems?.length === 0 && (
               <Typography
@@ -432,7 +521,7 @@ export default function Index({
             )}
           </div>
           <div className="pagination flex justify-between items-center">
-            <div className="px-4">
+            <div className="px-4 flex gap-5">
               <Button
                 variant="gradient"
                 size="sm"
@@ -443,6 +532,11 @@ export default function Index({
               >
                 Add New Row
               </Button>
+              <ColumnOptions
+                columns={tableHeader}
+                hidden_columns={hidden_columns}
+                deleted_columns={deleted_columns ? deleted_columns : []}
+              />
             </div>
             <div className="md:flex grid justify-start md:justify-end items-center pt-6 mb-8 gap-3 px-4">
               <div className="flex items-center gap-2">

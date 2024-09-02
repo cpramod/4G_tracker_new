@@ -17,7 +17,7 @@ const SaveDeleteComponent = () => {
     if (!addNewRowData["loc_id"]) {
       return toast.error("LocId is required");
     }
-    router.post(route("wireless.sites.add.row"), addNewRowData, {
+    router.post(route("wireless.sites.add.row"), {newItem:addNewRowData}, {
       onSuccess: () => {
         dispatch(setAddNewRow(false));
         toast.success("Row Added successfully");
