@@ -57,6 +57,7 @@ export default function Index({
   deleted_columns,
   arrange_columns,
 }) {
+  
   const gridRef = useRef();
   const solutionType = [
     "device_upgrade",
@@ -204,7 +205,7 @@ export default function Index({
         if (item?.input_type === "date") {
           tempObj = {
             headerName: item?.name.toUpperCase(),
-            field: item?.name,
+            field: item?.key ,
             valueFormatter: (params) => {
               if (!params.value) {
                 return "";
@@ -220,11 +221,11 @@ export default function Index({
             filter: false,
           };
         } else if (item?.input_type === "text") {
-          tempObj = { headerName: item?.name.toUpperCase(), field: item?.name };
+          tempObj = { headerName: item?.name.toUpperCase(), field: item?.key };
         } else if (item?.input_type === "dropdown") {
           tempObj = {
             headerName: item?.name.toUpperCase(),
-            field: item?.name,
+            field: item?.key ,
             cellEditorParams: {
               values: JSON.parse(item?.options),
             },

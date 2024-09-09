@@ -44,19 +44,22 @@ class LocationController extends Controller
         } else {
             $sites = Location::orderBy($order_by, $order ? $order : 'asc')->paginate($per_page);
         }
-        // $hidden_columns = ColumnOption::where('type', 'wntd')->where('key', 'hide')->pluck('value')->first();
-        // $renamed_columns = ColumnOption::where('type', 'wntd')->where('key', 'rename')->pluck('value')->first();
-        // $deleted_columns = ColumnOption::where('type', 'wntd')->where('key', 'delete')->pluck('value')->first();
-        // $arrange_columns = ColumnOption::where('type', 'wntd')->where('key', 'arrange')->pluck('value')->first();
+        $hidden_columns = ColumnOption::where('type', 'wntd')->where('key', 'hide')->pluck('value')->first();
+        $renamed_columns = ColumnOption::where('type', 'wntd')->where('key', 'rename')->pluck('value')->first();
+        $deleted_columns = ColumnOption::where('type', 'wntd')->where('key', 'delete')->pluck('value')->first();
+        $arrange_columns = ColumnOption::where('type', 'wntd')->where('key', 'arrange')->pluck('value')->first();
         $additional_columns_keys = AdditionalColumn::where('type', 'wntd')->pluck('key')->toArray();
         $additional_columns = AdditionalColumn::where('type', 'wntd')->get();
         $desiredKeys = array_merge(['remarks', 'start_date', 'end_date', 'solution_type', 'status', 'artifacts'], $additional_columns_keys);
+   
         foreach ($sites as $site) {
+
             $tracking_data = LocationTracking::where('site_id', $site->id)
                 ->whereIn('key', $desiredKeys)
                 ->get()
                 ->keyBy('key')
                 ->toArray();
+           
             foreach ($tracking_data as $key => $value) {
                 $site->{$key} = $value['value'];
             }
@@ -65,15 +68,16 @@ class LocationController extends Controller
             'sites' => $sites,
             'get_data' => $request->all(),
             'additional_columns' => $additional_columns,
-            // 'hidden_columns' => json_decode($hidden_columns),
-            // 'renamed_columns' => json_decode($renamed_columns),
-            // 'deleted_columns' => json_decode($deleted_columns),
-            // 'arrange_columns' => json_decode($arrange_columns),
+            'hidden_columns' => json_decode($hidden_columns),
+            'renamed_columns' => json_decode($renamed_columns),
+            'deleted_columns' => json_decode($deleted_columns),
+            'arrange_columns' => json_decode($arrange_columns),
         ]);
     }
 
     public function save_item(Request $request)
     {
+   
         $items = $request->items;
         $static_items = ["wntd", "imsi", "version", "avc", "bw_profile", "lon", "lat", "site_name", "home_cell", "home_pci", "traffic_profile"];
         foreach ($items as $key => $item) {
@@ -82,6 +86,7 @@ class LocationController extends Controller
                 $trackingItem->{$key} = $item;
                 $trackingItem->save();
             } else {
+            
                 $tracking = LocationTracking::create([
                     'site_id' => $request->site_id,
                     'loc_id' => $request->location_id,
@@ -206,6 +211,8 @@ class LocationController extends Controller
         ];
         $sites = Location::all();
         $desiredKeys = ['remarks', 'start_date', 'end_date', 'solution_type', 'status', 'artifacts'];
+     
+    
         foreach ($sites as $site) {
             $locTrackingData = LocationTracking::where('site_id', $site->id)
                 ->whereIn('key', $desiredKeys)
@@ -214,10 +221,25 @@ class LocationController extends Controller
                 ->toArray();
             $site->tracking = $locTrackingData;
         }
+ 
+
         $callback = function () use ($sites) {
             $file = fopen('php://output', 'w');
+            $tempAdditionalColumn=[];
+            $tempAdditionalColumnKey=[];
+            $additional_columns = AdditionalColumn::where('type', 'wntd')->get();
+ 
+           
+            foreach ($additional_columns as $column) {
+                // This assumes there's a method to get additional data. Adjust as per your actual data model.
+                array_push($tempAdditionalColumn,strtoupper($column->name));
+                array_push($tempAdditionalColumnKey,$column->key);
+            }
+        
+            $additional_columns_keys = AdditionalColumn::where('type', 'wntd')->pluck('key')->toArray();
             fputcsv(
                 $file,
+                array_merge(
                 array(
                     'LOCID',
                     'WNTD',
@@ -237,11 +259,31 @@ class LocationController extends Controller
                     'Status',
                     'Remarks',
                     'Artifacts'
-                )
+                ),$tempAdditionalColumn)
             );
+
             foreach ($sites as $row) {
+
+                $desiredKeys = array_merge(['remarks', 'start_date', 'end_date', 'solution_type', 'status', 'artifacts'], $additional_columns_keys);
+   
+                $tracking_data = LocationTracking::where('site_id', $row->id)
+                ->whereIn('key', $desiredKeys)
+                ->get()
+                ->keyBy('key')
+                ->toArray();
+                $tempLocationTrackingData=[];
+                foreach($tempAdditionalColumnKey as $value){
+                    if (isset($tracking_data[$value]) && isset($tracking_data[$value]['value'])) {
+                        array_push($tempLocationTrackingData, $tracking_data[$value]['value']);
+                    }
+                    else{
+                        array_push($tempLocationTrackingData, '');
+                    }
+                }
+           
                 fputcsv(
                     $file,
+                    array_merge(
                     array(
                         $row['loc_id'],
                         $row['wntd'],
@@ -261,11 +303,12 @@ class LocationController extends Controller
                         $this->get_tracking_value($row['tracking'], 'status'),
                         $this->get_tracking_value($row['tracking'], 'remarks'),
                         $this->get_tracking_value($row['tracking'], 'artifacts')
-                    )
+                    ),$tempLocationTrackingData)
                 );
             }
             fclose($file);
         };
+ 
         return new StreamedResponse($callback, 200, $headers);
     }
 

@@ -43,39 +43,13 @@ export default function Index({
   deleted_columns,
   arrange_columns,
 }) {
-  const gridRef = useRef();
-  const { role } = auth;
-  const dispatch = useDispatch();
-  const {addNewRowFW}=useSelector(state=>state.table)
-  const defaultColDef = useMemo(() => ({
-    editable: true,
-    filter: true,
-  }));
   const solutionType = [
     "opti_type_1",
     "opti_type_5",
     "opti_type_6",
   ];
   const status = ["in_progress", "not_started", "completed"];
-  useEffect(() => {
-   
-    if (sites?.data?.length > 0) {
-      sites?.data.map((itm) => {
-        if (itm.end_date || itm.start_date) {
-          let newDate = itm?.end_date ? new Date(itm?.end_date) : new Date();
-          let newDateStart = itm?.start_date
-            ? new Date(itm?.start_date)
-            : new Date();
-          itm.start_date = newDateStart;
-          itm.end_date = newDate;
-        }
-        return itm;
-      });
-      setSitesItems(sites);
-    }
-  }, [sites?.data]);
-
-  const [tableHeader,setTableHeader] = useState([
+  const table_hader_constant=[
     { headerName: 'Site Name',  field: 'site_name',},
     { headerName: "Cell Name", field: "cell_name" },
     { headerName: "Lon", field: "lon" },
@@ -164,14 +138,36 @@ export default function Index({
       editable: false,
     },
 
-    {
-      headerName: "",
-      field: "",
-      editable: false,
-      filter: false,
-      cellRenderer: SaveDeleteComponent,
-    },
-  ]);
+   
+  ]
+  const gridRef = useRef();
+  const { role } = auth;
+  const dispatch = useDispatch();
+  const {addNewRowFW}=useSelector(state=>state.table)
+  const defaultColDef = useMemo(() => ({
+    editable: true,
+    filter: true,
+  }));
+
+  useEffect(() => {
+   
+    if (sites?.data?.length > 0) {
+      sites?.data.map((itm) => {
+        if (itm.end_date || itm.start_date) {
+          let newDate = itm?.end_date ? new Date(itm?.end_date) : new Date();
+          let newDateStart = itm?.start_date
+            ? new Date(itm?.start_date)
+            : new Date();
+          itm.start_date = newDateStart;
+          itm.end_date = newDate;
+        }
+        return itm;
+      });
+      setSitesItems(sites);
+    }
+  }, [sites?.data]);
+
+  const [tableHeader,setTableHeader] = useState();
   const hiddenFileInput = useRef(null);
   const [searchText, setSearchText] = useState(
     get_data?.search ? get_data?.search : ""
@@ -192,7 +188,7 @@ export default function Index({
         if (item?.input_type === "date") {
           tempObj = {
             headerName: item?.name.toUpperCase(),
-            field: item?.name,
+            field: item?.key ,
             valueFormatter: (params) => {
               if (!params.value) {
                 return "";
@@ -208,10 +204,10 @@ export default function Index({
             filter: false,
           };
         } else if (item?.input_type === "text") {
-          tempObj = { headerName: item?.name.toUpperCase(), field: item?.name };
+          tempObj = { headerName: item?.name.toUpperCase(),field: item?.key  };
         } else if (item?.input_type === "dropdown") {
     
-          tempObj = { headerName: item?.name.toUpperCase(), field: item?.name,  cellEditorParams: {
+          tempObj = { headerName: item?.name.toUpperCase(), field: item?.key ,  cellEditorParams: {
             values: JSON.parse(item?.options),
           }, };
         }
