@@ -202,8 +202,21 @@ class SiteController extends Controller
         }
         $callback = function () use ($sites) {
             $file = fopen('php://output', 'w');
+            $tempAdditionalColumn=[];
+            $tempAdditionalColumnKey=[];
+            $additional_columns = AdditionalColumn::where('type', 'fw_site')->get();
+        
+            foreach ($additional_columns as $column) {
+          
+                // This assumes there's a method to get additional data. Adjust as per your actual data model.
+                array_push($tempAdditionalColumn,strtoupper($column->name));
+                array_push($tempAdditionalColumnKey,$column->key);
+            }
+            $additional_columns_keys = AdditionalColumn::where('type', 'fw_site')->pluck('key')->toArray();
+
             fputcsv(
                 $file,
+                array_merge(
                 array(
                     'Site Name',
                     'Cell Name',
@@ -224,11 +237,31 @@ class SiteController extends Controller
                     'Status',
                     'Remarks',
                     'Artifacts'
-                )
-            );
+                ),$tempAdditionalColumn)
+            );  
             foreach ($sites as $row) {
+                $desiredKeys = array_merge(['remarks', 'start_date', 'end_date', 'solution_type', 'status', 'artifacts'], $additional_columns_keys);
+   
+                $tracking_data = SiteTracking::where('site_area_id', $row->id)
+                ->whereIn('key', $desiredKeys)
+                ->get()
+                ->keyBy('key')
+                ->toArray();
+                $tempLocationTrackingData=[];
+             
+                foreach($tempAdditionalColumnKey as $value){
+                  
+                    if (isset($tracking_data[$value]) && isset($tracking_data[$value]['value'])) {
+                        array_push($tempLocationTrackingData, $tracking_data[$value]['value']);
+                    }
+                    else{
+                        array_push($tempLocationTrackingData, '');
+                    }
+                }
+           
                 fputcsv(
                     $file,
+                    array_merge(
                     array(
                         $row['site_name'],
                         $row['cell_name'],
@@ -249,7 +282,7 @@ class SiteController extends Controller
                         $this->get_tracking_value($row['tracking'], 'status'),
                         $this->get_tracking_value($row['tracking'], 'remarks'),
                         $this->get_tracking_value($row['tracking'], 'artifacts')
-                    )
+                    ),$tempLocationTrackingData)
                 );
             }
             fclose($file);

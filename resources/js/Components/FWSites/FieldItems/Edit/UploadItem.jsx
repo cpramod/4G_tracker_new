@@ -15,6 +15,7 @@ export default function UploadItem(props) {
     const { data, setData, post, processing, reset } = useForm({
         site_id: siteData?.id,
         field_name: props?.colDef?.field,
+     
         artifacts: []
     });
 
@@ -35,7 +36,7 @@ export default function UploadItem(props) {
     ));
 
     const handleUpload = () => {
-        post(route('site.field.name.update.artifacts'), {
+        post(route('site.field.name.update.artifact'), {
             preserveScroll: true,
             onSuccess: () => {
                 reset();
