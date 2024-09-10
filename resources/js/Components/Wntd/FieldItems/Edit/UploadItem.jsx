@@ -1,18 +1,20 @@
 import { useForm } from '@inertiajs/react';
 import { Button, Dialog, DialogBody, DialogFooter, DialogHeader, Tooltip } from '@material-tailwind/react';
-import { FileBarChartIcon, ImageIcon } from 'lucide-react';
+import { FileBarChartIcon, ImageIcon,Download } from 'lucide-react';
 import React from 'react'
 import { useDropzone } from 'react-dropzone';
 
-export default function UploadItem({ locId, siteId, name, value, single = false }) {
-
+export default function UploadItem(props) {
+    const  { data:siteData }=props;
+    console.log(JSON.parse(siteData?.artifacts));
+    let single = false ;
     const handleOpen = () => setOpen(!open);
     const [open, setOpen] = React.useState(false);
 
     const { data, setData, post, processing, reset } = useForm({
-        site_id: siteId,
-        location_id: locId,
-        field_name: name,
+        site_id: siteData?.id,
+        location_id: siteData.loc_id,
+        field_name: props?.colDef?.field,
         artifacts: []
     });
 
@@ -78,11 +80,15 @@ export default function UploadItem({ locId, siteId, name, value, single = false 
             )
         }
     }
-
+    const onDownloadArtifacts=async ()=>{
+        const res = await axios.get(route(`wireless.sites.get.artifacts`));
+     
+    }
     return (
         <div className='w-full h-full'>
-            {!single && <button className='font-medium text-[12px] opacity-0' onClick={handleOpen}>Uplaod</button>}
-            {value && <ShowFileIcons files={value ? value : ''} />}
+           
+            {!single &&<div className='flex justify-center items-center'> <button className='font-medium text-[12px] w-[70%]' onClick={handleOpen}>upload</button><a href="/dashboard/wireless-sites/artifacts/"><Download className='cursor-pointer' size={20} onClick={onDownloadArtifacts}/></a></div>}
+            {JSON.parse(siteData?.artifacts).length>0&& <ShowFileIcons files={siteData?.value ? siteData?.value : ''} />}
             <Dialog open={open} handler={handleOpen} size='xs'>
                 <DialogHeader>Upload Artifacts</DialogHeader>
                 <DialogBody>

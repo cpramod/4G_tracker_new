@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use League\Csv\Reader;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Response;
 
 class LocationController extends Controller
 {
@@ -123,6 +125,19 @@ class LocationController extends Controller
         }
         return to_route('wireless.sites.index');
     }
+    public function get_artifacts()
+    {
+        $filename = 'artifacts/1725967728_file-sample_150kB.pdf';
+
+        $filePath = public_path('storage/' . $filename);
+
+    if (file_exists($filePath)) {
+        return response()->download($filePath);
+    } else {
+        abort(404, 'File not found.');
+    }
+    }
+
 
     public function import_from_csv(Request $request)
     {
