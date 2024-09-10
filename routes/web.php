@@ -21,6 +21,7 @@ Route::controller(LocationController::class)->middleware('auth')->group(function
     Route::post('/dashboard/wireless-sites/import/csv/', 'import_from_csv')->middleware(['auth', 'role:super-admin'])->name('wireless.sites.import');
     Route::post('/dashboard/wireless-sites/map_fields/', 'map_and_save_csv')->middleware(['auth', 'role:super-admin'])->name('wireless.sites.map.save');
     Route::post('/dashboard/wireless-sites/artifacts/', 'save_artifacts')->name('wireless.sites.update.artifacts');
+    Route::get('/dashboard/wireless-sites/artifacts/', 'get_artifacts')->name('wireless.sites.get.artifacts');
     Route::post('/dashboard/wireless-sites/', 'save_item')->name('wireless.sites.save.item');
     Route::get('/dashboard/wireless-sites/show/{id}', 'location_site')->name('wireless.show.location.index');
     Route::get('/dashboard/wireless-sites/export', 'export')->name('wireless.sites.export');

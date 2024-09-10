@@ -25,7 +25,7 @@ import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
 import { useDispatch, useSelector } from "react-redux";
 import { setChangedData, setAddNewRow } from "@/Store/Reducers/TableSlice";
-import UploadItem from "@/Components/FWSites/FieldItems/Edit/UploadItem";
+import UploadItem from "@/Components/Wntd/FieldItems/Edit/UploadItem";
 const LinkLocId = (props) => {
   return (
     <Link

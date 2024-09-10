@@ -36,7 +36,7 @@ export default function UploadItem(props) {
     ));
 
     const handleUpload = () => {
-        post(route('site.field.name.update.artifact'), {
+        post(route('site.field.name.update.artifacts'), {
             preserveScroll: true,
             onSuccess: () => {
                 reset();
