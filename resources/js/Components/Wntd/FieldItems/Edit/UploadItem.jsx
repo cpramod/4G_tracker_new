@@ -6,7 +6,7 @@ import { useDropzone } from 'react-dropzone';
 
 export default function UploadItem(props) {
     const  { data:siteData }=props;
-    console.log(JSON.parse(siteData?.artifacts));
+
     let single = false ;
     const handleOpen = () => setOpen(!open);
     const [open, setOpen] = React.useState(false);
@@ -86,9 +86,8 @@ export default function UploadItem(props) {
     }
     return (
         <div className='w-full h-full'>
-           
-            {!single &&<div className='flex justify-center items-center'> <button className='font-medium text-[12px] w-[70%]' onClick={handleOpen}>upload</button><a href="/dashboard/wireless-sites/artifacts/"><Download className='cursor-pointer' size={20} onClick={onDownloadArtifacts}/></a></div>}
-            {JSON.parse(siteData?.artifacts).length>0&& <ShowFileIcons files={siteData?.value ? siteData?.value : ''} />}
+            {!single &&<div className='flex justify-center items-center'> <button className='font-medium text-[12px] w-[70%]' onClick={handleOpen}>upload</button><> {siteData?.artifacts && (<a href={`/dashboard/wireless-sites/artifacts/?q=${JSON.parse(siteData?.artifacts)}`}><Download className='cursor-pointer' size={20} onClick={onDownloadArtifacts}/></a>)}</></div>}
+            {siteData?.artifacts &&<>{JSON.parse(siteData?.artifacts).length>0&& <ShowFileIcons files={siteData?.value ? siteData?.value : ''} />}</>}
             <Dialog open={open} handler={handleOpen} size='xs'>
                 <DialogHeader>Upload Artifacts</DialogHeader>
                 <DialogBody>

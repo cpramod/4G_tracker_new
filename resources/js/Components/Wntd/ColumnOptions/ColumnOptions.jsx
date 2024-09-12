@@ -16,9 +16,12 @@ export default function ColumnOptions({
   columns,
   hidden_columns,
   deleted_columns,
+  hideColumnDialog,
+  setHideColumnDialog
+  
 }) {
   const [addColumnDialog, setAddColumnDialog] = useState(false);
-  const [hideColumnDialog, setHideColumnDialog] = useState(false);
+  
   const [renameColumnDialog, setRenameColumnDialog] = useState(false);
   const [deleteColumnDialog, setDeleteColumnDialog] = useState(false);
   const [arrangeColumnDialog, setArrangeColumnDialog] = useState(false);

@@ -16,7 +16,7 @@ export default function HideColumn({ hideColumnDialog, setHideColumnDialog, colu
         if (hideColumnDialog) {
             setItems(prevData => {
                 const newItems = [
-                    ...columns.filter(item => !deleted_columns.includes(item.key)).map(item => ({ key: item.key, name: item.name })),
+                    ...columns,
                 ];
                 return newItems;
             })
@@ -49,7 +49,7 @@ export default function HideColumn({ hideColumnDialog, setHideColumnDialog, colu
             }
         })
     }
-
+   
     return (
         <Dialog open={hideColumnDialog} size='xs'>
             <DialogHeader>Hide Column</DialogHeader>
@@ -62,9 +62,9 @@ export default function HideColumn({ hideColumnDialog, setHideColumnDialog, colu
                                 <Checkbox
                                     containerProps={{ className: 'py-3', }}
                                     className='w-5 h-5 rounded-md'
-                                    label={<Typography color="blue-gray" className="font-medium text-sm">{column?.name}</Typography>}
-                                    onChange={(e) => onCheckboxChangeHandler(e, column?.key)}
-                                    defaultChecked={hidden_columns?.includes(column?.key)}
+                                    label={<Typography color="blue-gray" className="font-medium text-sm">{column?.headerName}</Typography>}
+                                    onChange={(e) => onCheckboxChangeHandler(e, column?.field)}
+                                    defaultChecked={hidden_columns?.includes(column?.field)}
                                 />
                             </React.Fragment>
                         ))}

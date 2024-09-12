@@ -5,7 +5,9 @@
 .mobile-menu {
     display: none;
 }
-
+.column-hide-show{
+   writing-mode: vertical-rl;
+}
 @media only screen and (max-width: 767px) {
     .mobile-menu {
         display: flex;

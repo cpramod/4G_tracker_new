@@ -48,13 +48,16 @@ class ColumnController extends Controller
         $option = ColumnOption::where('type', $request->type)->where('key', $request->key)->first();
         if ($option) {
             $option->update([
-                'value' => $request->items ? json_encode($request->items) : null
+                'value' => $request->items ? json_encode($request->items) : null,
+                'names' => $request->names ? json_encode($request->names) : null
             ]);
         } else {
             ColumnOption::create([
                 'type' => $request->type,
                 'key' => $request->key,
-                'value' => $request->items ? json_encode($request->items) : null
+                'value' => $request->items ? json_encode($request->items) : null,
+                'names' => $request->names ? json_encode($request->names) : null
+
             ]);
         }
     }

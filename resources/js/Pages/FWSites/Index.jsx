@@ -1,8 +1,8 @@
-import React, { useEffect, useRef, useState,useMemo } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import { Head, Link, router } from "@inertiajs/react";
 import { Button, Card, IconButton, Typography } from "@material-tailwind/react";
 import axios from "axios";
-import { ChevronDownIcon, ChevronUpIcon, SearchIcon } from "lucide-react";
+import { PanelRightOpen } from "lucide-react";
 import toast from "react-hot-toast";
 import Pagination from "@/Components/Pagination";
 import TextInput from "@/Components/TextInput";
@@ -19,18 +19,17 @@ import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
 import { useDispatch, useSelector } from "react-redux";
-import { setChangedDataFW ,setAddNewRowFW} from "@/Store/Reducers/TableSlice";
+import { setChangedDataFW, setAddNewRowFW } from "@/Store/Reducers/TableSlice";
 import UploadItem from "@/Components/FWSites/FieldItems/Edit/UploadItem";
 
 const SaveDeleteComponent = (props) => {
-    return (
-      <div className="flex gap-5 my-2">
-        <SaveBtn {...props} />
-        <DeleteButton {...props} />
-      </div>
-    );
-  };
-
+  return (
+    <div className="flex gap-5 my-2">
+      <SaveBtn {...props} />
+      <DeleteButton {...props} />
+    </div>
+  );
+};
 
 export default function Index({
   auth,
@@ -43,31 +42,30 @@ export default function Index({
   deleted_columns,
   arrange_columns,
 }) {
-  const solutionType = [
-    "opti_type_1",
-    "opti_type_5",
-    "opti_type_6",
-  ];
+  const [hideColumnDialog, setHideColumnDialog] = useState(false);
+  const solutionType = ["opti_type_1", "opti_type_5", "opti_type_6"];
   const status = ["in_progress", "not_started", "completed"];
-  const table_hader_constant=[
-    { headerName: 'Site Name',  field: 'site_name',},
-    { headerName: "Cell Name", field: "cell_name" },
-    { headerName: "Lon", field: "lon" },
-    { headerName: "Lat", field: "lat" },
-    { headerName: "BB Type", field: "bb_type" },
-    { headerName: "RRU Type", field: "rru_type" },
-    { headerName: "Antenna Type", field: "antenna_type" },
-    { headerName: "Frequency", field: "frequency" },
-    { headerName: "PCI", field: "pci" },
-    { headerName: "Azimuth", field: "azimuth" },
-    { headerName: "Height", field: "height" },
+  const table_hader_constant = [
+    { headerName: "Site Name", field: "site_name", position: 1 },
+    { headerName: "Cell Name", field: "cell_name", position: 2 },
+    { headerName: "Lon", field: "lon", position: 3 },
+    { headerName: "Lat", field: "lat", position: 4 },
+    { headerName: "BB Type", field: "bb_type", position: 5 },
+    { headerName: "RRU Type", field: "rru_type", position: 6 },
+    { headerName: "Antenna Type", field: "antenna_type", position: 7 },
+    { headerName: "Frequency", field: "frequency", position: 8 },
+    { headerName: "PCI", field: "pci", position: 9 },
+    { headerName: "Azimuth", field: "azimuth", position: 10 },
+    { headerName: "Height", field: "height", position: 11 },
     {
       headerName: "Last EPO",
       field: "last_epo",
+     position: 12
     },
     {
       headerName: "Next EPO",
       field: "next_epo",
+      position: 13
     },
     {
       headerName: "Start Date",
@@ -85,6 +83,7 @@ export default function Index({
       },
       cellEditor: "agDateCellEditor",
       filter: false,
+      position: 14
     },
     {
       headerName: "End Date",
@@ -102,6 +101,7 @@ export default function Index({
       },
       cellEditor: "agDateCellEditor",
       filter: false,
+      position: 15
     },
     {
       headerName: "Solution Type",
@@ -114,6 +114,7 @@ export default function Index({
       cellEditorParams: {
         values: solutionType,
       },
+      position: 16
     },
     {
       headerName: "Status",
@@ -126,31 +127,31 @@ export default function Index({
       cellEditorParams: {
         values: status,
       },
+      position: 17
     },
     {
       headerName: "Remarks",
       field: "remarks",
+      position: 18
     },
     {
       headerName: "Artifacts",
       field: "artifacts",
       cellRenderer: UploadItem,
       editable: false,
+      position: 19
     },
-
-   
-  ]
+  ];
   const gridRef = useRef();
   const { role } = auth;
   const dispatch = useDispatch();
-  const {addNewRowFW}=useSelector(state=>state.table)
+  const { addNewRowFW } = useSelector((state) => state.table);
   const defaultColDef = useMemo(() => ({
     editable: true,
     filter: true,
   }));
 
   useEffect(() => {
-   
     if (sites?.data?.length > 0) {
       sites?.data.map((itm) => {
         if (itm.end_date || itm.start_date) {
@@ -167,7 +168,7 @@ export default function Index({
     }
   }, [sites?.data]);
 
-  const [tableHeader,setTableHeader] = useState();
+  const [tableHeader, setTableHeader] = useState();
   const hiddenFileInput = useRef(null);
   const [searchText, setSearchText] = useState(
     get_data?.search ? get_data?.search : ""
@@ -180,15 +181,31 @@ export default function Index({
   const [mappingData, setMappingData] = useState("");
   const [batchId, setBatchId] = useState(null);
   const [changedItems, setChangedItems] = useState([]);
+  function mergeHiddenDeletedColumn(arr1) {
+    if (arr1 === null || arr1 === undefined) {
+      return [];
+    }
+    let tempArr1 = [];
+    arr1.forEach((itm) => {
+      if (itm) {
+        tempArr1.push(itm);
+      }
+    });
+
+    const merged = [...new Set([...tempArr1])];
+    return merged;
+  }
+  const hiddenColumnItems = mergeHiddenDeletedColumn(hidden_columns);
   useEffect(() => {
     function get_table_header(additional_columns) {
-      const updatedAdditionalTableHeader = additional_columns?.map((item) => {
-  
+      const updatedTableHeader = [...table_hader_constant];
+      const updatedAdditionalTableHeader = additional_columns?.map((item,index) => {
         let tempObj = {};
         if (item?.input_type === "date") {
           tempObj = {
             headerName: item?.name.toUpperCase(),
-            field: item?.key ,
+            field: item?.key,
+            position:table_hader_constant.length+index+1,
             valueFormatter: (params) => {
               if (!params.value) {
                 return "";
@@ -204,16 +221,20 @@ export default function Index({
             filter: false,
           };
         } else if (item?.input_type === "text") {
-          tempObj = { headerName: item?.name.toUpperCase(),field: item?.key  };
+          tempObj = { headerName: item?.name.toUpperCase(), field: item?.key,   position:table_hader_constant.length+index+1, };
         } else if (item?.input_type === "dropdown") {
-    
-          tempObj = { headerName: item?.name.toUpperCase(), field: item?.key ,  cellEditorParams: {
-            values: JSON.parse(item?.options),
-          }, };
+          tempObj = {
+            headerName: item?.name.toUpperCase(),
+            field: item?.key,
+            position:table_hader_constant.length+index+1,
+            cellEditorParams: {
+              values: JSON.parse(item?.options),
+            },
+          };
         }
         return tempObj;
       });
-      console.log(updatedAdditionalTableHeader);
+   
       // const sortByPosition = (a, b) => {
       //     if (a.position !== undefined && b.position !== undefined) {
       //         return a.position - b.position;
@@ -239,20 +260,32 @@ export default function Index({
       //         }
       //     });
       // }
-      // if (hiddenColumnItems) {
-      //     updatedTableHeader.forEach(column => {
-      //         const hiddenColumn = hiddenColumnItems.find(hidden => hidden === column.key);
-      //         if (hiddenColumn) {
-      //             column.hidden = true;
-      //         }
-      //     });
-      //     updatedAdditionalTableHeader.forEach(column => {
-      //         const hiddenColumn = hiddenColumnItems.find(hidden => hidden === column.key);
-      //         if (hiddenColumn) {
-      //             column.hidden = true;
-      //         }
-      //     });
-      // }
+      if (hiddenColumnItems) {
+        updatedTableHeader.forEach((column) => {
+          const hiddenColumn = hiddenColumnItems.find((hidden) => {
+            return column.field === hidden;
+          });
+          if (hiddenColumn) {
+            column.hide = true;
+          }  else {
+     
+            column.hide = false;
+          
+        }
+        });
+        updatedAdditionalTableHeader.forEach((column) => {
+          const hiddenColumn = hiddenColumnItems.find(
+            (hidden) => hidden === column.field
+          );
+          if (hiddenColumn) {
+            column.hide = true;
+          } else {
+     
+              column.hide = false;
+            
+          }
+        });
+      }
       // if (arrange_columns) {
       //     updatedTableHeader.forEach(column => {
       //         const arrangedColumn = arrange_columns.find(arranged => arranged.key === column.key);
@@ -270,17 +303,16 @@ export default function Index({
       // const combinedTableHeader = [...updatedTableHeader, ...updatedAdditionalTableHeader];
       // const sortedTableHeader = combinedTableHeader.sort(sortByPosition);
       // return sortedTableHeader
-      setTableHeader([
-        ...table_hader_constant,
-        ...updatedAdditionalTableHeader,
-        {
-          headerName: "",
-          field: "",
-          editable: false,
-          filter: false,
-          cellRenderer: SaveDeleteComponent,
-        },
-      ]);
+      const combinedTableHeader = [...updatedTableHeader, ...updatedAdditionalTableHeader, {
+        headerName: "",
+        field: "",
+        editable: false,
+        filter: false,
+        cellRenderer: SaveDeleteComponent,
+      }];
+      // const sortedTableHeader = combinedTableHeader.sort(sortByPosition);
+      // return sortedTableHeader
+      setTableHeader(combinedTableHeader);
     }
     if (additional_columns?.length > 0) {
       console.log(additional_columns, "additional_columns");
@@ -411,20 +443,22 @@ export default function Index({
     return () => clearInterval(interval);
   }, [batchId]);
 
-
   const onFilterChanged = () => {
-
     const allColumns = gridRef.current.props?.columnDefs;
     allColumns.forEach((column) => {
-        const columnFieldName = column.field; // Get the column field name
+      const columnFieldName = column.field; // Get the column field name
 
-        const filterInstanceFilterText = gridRef.current.api.getColumnFilterModel(columnFieldName);
-        console.log(filterInstanceFilterText);
-        // const filterInstanceId = gridRef.current.api.getColumn(columnFieldName).colId;
-        if (filterInstanceFilterText?.filter) {
-          router.get(route('site.field.name.index', { 'search': filterInstanceFilterText?.filter }))
+      const filterInstanceFilterText =
+        gridRef.current.api.getColumnFilterModel(columnFieldName);
+      console.log(filterInstanceFilterText);
+      // const filterInstanceId = gridRef.current.api.getColumn(columnFieldName).colId;
+      if (filterInstanceFilterText?.filter) {
+        router.get(
+          route("site.field.name.index", {
+            search: filterInstanceFilterText?.filter,
+          })
+        );
       }
- 
     });
   };
 
@@ -469,8 +503,6 @@ export default function Index({
                       style={{ display: "none" }}
                     />
                   </div> */}
-             
-           
                 </>
               )}
               <ExportButton
@@ -485,22 +517,37 @@ export default function Index({
       <div className="content mt-6">
         <Card className="h-full w-full rounded-none">
           <div className="overflow-x-auto overflow-hidden">
-           {siteItems?.data && siteItems?.data?.length > 0 && <><div
-              className="ag-theme-quartz" // applying the Data Grid theme
-              style={{ height: 500 }} // the Data Grid will fill the size of the parent container
-            >
-              <AgGridReact
-                ref={gridRef}
-                rowData={siteItems?.data}
-                columnDefs={tableHeader}
-                defaultColDef={defaultColDef}
-                onCellValueChanged={onCellValueChanged}
-                onFilterChanged={onFilterChanged}
-              />
-            </div>
-
-            {addNewRowFW && <AddNewRow tableHeader={tableHeader} />}
-            </>}
+            {siteItems?.data && siteItems?.data?.length > 0 && (
+              <>
+                  <div className="flex">
+                <div
+                  className="ag-theme-quartz w-full" // applying the Data Grid theme
+                  style={{ height: 500 }} // the Data Grid will fill the size of the parent container
+                >
+                  <AgGridReact
+                    ref={gridRef}
+                    rowData={siteItems?.data}
+                    columnDefs={tableHeader}
+                    defaultColDef={defaultColDef}
+                    onCellValueChanged={onCellValueChanged}
+                    onFilterChanged={onFilterChanged}
+                  />
+                  </div>
+                     <div className="w-[40px]">
+                    <div
+                      className="border flex justify-center rounded cursor-pointer"
+                      onClick={() => setHideColumnDialog(true)}
+                    >
+                      <p className="column-hide-show py-10 flex gap-2">
+                        <PanelRightOpen size={22} />Columns
+                      </p>
+                    </div>
+                    </div>  
+                
+                </div>
+                {addNewRowFW && <AddNewRow tableHeader={tableHeader} />}
+              </>
+            )}
             {siteItems?.length === 0 && (
               <Typography
                 variant="h6"
@@ -523,10 +570,12 @@ export default function Index({
                   Add New Row
                 </Button>
                 <ColumnOptions
-                    columns={tableHeader}
-                    hidden_columns={hidden_columns}
-                    deleted_columns={deleted_columns ? deleted_columns : []}
-                  />
+                  setHideColumnDialog={setHideColumnDialog}
+                  hideColumnDialog={hideColumnDialog}
+                  columns={tableHeader}
+                  hidden_columns={hidden_columns}
+                  deleted_columns={deleted_columns ? deleted_columns : []}
+                />
               </div>
               <div className="md:flex grid justify-start md:justify-end items-center pt-6 mb-8 gap-3 px-4">
                 <div className="flex items-center gap-2">
