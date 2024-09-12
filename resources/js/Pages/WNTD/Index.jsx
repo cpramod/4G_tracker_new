@@ -7,7 +7,7 @@ import React, {
 } from "react";
 import { Head, Link, router } from "@inertiajs/react";
 import { Button, Card, IconButton, Typography } from "@material-tailwind/react";
-import { ChevronDownIcon, ChevronUpIcon, SearchIcon } from "lucide-react";
+import { PanelRightOpen } from "lucide-react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import Authenticated from "@/Layouts/AuthenticatedLayout";
@@ -57,7 +57,8 @@ export default function Index({
   deleted_columns,
   arrange_columns,
 }) {
-  
+
+  const [hideColumnDialog, setHideColumnDialog] = useState(false);
   const gridRef = useRef();
   const solutionType = [
     "device_upgrade",
@@ -75,21 +76,23 @@ export default function Index({
       field: "loc_id",
       editable: false,
       cellRenderer: LinkLocId,
+      position: 1,
     },
-    { headerName: "WNTD", field: "wntd" },
-    { headerName: "IMSI", field: "imsi" },
-    { headerName: "VERSION", field: "version" },
-    { headerName: "AVC", field: "avc" },
-    { headerName: "BW Profile", field: "bw_profile" },
-    { headerName: "Lon", field: "lon" },
-    { headerName: "Lat", field: "lat" },
-    { headerName: "SiteName", field: "site_name" },
-    { headerName: "HomeCell", field: "home_cell" },
-    { headerName: "HomePCI", field: "home_pci" },
+    { headerName: "WNTD", field: "wntd", position: 2 },
+    { headerName: "IMSI", field: "imsi", position: 3 },
+    { headerName: "VERSION", field: "version", position: 4 },
+    { headerName: "AVC", field: "avc", position: 5 },
+    { headerName: "BW Profile", field: "bw_profile", position: 6 },
+    { headerName: "Lon", field: "lon", position: 7 },
+    { headerName: "Lat", field: "lat", position: 8 },
+    { headerName: "SiteName", field: "site_name", position: 9 },
+    { headerName: "HomeCell", field: "home_cell", position: 10 },
+    { headerName: "HomePCI", field: "home_pci", position: 11 },
 
     {
       headerName: "Traffic Profile",
       field: "traffic_profile",
+      position: 12,
     },
     {
       headerName: "Start Date",
@@ -107,6 +110,7 @@ export default function Index({
       },
       cellEditor: "agDateCellEditor",
       filter: false,
+      position: 13,
     },
     {
       headerName: "End Date",
@@ -124,6 +128,7 @@ export default function Index({
       },
       cellEditor: "agDateCellEditor",
       filter: false,
+      position: 14,
     },
     {
       headerName: "Solution Type",
@@ -136,6 +141,7 @@ export default function Index({
       cellEditorParams: {
         values: solutionType,
       },
+      position: 15,
     },
     {
       headerName: "Status",
@@ -148,16 +154,32 @@ export default function Index({
       cellEditorParams: {
         values: status,
       },
+      position: 16,
     },
-    { headerName: "Remarks", field: "remarks" },
+    { headerName: "Remarks", field: "remarks", position: 17 },
     {
       headerName: "Artifacts",
       field: "artifacts",
       cellRenderer: UploadItem,
       editable: false,
+      position: 18,
     },
   ];
+  function mergeHiddenDeletedColumn(arr1) {
+    if (arr1 === null || arr1 === undefined) {
+      return [];
+    }
+    let tempArr1 = [];
+    arr1.forEach((itm) => {
+      if (itm) {
+        tempArr1.push(itm);
+      }
+    });
 
+    const merged = [...new Set([...tempArr1])];
+    return merged;
+  }
+  const hiddenColumnItems = mergeHiddenDeletedColumn(hidden_columns);
   const dispatch = useDispatch();
   const defaultColDef = useMemo(() => ({
     editable: true,
@@ -200,12 +222,15 @@ export default function Index({
 
   useEffect(() => {
     function get_table_header(additional_columns) {
-      const updatedAdditionalTableHeader = additional_columns?.map((item) => {
+      const updatedTableHeader = [...table_hader_constant];
+    
+      const updatedAdditionalTableHeader = additional_columns?.map((item,index) => {
         let tempObj = {};
         if (item?.input_type === "date") {
           tempObj = {
             headerName: item?.name.toUpperCase(),
-            field: item?.key ,
+            field: item?.key,
+            position:table_hader_constant.length+index+1,
             valueFormatter: (params) => {
               if (!params.value) {
                 return "";
@@ -221,11 +246,12 @@ export default function Index({
             filter: false,
           };
         } else if (item?.input_type === "text") {
-          tempObj = { headerName: item?.name.toUpperCase(), field: item?.key };
+          tempObj = { headerName: item?.name.toUpperCase(), field: item?.key ,  position:table_hader_constant.length+index+1, };
         } else if (item?.input_type === "dropdown") {
           tempObj = {
             headerName: item?.name.toUpperCase(),
-            field: item?.key ,
+            field: item?.key,
+            position:table_hader_constant.length+index+1,
             cellEditorParams: {
               values: JSON.parse(item?.options),
             },
@@ -259,20 +285,34 @@ export default function Index({
       //         }
       //     });
       // }
-      // if (hiddenColumnItems) {
-      //     updatedTableHeader.forEach(column => {
-      //         const hiddenColumn = hiddenColumnItems.find(hidden => hidden === column.key);
-      //         if (hiddenColumn) {
-      //             column.hidden = true;
-      //         }
-      //     });
-      //     updatedAdditionalTableHeader.forEach(column => {
-      //         const hiddenColumn = hiddenColumnItems.find(hidden => hidden === column.key);
-      //         if (hiddenColumn) {
-      //             column.hidden = true;
-      //         }
-      //     });
-      // }
+
+      if (hiddenColumnItems) {
+        updatedTableHeader.forEach((column) => {
+          const hiddenColumn = hiddenColumnItems.find((hidden) => {
+            return column.field === hidden;
+          });
+          if (hiddenColumn) {
+            column.hide = true;
+          }  else {
+     
+            column.hide = false;
+          
+        }
+        });
+        updatedAdditionalTableHeader.forEach((column) => {
+          const hiddenColumn = hiddenColumnItems.find(
+            (hidden) => hidden === column.field
+          );
+          if (hiddenColumn) {
+            column.hide = true;
+          } else {
+     
+              column.hide = false;
+            
+          }
+        });
+      }
+
       // if (arrange_columns) {
       //     updatedTableHeader.forEach(column => {
       //         const arrangedColumn = arrange_columns.find(arranged => arranged.key === column.key);
@@ -287,20 +327,16 @@ export default function Index({
       //         }
       //     });
       // }
-      // const combinedTableHeader = [...updatedTableHeader, ...updatedAdditionalTableHeader];
+      const combinedTableHeader = [...updatedTableHeader, ...updatedAdditionalTableHeader, {
+        headerName: "",
+        field: "",
+        editable: false,
+        filter: false,
+        cellRenderer: SaveDeleteComponent,
+      }];
       // const sortedTableHeader = combinedTableHeader.sort(sortByPosition);
       // return sortedTableHeader
-      setTableHeader([
-        ...table_hader_constant,
-        ...updatedAdditionalTableHeader,
-        {
-          headerName: "",
-          field: "",
-          editable: false,
-          filter: false,
-          cellRenderer: SaveDeleteComponent,
-        },
-      ]);
+      setTableHeader(combinedTableHeader);
     }
     if (additional_columns?.length > 0) {
       get_table_header(additional_columns);
@@ -418,18 +454,21 @@ export default function Index({
   }, [batchId]);
 
   const onFilterChanged = () => {
-
     const allColumns = gridRef.current.props?.columnDefs;
     allColumns.forEach((column) => {
-        const columnFieldName = column.field; // Get the column field name
+      const columnFieldName = column.field; // Get the column field name
 
-        const filterInstanceFilterText = gridRef.current.api.getColumnFilterModel(columnFieldName);
-        console.log(filterInstanceFilterText);
-        // const filterInstanceId = gridRef.current.api.getColumn(columnFieldName).colId;
-        if (filterInstanceFilterText?.filter) {
-          router.get(route('wireless.sites.index', { 'search': filterInstanceFilterText?.filter }))
+      const filterInstanceFilterText =
+        gridRef.current.api.getColumnFilterModel(columnFieldName);
+
+      // const filterInstanceId = gridRef.current.api.getColumn(columnFieldName).colId;
+      if (filterInstanceFilterText?.filter) {
+        router.get(
+          route("wireless.sites.index", {
+            search: filterInstanceFilterText?.filter,
+          })
+        );
       }
- 
     });
   };
 
@@ -493,18 +532,30 @@ export default function Index({
           <div className="overflow-x-auto overflow-hidden">
             {siteItems?.data && siteItems?.data?.length > 0 && (
               <>
-                <div
-                  className="ag-theme-quartz" // applying the Data Grid theme
-                  style={{ height: 500 }} // the Data Grid will fill the size of the parent container
-                >
-                  <AgGridReact
-                    ref={gridRef}
-                    rowData={siteItems?.data}
-                    columnDefs={tableHeader}
-                    defaultColDef={defaultColDef}
-                    onCellValueChanged={onCellValueChanged}
-                    onFilterChanged={onFilterChanged}
-                  />
+                <div className="flex">
+                  <div
+                    className="ag-theme-quartz w-full" // applying the Data Grid theme
+                    style={{ height: 500 }} // the Data Grid will fill the size of the parent container
+                  >
+                    <AgGridReact
+                      ref={gridRef}
+                      rowData={siteItems?.data}
+                      columnDefs={tableHeader}
+                      defaultColDef={defaultColDef}
+                      onCellValueChanged={onCellValueChanged}
+                      onFilterChanged={onFilterChanged}
+                    />
+                  </div>
+                  <div className="w-[40px]">
+                    <div
+                      className="border flex justify-center rounded cursor-pointer"
+                      onClick={() => setHideColumnDialog(true)}
+                    >
+                      <p className="column-hide-show py-10 flex gap-2">
+                        <PanelRightOpen size={22} /> Columns
+                      </p>
+                    </div>
+                  </div>
                 </div>
                 {addNewRow && <AddNewRow tableHeader={tableHeader} />}
               </>
@@ -537,6 +588,8 @@ export default function Index({
                 columns={tableHeader}
                 hidden_columns={hidden_columns}
                 deleted_columns={deleted_columns ? deleted_columns : []}
+                hideColumnDialog={hideColumnDialog}
+                setHideColumnDialog={setHideColumnDialog}
               />
             </div>
             <div className="md:flex grid justify-start md:justify-end items-center pt-6 mb-8 gap-3 px-4">

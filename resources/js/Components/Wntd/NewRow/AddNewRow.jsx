@@ -197,7 +197,7 @@ export default function AddNewRow({ setAddNewRow }) {
       <div className="overflow-x-auto overflow-hidden">
         <div
           className="ag-theme-quartz" // applying the Data Grid theme
-          style={{ height: 100 }} // the Data Grid will fill the size of the parent container
+          style={{ height: 110 }} // the Data Grid will fill the size of the parent container
         >
           <AgGridReact
             rowData={siteItems}

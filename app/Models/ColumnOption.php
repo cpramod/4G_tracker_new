@@ -8,5 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class ColumnOption extends Model
 {
     use HasFactory;
-    protected $fillable = ['type', 'key', 'value'];
+    protected $fillable = ['type', 'key', 'value','names'];
 }

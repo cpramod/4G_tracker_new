@@ -125,12 +125,12 @@ class LocationController extends Controller
         }
         return to_route('wireless.sites.index');
     }
-    public function get_artifacts()
+    public function get_artifacts(Request $request)
     {
-        $filename = 'artifacts/1725967728_file-sample_150kB.pdf';
 
-        $filePath = public_path('storage/' . $filename);
 
+        $filePath = public_path($request->input('q'));
+      
     if (file_exists($filePath)) {
         return response()->download($filePath);
     } else {
@@ -280,7 +280,7 @@ class LocationController extends Controller
             foreach ($sites as $row) {
 
                 $desiredKeys = array_merge(['remarks', 'start_date', 'end_date', 'solution_type', 'status', 'artifacts'], $additional_columns_keys);
-   
+          
                 $tracking_data = LocationTracking::where('site_id', $row->id)
                 ->whereIn('key', $desiredKeys)
                 ->get()
