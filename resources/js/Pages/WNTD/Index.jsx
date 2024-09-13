@@ -53,6 +53,7 @@ export default function Index({
   batch,
   additional_columns,
   hidden_columns,
+  hidden_columns_names,
   renamed_columns,
   deleted_columns,
   arrange_columns,

@@ -37,11 +37,13 @@ export default function Index({
   get_data,
   batch,
   additional_columns,
+  hidden_columns_names,
   hidden_columns,
   renamed_columns,
   deleted_columns,
   arrange_columns,
 }) {
+
   const [hideColumnDialog, setHideColumnDialog] = useState(false);
   const solutionType = ["opti_type_1", "opti_type_5", "opti_type_6"];
   const status = ["in_progress", "not_started", "completed"];
@@ -315,7 +317,7 @@ export default function Index({
       setTableHeader(combinedTableHeader);
     }
     if (additional_columns?.length > 0) {
-      console.log(additional_columns, "additional_columns");
+    
       get_table_header(additional_columns);
     }
   }, [additional_columns]);
@@ -450,7 +452,7 @@ export default function Index({
 
       const filterInstanceFilterText =
         gridRef.current.api.getColumnFilterModel(columnFieldName);
-      console.log(filterInstanceFilterText);
+     
       // const filterInstanceId = gridRef.current.api.getColumn(columnFieldName).colId;
       if (filterInstanceFilterText?.filter) {
         router.get(
