@@ -21,6 +21,17 @@ import "ag-grid-community/styles/ag-theme-quartz.css";
 import { useDispatch, useSelector } from "react-redux";
 import { setChangedDataFW, setAddNewRowFW } from "@/Store/Reducers/TableSlice";
 import UploadItem from "@/Components/FWSites/FieldItems/Edit/UploadItem";
+const LinkSiteName = (props) => {
+
+  return (
+    <Link
+      href={route("site.field.name.show", props?.data?.id)}
+      className="font-semibold underline"
+    >
+      {props?.data?.site_name}
+    </Link>
+  );
+};
 
 const SaveDeleteComponent = (props) => {
   return (
@@ -48,7 +59,7 @@ export default function Index({
   const solutionType = ["opti_type_1", "opti_type_5", "opti_type_6"];
   const status = ["in_progress", "not_started", "completed"];
   const table_hader_constant = [
-    { headerName: "Site Name", field: "site_name", position: 1 },
+    { headerName: "Site Name", field: "site_name",cellRenderer: LinkSiteName, position: 1 },
     { headerName: "Cell Name", field: "cell_name", position: 2 },
     { headerName: "Lon", field: "lon", position: 3 },
     { headerName: "Lat", field: "lat", position: 4 },

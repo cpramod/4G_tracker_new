@@ -13,7 +13,7 @@ export default function UploadItem(props) {
 
     const { data, setData, post, processing, reset } = useForm({
         site_id: siteData?.id,
-        location_id: siteData.loc_id,
+        location_id: siteData?.loc_id,
         field_name: props?.colDef?.field,
         artifacts: []
     });
