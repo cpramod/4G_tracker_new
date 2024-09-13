@@ -47,6 +47,7 @@ class LocationController extends Controller
             $sites = Location::orderBy($order_by, $order ? $order : 'asc')->paginate($per_page);
         }
         $hidden_columns = ColumnOption::where('type', 'wntd')->where('key', 'hide')->pluck('value')->first();
+        $hidden_columns_names = ColumnOption::where('type', 'wntd')->where('key', 'hide')->pluck('names')->first();
         $renamed_columns = ColumnOption::where('type', 'wntd')->where('key', 'rename')->pluck('value')->first();
         $deleted_columns = ColumnOption::where('type', 'wntd')->where('key', 'delete')->pluck('value')->first();
         $arrange_columns = ColumnOption::where('type', 'wntd')->where('key', 'arrange')->pluck('value')->first();
@@ -71,6 +72,7 @@ class LocationController extends Controller
             'get_data' => $request->all(),
             'additional_columns' => $additional_columns,
             'hidden_columns' => json_decode($hidden_columns),
+            'hidden_columns_names' => json_decode($hidden_columns_names),
             'renamed_columns' => json_decode($renamed_columns),
             'deleted_columns' => json_decode($deleted_columns),
             'arrange_columns' => json_decode($arrange_columns),
@@ -226,9 +228,9 @@ class LocationController extends Controller
         ];
         $sites = Location::all();
         $desiredKeys = ['remarks', 'start_date', 'end_date', 'solution_type', 'status', 'artifacts'];
-     
-    
+  
         foreach ($sites as $site) {
+    
             $locTrackingData = LocationTracking::where('site_id', $site->id)
                 ->whereIn('key', $desiredKeys)
                 ->get()
@@ -237,7 +239,7 @@ class LocationController extends Controller
             $site->tracking = $locTrackingData;
         }
  
-
+       
         $callback = function () use ($sites) {
             $file = fopen('php://output', 'w');
             $tempAdditionalColumn=[];
@@ -250,11 +252,9 @@ class LocationController extends Controller
                 array_push($tempAdditionalColumn,strtoupper($column->name));
                 array_push($tempAdditionalColumnKey,$column->key);
             }
-        
+            $hidden_columns_names = ColumnOption::where('type', 'wntd')->where('key', 'hide')->pluck('names')->first();
             $additional_columns_keys = AdditionalColumn::where('type', 'wntd')->pluck('key')->toArray();
-            fputcsv(
-                $file,
-                array_merge(
+            $merged_data=array_merge(
                 array(
                     'LOCID',
                     'WNTD',
@@ -267,20 +267,24 @@ class LocationController extends Controller
                     'SiteName',
                     'HomeCell',
                     'HomePCI',
-                    'TrafficProfile',
+                    'Traffic Profile',
                     'Start Date',
                     'End Date',
                     'Solution Type',
                     'Status',
                     'Remarks',
                     'Artifacts'
-                ),$tempAdditionalColumn)
+                ),$tempAdditionalColumn);
+            $filtered_merged_data=array_diff($merged_data,json_decode($hidden_columns_names)?json_decode($hidden_columns_names):[]);
+             
+            fputcsv(
+                $file,
+                $filtered_merged_data,
             );
 
             foreach ($sites as $row) {
-
                 $desiredKeys = array_merge(['remarks', 'start_date', 'end_date', 'solution_type', 'status', 'artifacts'], $additional_columns_keys);
-          
+                $hidden_columns = ColumnOption::where('type', 'wntd')->where('key', 'hide')->pluck('value')->first();
                 $tracking_data = LocationTracking::where('site_id', $row->id)
                 ->whereIn('key', $desiredKeys)
                 ->get()
@@ -295,10 +299,23 @@ class LocationController extends Controller
                         array_push($tempLocationTrackingData, '');
                     }
                 }
-           
-                fputcsv(
-                    $file,
-                    array_merge(
+               $decoded_values=[];
+         
+               $all_tracking_data=['start_date','end_date','solution_type','status','remarks','artifacts'];
+               $decoded_data=json_decode($hidden_columns)?json_decode($hidden_columns):[];
+               foreach($decoded_data as $itm){
+                
+                if(isset($itm)){
+                    if(in_array($itm,$all_tracking_data)){
+                        $decoded_values[]= $this->get_tracking_value($row['tracking'], $itm);
+                    }
+                    else{             
+                        $decoded_values[]=$row[$itm];
+                    }
+                }
+               }
+       
+                $merged_data_values_second= 
                     array(
                         $row['loc_id'],
                         $row['wntd'],
@@ -318,7 +335,35 @@ class LocationController extends Controller
                         $this->get_tracking_value($row['tracking'], 'status'),
                         $this->get_tracking_value($row['tracking'], 'remarks'),
                         $this->get_tracking_value($row['tracking'], 'artifacts')
-                    ),$tempLocationTrackingData)
+                    );
+                 
+               
+                    $filtered_merged_data_values = [];
+           
+                    $tempTest=[];
+                    foreach($tempAdditionalColumnKey as $value){
+                        if(!in_array($value,$decoded_data)){
+                            $tempTest[]=$value;
+                        }
+                        
+                    }
+                    $merged_data_values=array_merge($merged_data_values_second,$tempTest);
+                foreach ($merged_data_values as $key => $value) {
+                   if($value){
+
+                       if (!in_array($value, $decoded_values)) {
+                           
+                           $filtered_merged_data_values[$key] = $value;
+                        }
+                    }
+                    else{
+                        $filtered_merged_data_values[$key]='';
+                    }
+                }
+                 
+                fputcsv(
+                    $file,
+                    $filtered_merged_data_values,
                 );
             }
             fclose($file);

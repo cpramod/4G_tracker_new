@@ -45,6 +45,7 @@ class SiteController extends Controller
             $sites = Site::orderBy($order_by, $order ? $order : 'asc')->paginate($per_page);
         }
         $hidden_columns = ColumnOption::where('type', 'fw_site')->where('key', 'hide')->pluck('value')->first();
+        $hidden_columns_names = ColumnOption::where('type', 'fw_site')->where('key', 'hide')->pluck('names')->first();
         $renamed_columns = ColumnOption::where('type', 'fw_site')->where('key', 'rename')->pluck('value')->first();
         $deleted_columns = ColumnOption::where('type', 'fw_site')->where('key', 'delete')->pluck('value')->first();
         $arrange_columns = ColumnOption::where('type', 'fw_site')->where('key', 'arrange')->pluck('value')->first();
@@ -67,6 +68,8 @@ class SiteController extends Controller
             'get_data' => $request->all(),
             'additional_columns' => $additional_columns,
             'hidden_columns' => json_decode($hidden_columns),
+            'hidden_columns_names' => json_decode($hidden_columns_names),
+            'renamed_columns' => json_decode($renamed_columns),
             'renamed_columns' => json_decode($renamed_columns),
             'deleted_columns' => json_decode($deleted_columns),
             'arrange_columns' => json_decode($arrange_columns),
@@ -212,11 +215,9 @@ class SiteController extends Controller
                 array_push($tempAdditionalColumn,strtoupper($column->name));
                 array_push($tempAdditionalColumnKey,$column->key);
             }
+            $hidden_columns_names = ColumnOption::where('type', 'fw_site')->where('key', 'hide')->pluck('names')->first();
             $additional_columns_keys = AdditionalColumn::where('type', 'fw_site')->pluck('key')->toArray();
-
-            fputcsv(
-                $file,
-                array_merge(
+            $merged_data= array_merge(
                 array(
                     'Site Name',
                     'Cell Name',
@@ -237,52 +238,99 @@ class SiteController extends Controller
                     'Status',
                     'Remarks',
                     'Artifacts'
-                ),$tempAdditionalColumn)
+                ),$tempAdditionalColumn);
+                $filtered_merged_data=array_diff($merged_data,json_decode($hidden_columns_names)?json_decode($hidden_columns_names):[]);
+             
+            fputcsv(
+                $file,
+                $filtered_merged_data
+       
             );  
             foreach ($sites as $row) {
                 $desiredKeys = array_merge(['remarks', 'start_date', 'end_date', 'solution_type', 'status', 'artifacts'], $additional_columns_keys);
-   
+                $hidden_columns = ColumnOption::where('type', 'fw_site')->where('key', 'hide')->pluck('value')->first();
+
                 $tracking_data = SiteTracking::where('site_area_id', $row->id)
                 ->whereIn('key', $desiredKeys)
                 ->get()
                 ->keyBy('key')
                 ->toArray();
                 $tempLocationTrackingData=[];
-             
                 foreach($tempAdditionalColumnKey as $value){
-                  
                     if (isset($tracking_data[$value]) && isset($tracking_data[$value]['value'])) {
+                    
                         array_push($tempLocationTrackingData, $tracking_data[$value]['value']);
                     }
                     else{
                         array_push($tempLocationTrackingData, '');
                     }
                 }
+               
+               $decoded_values=[];
+              
+               $all_tracking_data=['start_date','end_date','solution_type','status','remarks','artifacts'];
+               $decoded_data=json_decode($hidden_columns)?json_decode($hidden_columns):[];
+              
+               foreach( $decoded_data as $itm){
+                
+                if(isset($itm)){
+                    if(in_array($itm,$all_tracking_data)){
+                        $decoded_values[]= $this->get_tracking_value($row['tracking'], $itm);
+                    }
+                   
+                    else{             
+                        $decoded_values[]=$row[$itm];
+                    }
+                }
+               }
            
+               $merged_data_values_second=
+                array(
+                    $row['site_name'],
+                    $row['cell_name'],
+                    $row['lon'],
+                    $row['lat'],
+                    $row['bb_type'],
+                    $row['rru_type'],
+                    $row['antenna_type'],
+                    $row['frequency'],
+                    $row['pci'],
+                    $row['azimuth'],
+                    $row['height'],
+                    $row['last_epo'],
+                    $row['next_epo'],
+                    $this->get_tracking_value($row['tracking'], 'start_date'),
+                    $this->get_tracking_value($row['tracking'], 'end_date'),
+                    $this->get_tracking_value($row['tracking'], 'solution_type'),
+                    $this->get_tracking_value($row['tracking'], 'status'),
+                    $this->get_tracking_value($row['tracking'], 'remarks'),
+                    $this->get_tracking_value($row['tracking'], 'artifacts')
+                );
+                $filtered_merged_data_values = [];
+            
+               $tempTest=[];
+                foreach($tempAdditionalColumnKey as $value){
+                    if(!in_array($value,$decoded_data)){
+                        $tempTest[]=$value;
+                    }
+                    
+                }
+                $merged_data_values=array_merge($merged_data_values_second,$tempTest);
+                foreach ($merged_data_values as $key => $value) {
+                   if($value){
+
+                       if (!in_array($value, $decoded_values)) {
+                           
+                           $filtered_merged_data_values[$key] = $value;
+                        }
+                    }
+                    else{
+                        $filtered_merged_data_values[$key]='';
+                    }
+                }
                 fputcsv(
                     $file,
-                    array_merge(
-                    array(
-                        $row['site_name'],
-                        $row['cell_name'],
-                        $row['lon'],
-                        $row['lat'],
-                        $row['bb_type'],
-                        $row['rru_type'],
-                        $row['antenna_type'],
-                        $row['frequency'],
-                        $row['pci'],
-                        $row['azimuth'],
-                        $row['height'],
-                        $row['last_epo'],
-                        $row['next_epo'],
-                        $this->get_tracking_value($row['tracking'], 'start_date'),
-                        $this->get_tracking_value($row['tracking'], 'end_date'),
-                        $this->get_tracking_value($row['tracking'], 'solution_type'),
-                        $this->get_tracking_value($row['tracking'], 'status'),
-                        $this->get_tracking_value($row['tracking'], 'remarks'),
-                        $this->get_tracking_value($row['tracking'], 'artifacts')
-                    ),$tempLocationTrackingData)
+                    $filtered_merged_data_values,
                 );
             }
             fclose($file);

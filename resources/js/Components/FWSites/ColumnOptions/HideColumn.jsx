@@ -3,13 +3,14 @@ import { useForm } from '@inertiajs/react';
 import { Button, Checkbox, Dialog, DialogBody, DialogFooter, DialogHeader, Typography } from '@material-tailwind/react'
 
 export default function HideColumn({ hideColumnDialog, setHideColumnDialog, columns, hidden_columns, deleted_columns }) {
-    console.log(columns);
+   
     const handleOpen = () => setHideColumnDialog(!hideColumnDialog);
     const [items, setItems] = useState([])
     const { data, setData, post, processing, errors, reset } = useForm({
         type: "fw_site",
         key: 'hide',
-        items: hidden_columns?.length > 0 ? hidden_columns : []
+        items: hidden_columns?.length > 0 ? hidden_columns : [],
+        names:[],
     })
 
     useEffect(() => {
@@ -23,18 +24,20 @@ export default function HideColumn({ hideColumnDialog, setHideColumnDialog, colu
         }
     }, [hideColumnDialog])
 
-    const onCheckboxChangeHandler = (e, key) => {
+    const onCheckboxChangeHandler = (e, key,headerName) => {
         const isChecked = e.target.checked;
         setData(prevData => {
             if (isChecked) {
                 return {
                     ...prevData,
-                    items: [...prevData.items, key]
+                    items: [...prevData.items, key],
+                    names: [...prevData.names, headerName],
                 };
             } else {
                 return {
                     ...prevData,
-                    items: prevData.items.filter(item => item !== key)
+                    items: prevData.items.filter(item => item !== key),
+                    names: prevData?.names?.filter(item => item !== headerName),
                 };
             }
         });
@@ -62,7 +65,7 @@ export default function HideColumn({ hideColumnDialog, setHideColumnDialog, colu
                                     containerProps={{ className: 'py-3', }}
                                     className='w-5 h-5 rounded-md'
                                     label={<Typography color="blue-gray" className="font-medium text-sm">{column?.headerName}</Typography>}
-                                    onChange={(e) => onCheckboxChangeHandler(e, column?.field)}
+                                    onChange={(e) => onCheckboxChangeHandler(e, column?.field,column?.headerName)}
                                     defaultChecked={hidden_columns?.includes(column?.field)}
                                 />
                             </React.Fragment>
