@@ -50,7 +50,6 @@ class SQLImportController extends Controller
                         'engine' => null,
                     ]
                 ]);
-                
                 DB::purge('import');
                 DB::reconnect('import');
                 $connected = DB::connection('import')->getPdo() !== null;
