@@ -4,7 +4,9 @@ import Authenticated from '@/Layouts/AuthenticatedLayout'
 import { Head, Link, useForm } from '@inertiajs/react'
 import { Button, Card, Typography, useSelect } from '@material-tailwind/react'
 import axios from 'axios'
-import React, { useState } from 'react'
+import React, { useEffect, useState,useMemo } from 'react'
+
+import { AgGridReact } from "ag-grid-react";
 
 export default function Index({ auth }) {
 
@@ -44,14 +46,30 @@ export default function Index({ auth }) {
                 setIsImporting(false)
             }
         }
-    }
+    }  
+    const defaultColDef = useMemo(() => ({
+    
+        filter: true,
+      }));
 
     const ShowResponse = ({ data }) => {
-        if (data?.length > 0) {
+    
+            console.log(data);
+        if (data?.length >0) {
             const allKeys = Array.from(new Set(data.flatMap(item => Object.keys(item))));
+               const changedData= allKeys.map((itm,index)=>{
+             
+                return {field:itm,headerName:itm}
+                    // if(data[index] && itm && data[index]){
+                    //     console.log(itm);
+                    //     
+                    // }
+                })
+               
+               
             return (
                 <div className='mt-8'>
-                    <table className="w-full min-w-max table-auto text-left">
+                    {/* <table className="w-full min-w-max table-auto text-left">
                         <thead>
                             <tr>
                                 {allKeys?.map((head) => (
@@ -72,10 +90,22 @@ export default function Index({ auth }) {
                                 )
                             })}
                         </tbody>
-                    </table>
+                    </table> */}
+                          <div
+                    className="ag-theme-quartz w-full" // applying the Data Grid theme
+                    style={{ height: data.length>5?500:200 }} // the Data Grid will fill the size of the parent container
+                  >
+                    <AgGridReact
+                    //   ref={gridRef}
+                      rowData={data}
+                      columnDefs={changedData}
+                      defaultColDef={defaultColDef}
+               
+                    />
+                  </div>
                     <div className='flex justify-between mt-6'>
                         <div className="">
-                            <InputError message={importErrorMsg} className='mt-2 font-medium text-red-500' />
+                            <InputError message={importErrorMsg} className='mt-0 font-medium text-red-500' />
                             {importSuccessMsg && (
                                 <Typography className='font-medium text-green-500'>
                                     {importSuccessMsg}
@@ -129,7 +159,7 @@ export default function Index({ auth }) {
 
                     <div className='flex justify-between'>
                         <div>
-                            <InputError message={errorMsg} className="mt-2 font-medium text-red-500" />
+                            <InputError message={errorMsg} className="mt-0 font-medium text-red-500" />
                         </div>
                         <Button
                             className="mt-4 block capitalize"

@@ -21,8 +21,7 @@ import RestoreTable from "@/Components/RestoreTable";
 import DeleteButton from "@/Components/Wntd/DeleteButton";
 import AddNewRow from "@/Components/Wntd/NewRow/AddNewRow";
 import { AgGridReact } from "ag-grid-react";
-import "ag-grid-community/styles/ag-grid.css";
-import "ag-grid-community/styles/ag-theme-quartz.css";
+
 import { useDispatch, useSelector } from "react-redux";
 import { setChangedData, setAddNewRow } from "@/Store/Reducers/TableSlice";
 import UploadItem from "@/Components/Wntd/FieldItems/Edit/UploadItem";
@@ -202,6 +201,7 @@ export default function Index({
         }
         return itm;
       });
+     
       setSitesItems(sites);
     }
   }, [sites?.data]);
@@ -472,7 +472,7 @@ export default function Index({
       }
     });
   };
-
+console.log(siteItems?.data);
   return (
     <Authenticated user={auth?.user}>
       <Head title="WNTD" />

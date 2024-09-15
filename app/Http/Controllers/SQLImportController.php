@@ -84,26 +84,27 @@ class SQLImportController extends Controller
         if (is_array($request->data)) {
             $data = $request->data;
             foreach ($data as $item) {
-                $existingLoc = Location::where('loc_id', $item['LOCID'])->first();
+                $existingLoc = Location::where('loc_id', $item['loc_id']?$item['loc_id']:$item['LOCID'])->first();
                 if (!$existingLoc) {
                     Location::create([
-                        'loc_id' => $item['LOCID'],
-                        'wntd' => $item['WNTD'],
-                        'imsi' => $item['IMSI'],
-                        'version' => $item['VERSION'],
-                        'avc' => $item['AVC'],
-                        'bw_profile' => $item['BW_PROFILE'],
-                        'lon' => $item['LON'],
-                        'lat' => $item['LAT'],
-                        'site_name' => $item['SITE_NAME'],
-                        'home_cell' => $item['HOME_CELL'],
-                        'home_pci' => $item['HOME_PCI'],
-                        'traffic_profile' => $item['TRAFFIC_PROFILE'],
+                        'loc_id' =>  $item['loc_id']?$item['loc_id']:$item['LOCID'],
+                        'wntd' => $item['wntd']?$item['wntd']:$item['WNTD'],
+                        'imsi' => $item['imsi']?$item['imsi']:$item['IMSI'],
+                        'version' => $item['version']?$item['version']:$item['VERSION'],
+                        'avc' => $item['avc']?$item['avc']:$item['AVC'],
+                        'bw_profile' => $item['bw_profile']?$item['bw_profile']:$item['BW_PROFILE'],
+                        'lon' => $item['lon']?$item['lon']:$item['LON'],
+                        'lat' => $item['lat']?$item['lat']:$item['LAT'],
+                        'site_name' => $item['site_name']?$item['site_name']:$item['SITE_NAME'],
+                        'home_cell' =>$item['home_cell']?$item['home_cell']:$item['HOME_CELL'],
+                        'home_pci' => $item['home_pci']?$item['home_pci']:$item['HOME_PCI'],
+                        'traffic_profile' => $item['traffic_profile']?$item['traffic_profile']:$item['TRAFFIC_PROFILE'],
                     ]);
                 } else {
+                    $locId=$item['loc_id']?$item['loc_id']:$item['LOCID'];
                     return response()->json([
                         'error' => array(
-                            'message' => 'Site with LOCID ' . $item['LOCID'] . ' already exists',
+                            'message' => 'Site with LOCID ' .  $locId . ' already exists',
                         )
                     ], 500);
                 }
