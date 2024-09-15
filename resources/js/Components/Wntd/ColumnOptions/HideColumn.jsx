@@ -53,7 +53,7 @@ export default function HideColumn({ hideColumnDialog, setHideColumnDialog, colu
             }
         })
     }
-   
+    console.log(items);
     return (
         <Dialog open={hideColumnDialog} size='xs'>
             <DialogHeader>Hide Column</DialogHeader>
@@ -61,17 +61,17 @@ export default function HideColumn({ hideColumnDialog, setHideColumnDialog, colu
                 <div className="form-item">
                     <p className='text-[#333] font-semibold'>Please select the column you want to hide</p>
                     <div className="form-item grid grid-cols-2">
-                        {items?.length > 0 && items.map((column, index) => (
-                            <React.Fragment key={index}>
-                                <Checkbox
+                        {items?.length > 0 && items.map((column, index) => {
+                           return <React.Fragment key={index}>
+                        {column?.headerName ?<Checkbox
                                     containerProps={{ className: 'py-3', }}
                                     className='w-5 h-5 rounded-md'
                                     label={<Typography color="blue-gray" className="font-medium text-sm">{column?.headerName}</Typography>}
                                     onChange={(e) => onCheckboxChangeHandler(e, column?.field,column?.headerName)}
                                     defaultChecked={hidden_columns?.includes(column?.field)}
-                                />
+                                />:null}
                             </React.Fragment>
-                        ))}
+                        })}
                     </div>
                 </div>
             </DialogBody>
