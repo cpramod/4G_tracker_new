@@ -5,12 +5,15 @@ import { Head, Link, useForm } from '@inertiajs/react'
 import { Button, Card, Typography, useSelect } from '@material-tailwind/react'
 import axios from 'axios'
 import React, { useEffect, useState,useMemo } from 'react'
-import { Table2} from 'lucide-react'
+import { Table2,ChevronRight,ChevronDown,Play} from 'lucide-react'
 import { AgGridReact } from "ag-grid-react";
+import DbTableColumns from '@/Components/Wntd/DbTableColumns'
 
-export default function Index({ auth ,tablesNames}) {
+export default function Index({ auth ,tablesNames,columnsByTable}) {
+  
     const [query, setQuery] = useState('');
     const [isTableSelect,setIsTableSelect]=useState(false);
+    const [selectedTableName,setSelectedTableName]=useState({});
     const [errorMsg, setErrorMsg] = useState('');
     const [response, setResponse] = useState([])
     const [isLoading, setIsLoading] = useState(false)
@@ -58,10 +61,25 @@ export default function Index({ auth ,tablesNames}) {
     
         filter: true,
       }));
-
-      const onHandleSelectTable=(tablename)=>{
+      const onHandleRunSql=(e,tablename)=>{
+        e.stopPropagation();
+        let tempSelectedTableName={};
+            tempSelectedTableName[tablename]=true;
+        
+         setSelectedTableName(tempSelectedTableName);
+        
         setQuery(`select * from ${tablename}`);
         setIsTableSelect(true);
+      }
+      const onHandleSelectTable=(e,tablename)=>{
+        e.stopPropagation();
+        const tempSelectedTableName={...selectedTableName};
+       if(tempSelectedTableName[tablename]){
+        tempSelectedTableName[tablename]=!tempSelectedTableName[tablename];
+       }else{
+        tempSelectedTableName[tablename]=true;
+       }
+        setSelectedTableName(tempSelectedTableName);
     }
 
     const ShowResponse = ({ data }) => {
@@ -72,10 +90,6 @@ export default function Index({ auth ,tablesNames}) {
                const changedData= allKeys.map((itm,index)=>{
              
                 return {field:itm,headerName:itm}
-                    // if(data[index] && itm && data[index]){
-                    //     console.log(itm);
-                    //     
-                    // }
                 })
                
                
@@ -93,7 +107,7 @@ export default function Index({ auth ,tablesNames}) {
                
                     />
                   </div>
-                    <div className='flex justify-between mt-6'>
+                    <div className='flex justify-between mt-6 mb-8'>
                         <div className="">
                             <InputError message={importErrorMsg} className='mt-0 font-medium text-red-500' />
                             {importSuccessMsg && (
@@ -142,8 +156,12 @@ export default function Index({ auth ,tablesNames}) {
                     <h1 className='mb-2 text-xl font-bold'>Tables</h1>
                     <div className=''>
                         <ul>
-                            {tablesNames.map((itm)=>{
-                                return <li key={itm?.tablename} className=' font-medium text-sm flex items-center mb-1 cursor-pointer text-gray-700 dark:text-gray-300 gap-2' onClick={()=>onHandleSelectTable(itm?.tablename)}><Table2 size="16" />{itm?.tablename}</li>
+                            {tablesNames.map((itm,index)=>{
+                                return <div key={itm} className='' >
+                                    <div className='font-medium text-sm flex justify-between items-center mb-1 cursor-pointer text-gray-700 dark:text-gray-300 gap-2' onClick={(e)=>onHandleSelectTable(e,itm)}><div className='flex items-center gap-2'>{selectedTableName[itm]?<ChevronDown size="16"/>:<ChevronRight size="16"/>}<Table2 size="16" />{itm}</div><div title="play"><Play size={12} fill='#000' onClick={(e)=>onHandleRunSql(e,itm)}/></div></div>
+                                   {selectedTableName[itm] &&  <DbTableColumns columnsByTable={columnsByTable[itm]}/>}
+                                   
+                                </div>
                             })}
                         </ul>
                     </div>
