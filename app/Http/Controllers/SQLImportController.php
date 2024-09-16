@@ -14,7 +14,50 @@ class SQLImportController extends Controller
 {
     public function index()
     {
-        return Inertia::render('SQLImport/Index');
+        $db = ImportDB::first();
+        try {
+            config([
+                'database.connections.import' => [
+                    'driver' => $db->dbtype,
+                    'host' => $db->host,
+                    'port' => $db->port,
+                    'database' => $db->database,
+                    'username' => $db->username,
+                    'password' => $db->password,
+                    'charset' => $db->dbtype=='mysql'?'utf8mb4':'utf8',
+                    'collation' =>$db->dbtype=='mysql'? 'utf8mb4_unicode_ci':'',
+                    'prefix' => '',
+                    'strict' => true,
+                    'engine' => null,
+                ]
+            ]);
+            DB::setDefaultConnection('import');
+            $tablesNames=[];
+            if ($db->dbtype == 'mysql') {
+                $tables = DB::select('SHOW TABLES');
+            
+                $databaseName = $db->database;
+                $column = "Tables_in_$databaseName";
+
+                foreach ($tables as $table) {
+                    $tablesNames[]=$table;
+                }
+            } elseif ($db->dbtype == 'pgsql') {
+                $tables = DB::select("SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = 'public'");
+             
+                foreach ($tables as $table) {
+                   $tablesNames[]=$table;
+                }
+            } else {
+                throw new Exception("Unsupported database type: " . $db->dbtype);
+            }
+                
+        } catch (\Exception $e) {
+            return response()->json(['error' => ['message' => $e->getMessage()]], 500);
+        }
+        return Inertia::render('SQLImport/Index', [
+            'tablesNames' => $tablesNames
+        ]);
     }
 
     public function run_sql_code(Request $request)
