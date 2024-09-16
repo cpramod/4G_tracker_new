@@ -33,18 +33,19 @@ class SQLImportController extends Controller
     public function db_connection($sql_code)
     {
         $db = ImportDB::first();
+      
         if ($db) {
             try {
                 config([
                     'database.connections.import' => [
-                        'driver' => 'mysql',
+                        'driver' => $db->dbtype,
                         'host' => $db->host,
                         'port' => $db->port,
                         'database' => $db->database,
                         'username' => $db->username,
                         'password' => $db->password,
-                        'charset' => 'utf8mb4',
-                        'collation' => 'utf8mb4_unicode_ci',
+                        'charset' => $db->dbtype=='mysql'?'utf8mb4':'utf8',
+                        'collation' =>$db->dbtype=='mysql'? 'utf8mb4_unicode_ci':'',
                         'prefix' => '',
                         'strict' => true,
                         'engine' => null,
