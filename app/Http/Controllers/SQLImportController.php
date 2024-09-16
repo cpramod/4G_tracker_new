@@ -24,39 +24,60 @@ class SQLImportController extends Controller
                     'database' => $db->database,
                     'username' => $db->username,
                     'password' => $db->password,
-                    'charset' => $db->dbtype=='mysql'?'utf8mb4':'utf8',
-                    'collation' =>$db->dbtype=='mysql'? 'utf8mb4_unicode_ci':'',
+                    'charset' => $db->dbtype == 'mysql' ? 'utf8mb4' : 'utf8',
+                    'collation' => $db->dbtype == 'mysql' ? 'utf8mb4_unicode_ci' : '',
                     'prefix' => '',
                     'strict' => true,
                     'engine' => null,
                 ]
             ]);
+        
+            // Set the new connection as default
             DB::setDefaultConnection('import');
-            $tablesNames=[];
+        
+            $tablesNames = [];
+            $columnsByTable = [];
+        
             if ($db->dbtype == 'mysql') {
+                // Fetch all table names
                 $tables = DB::select('SHOW TABLES');
-            
                 $databaseName = $db->database;
-                $column = "Tables_in_$databaseName";
-
+                $column = "";
+        
+                // Iterate over each table and fetch its columns
                 foreach ($tables as $table) {
-                    $tablesNames[]=$table;
+                    $tableName = $table->$column;
+                    $tablesNames[] = $tableName;
+        
+                    // Fetch columns of the table
+                    $columns = DB::select("SHOW COLUMNS FROM $tableName");
+                    $columnsByTable[$tableName] = $columns;
                 }
             } elseif ($db->dbtype == 'pgsql') {
+                // Fetch all table names
                 $tables = DB::select("SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = 'public'");
-             
+        
+                // Iterate over each table and fetch its columns
                 foreach ($tables as $table) {
-                   $tablesNames[]=$table;
+                    $tableName = $table->tablename;
+                    $tablesNames[] = $tableName;
+        
+                    // Fetch columns of the table
+                    $columns = DB::select("SELECT column_name, data_type FROM information_schema.columns WHERE table_name = ?", [$tableName]);
+                    $columnsByTable[$tableName] = $columns;
                 }
             } else {
                 throw new Exception("Unsupported database type: " . $db->dbtype);
             }
-                
+        
         } catch (\Exception $e) {
             return response()->json(['error' => ['message' => $e->getMessage()]], 500);
         }
+       
+        // Pass both table names and columns to the view
         return Inertia::render('SQLImport/Index', [
-            'tablesNames' => $tablesNames
+            'tablesNames' => $tablesNames,
+            'columnsByTable' => $columnsByTable
         ]);
     }
 
