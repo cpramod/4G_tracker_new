@@ -18,7 +18,9 @@ class SettingsController extends Controller
 
     public function import_db_save(Request $request)
     {
+    
         $request->validate([
+            'dbtype'=>'required',
             'host' => 'required',
             'port' => 'required',
             'database' => 'required',
