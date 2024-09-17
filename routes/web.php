@@ -56,7 +56,7 @@ Route::controller(PageController::class)->middleware('auth')->group(function () 
 });
 
 Route::controller(SQLImportController::class)->middleware(['auth', 'role:super-admin'])->group(function () {
-    Route::get('/dashboard/sql-import', 'index')->name('sql.import');
+    Route::get('/dashboard/sql-import/{id}', 'index')->name('sql.import');
     Route::post('/dashboard/sql-import/run', 'run_sql_code')->name('sql.run');
     Route::post('/dashboard/sql-import/store', 'store')->name('sql.store');
 });
@@ -64,6 +64,7 @@ Route::controller(SQLImportController::class)->middleware(['auth', 'role:super-a
 Route::controller(SettingsController::class)->middleware(['auth', 'role:super-admin'])->group(function () {
     Route::get('/dashboard/settings', 'index')->name('settings.index');
     Route::post('/dashboard/settings', 'import_db_save')->name('import.db.store');
+    Route::delete('/dashboard/settings/{id}/delete', 'import_db_delete')->name('import.db.delete');
 });
 
 Route::controller(RoleController::class)->middleware(['auth', 'role:super-admin'])->group(function () {

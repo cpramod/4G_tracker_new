@@ -9,6 +9,7 @@ export const TableSlice = createSlice({
         changedDataFW:[],
         addNewRowDataFW:{},
         addNewRowFW:false,
+        databaseChanged:{},
     },
     reducers: {
         setChangedData: (state, action) => {
@@ -28,10 +29,13 @@ export const TableSlice = createSlice({
         },
         setAddNewRowFW: (state, action) => {
             state.addNewRowFW = action.payload
+        },
+        setDataBaseChange:(state,action)=>{
+            state.databaseChanged=action.payload
         }
   
   
     }
 })
 
-export const {setChangedData ,setAddNewRowData,setAddNewRow,setChangedDataFW,setAddNewRowDataFW,setAddNewRowFW} = TableSlice.actions
+export const {setChangedData ,setAddNewRowData,setAddNewRow,setChangedDataFW,setAddNewRowDataFW,setAddNewRowFW,setDataBaseChange} = TableSlice.actions
