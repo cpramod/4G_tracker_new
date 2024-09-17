@@ -12,9 +12,9 @@ use Response;
 
 class SQLImportController extends Controller
 {
-    public function index()
+    public function index($id)
     {
-        $db = ImportDB::first();
+        $db = ImportDB::find($id);
         try {
             config([
                 'database.connections.import' => [

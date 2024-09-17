@@ -144,7 +144,7 @@ export default function Index({ auth ,tablesNames,columnsByTable}) {
                         <ul className='flex gap-1 text-gray-600 text-sm'>
                             <li><Link href={route('dashboard')}>Dashboard</Link></li>
                             <li>/</li>
-                            <li><Link href={route('sql.import')}>SQL Import</Link></li>
+                            {/* <li><Link href={route('sql.import')}>SQL Import</Link></li> */}
                         </ul>
                     </div>
                 </div>

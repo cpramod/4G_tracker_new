@@ -37,7 +37,6 @@ export default function Authenticated({ user, children }) {
                     <div className="side-menu px-3">
                         <List className={`p-0 rounded-none ${currentRoute === "dashboard" ? " border-l-4 border-green-700  bg-gray-700/90" : ""}`}>
                         <Link href='/dashboard' className={``}>
-
                                 <ListItem className={`py-3 rounded-none text-white `}>
                                 <ListItemPrefix className='mr-3'><GaugeCircleIcon size={20} /></ListItemPrefix>
                                     <span className='font-semibold text-sm'>Dashboard</span>
@@ -75,7 +74,7 @@ export default function Authenticated({ user, children }) {
                                   {role === 'super-admin' && (
                                 <>
                                        <List  className={`p-0 ${currentRoute === "sql.import" ?  " border-l-4 border-green-700  bg-gray-700/90" : ""}`}>
-                                    <Link href={route('sql.import')} >
+                                    <Link href={route('settings.index')} >
                                     <ListItem className={`py-3 rounded-none text-white`}>
                                             <ListItemPrefix className='mr-3'><DatabaseZapIcon size={20} /></ListItemPrefix>
                                             <span className='font-semibold text-sm'>SQL Import</span>
@@ -101,13 +100,12 @@ export default function Authenticated({ user, children }) {
                                     </Link>
                                     </List>
                                     <List className={`p-0 ${currentRoute === "settings.index" ?  " border-l-4 border-green-700  bg-gray-700/90" : ""}`}>
-                                    <Link href={route('settings.index')}>
+                                    {/* <Link href={route('settings.index')}>
                                     <ListItem className={`py-3 rounded-none  text-white`}>
-
                                             <ListItemPrefix className='mr-3'><Settings2Icon size={20} /></ListItemPrefix>
                                             <span className='font-semibold text-sm'>Settings</span>
                                         </ListItem>
-                                    </Link>
+                                    </Link> */}
                                     </List>
                                 </>
                             )}
