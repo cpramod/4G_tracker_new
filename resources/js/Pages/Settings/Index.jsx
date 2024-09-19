@@ -51,8 +51,9 @@ const SaveDeleteComponent = (props) => {
             database: toSaveitems?.items?.database,
             username: toSaveitems?.items?.username,
             password: toSaveitems?.items?.password,
+            catalog: toSaveitems?.items?.catalog,
           })
-     
+      
           if (res?.data?.success) {
               // setLoading(false)
               toast.success(res?.data?.success?.message)

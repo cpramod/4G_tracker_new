@@ -8,14 +8,44 @@ use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-use Response;
 
+use Response;
+use PDO;
 class SQLImportController extends Controller
 {
+
+
+    
+
     public function index($id)
     {
-        $db = ImportDB::find($id);
+                $db = ImportDB::find($id);
+
+         
         try {
+            if($db->dbtype=='starburst'){
+                $command = 'trino.jar --server '. $db->host.':'. $db->port .' --catalog '.$db->catalog.'  --schema '. $db->database.'  --user '.$db->username.' --password --execute "show tables"';
+                $command3 = 'trino.jar --server '. $db->host.':'. $db->port .' --catalog '.$db->catalog.'  --schema '. $db->database.'  --user '.$db->username.' --password --execute "SELECT table_name, column_name, data_type
+                FROM information_schema.columns
+                WHERE table_schema = \'' . $db->database . '\'";';
+          
+                $password =  $db->password;
+                
+                 
+                    $output=$this->get_db_data($command,$password);
+                    $output3=$this->get_db_data($command3,$password);
+                
+                    
+                return Inertia::render('SQLImport/Index', [
+                    'tablesNames' => $output,
+                    'columnsName'=>$output3,
+                    'dbtype'=>'starburst'
+                ]);
+            }        
+            else{
+     
+
+
             config([
                 'database.connections.import' => [
                     'driver' => $db->dbtype,
@@ -69,37 +99,63 @@ class SQLImportController extends Controller
             } else {
                 throw new Exception("Unsupported database type: " . $db->dbtype);
             }
-        
+        }
         } catch (\Exception $e) {
             return response()->json(['error' => ['message' => $e->getMessage()]], 500);
         }
        
-        // Pass both table names and columns to the view
+
         return Inertia::render('SQLImport/Index', [
             'tablesNames' => $tablesNames,
-            'columnsByTable' => $columnsByTable
+            'columnsName' => $columnsByTable,
+            'dbtype'=>'others'
         ]);
-    }
+    
+               
+}
 
     public function run_sql_code(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            'id' => 'required',
             'sql_query' => 'required',
+            'table_name'=>'nullable',
         ]);
         if ($validator->fails()) {
             return response()->json(['error' => array('message' => 'SQL code is required.')], 500);
         }
         $sql_code = $request->input('sql_query');
-        $result = $this->db_connection($sql_code);
+        $result = $this->db_connection($request->input('id'),$sql_code,$request->input('table_name'));
+      
         return $result;
     }
 
-    public function db_connection($sql_code)
+    public function db_connection($id,$sql_code,$table_name)
     {
-        $db = ImportDB::first();
+
+    
+        $db = ImportDB::find($id);
       
         if ($db) {
+
             try {
+                if($db->dbtype=='starburst'){
+                    $command = 'trino.jar --server '. $db->host.':'. $db->port .' --catalog '.$db->catalog.'  --schema '. $db->database.'  --user '.$db->username.' --password --execute " '.$sql_code .' limit 1"';
+                    $command3 = 'trino.jar --server '. $db->host.':'. $db->port .' --catalog '.$db->catalog.'  --schema '. $db->database.'  --user '.$db->username.' --password --execute "SELECT  column_name
+                    FROM information_schema.columns
+                    WHERE table_schema = \'' . $db->database . '\'
+                    and table_name = \'' . $table_name . '\'";';
+                    $password = $db->password;
+          
+                     
+                        $output=$this->get_db_data($command,$password);
+                        $output3=$this->get_db_data($command3,$password);
+            
+                    return response()->json(['data' => $output,'data_column' => $output3], 200);
+                }
+                else{
+
+               
                 config([
                     'database.connections.import' => [
                         'driver' => $db->dbtype,
@@ -121,12 +177,13 @@ class SQLImportController extends Controller
                 if ($connected) {
                     $data = $this->executeQuery(DB::connection('import'), $sql_code);
                     if (is_array($data)) {
-                        return response()->json(['data' => $data], 200);
+                        return response()->json(['data' => $data,'data_column' => []], 200);
                     }
                     if ($data->getStatusCode() == 500) {
                         return $data;
                     }
                 }
+            }
             } catch (\Exception $e) {
                 return response()->json(['error' => ['message' => $e->getMessage()]], 500);
             }
@@ -181,5 +238,39 @@ class SQLImportController extends Controller
             ], 200);
         }
 
+    }
+
+    public function get_db_data($command,$password){
+        $pipes = [];
+        $descriptorspec = [
+            0 => ['pipe', 'r'],  // stdin (input)
+            1 => ['pipe', 'w'],  // stdout (output)
+            2 => ['pipe', 'w'],  // stderr (error)
+         
+        ];
+        $process = proc_open($command, $descriptorspec, $pipes);
+        
+        if (is_resource($process)) {
+            // Write the password to the stdin
+            fwrite($pipes[0], $password . PHP_EOL);
+            fclose($pipes[0]);
+     
+        
+            // Read the output
+            $output = stream_get_contents($pipes[1]);
+            fclose($pipes[1]);
+        
+            // Read the error (if any)
+            $error = stream_get_contents($pipes[2]);
+            fclose($pipes[2]);
+        
+            // Close the process
+            $return_value = proc_close($process);
+        
+            // Print the output
+    
+           
+        }  
+        return  $output;
     }
 }
