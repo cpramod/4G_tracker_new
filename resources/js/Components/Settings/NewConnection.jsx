@@ -18,7 +18,7 @@ import {
   Select,
   Option,
 } from "@material-tailwind/react";
-const NewConnection = ({openNewConnection,onSetNewConnection}) => {
+const NewConnection = ({ openNewConnection, onSetNewConnection }) => {
   const { data, setData, post, processing, errors, reset } = useForm({
     // dbtype: db ? db.dbtype : "",
     // host: db ? db.host : "",
@@ -37,12 +37,10 @@ const NewConnection = ({openNewConnection,onSetNewConnection}) => {
         onSetNewConnection();
       },
       onError: (e) => {
-       
         setMessage("Invalid Submit");
       },
     });
   };
-
 
   return (
     <Dialog open={openNewConnection} size="xs">
@@ -55,7 +53,6 @@ const NewConnection = ({openNewConnection,onSetNewConnection}) => {
                 Database Credentials
               </Typography>
               <div className="form-wrapper pt-4">
-   
                 <div className="form-field mb-4">
                   <InputLabel value={"DB Type"} className="mb-2" />
                   <Select
@@ -65,9 +62,22 @@ const NewConnection = ({openNewConnection,onSetNewConnection}) => {
                   >
                     <Option value="mysql">mysql</Option>
                     <Option value="pgsql">pgsql</Option>
+                    <Option value="starburst">starburst</Option>
                   </Select>
                   <InputError message={errors.dbtype} className="mt-2" />
                 </div>
+                {data?.dbtype === "starburst" && (
+                  <div className="form-field mb-4">
+                    <InputLabel value={"Catalog"} className="mb-2" />
+                    <TextInput
+                      className="w-full text-sm"
+                      placeholder="catalog..."
+                      value={data.catalog}
+                      onChange={(e) => setData("catalog", e.target.value)}
+                    />
+                    <InputError message={errors.host} className="mt-2" />
+                  </div>
+                )}
                 <div className="form-field mb-4">
                   <InputLabel value={"Host"} className="mb-2" />
                   <TextInput
@@ -126,15 +136,19 @@ const NewConnection = ({openNewConnection,onSetNewConnection}) => {
       </DialogBody>
       <DialogFooter>
         <CardFooter className="pt-0 w-full text-right  px-0">
-            <p className="text-center mb-2">{message}</p>
+          <p className="text-center mb-2">{message}</p>
           <Button variant="gradient" className="text-right" onClick={onSubmit}>
             Save
           </Button>
-          <Button variant="gradient" color="green" className="text-right ml-5" onClick={onSetNewConnection}>
+          <Button
+            variant="gradient"
+            color="green"
+            className="text-right ml-5"
+            onClick={onSetNewConnection}
+          >
             Cancel
           </Button>
         </CardFooter>
-  
       </DialogFooter>
     </Dialog>
   );

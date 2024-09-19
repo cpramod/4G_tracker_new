@@ -27,8 +27,9 @@ class SettingsController extends Controller
             'database' => 'required',
             'username' => 'required',
             'password' => 'required',
+            'catalog'=>'nullable',
         ]);
-   
+    
         if ($request->has('id')) {
          
             $db = ImportDB::find($request->id);
