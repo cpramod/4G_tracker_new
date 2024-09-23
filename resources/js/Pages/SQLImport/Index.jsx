@@ -15,6 +15,7 @@ export default function Index({
   columnsName,
   dbtype
 }) {
+  console.log(dbtype)
   const { props } = usePage();
   const [query, setQuery] = useState();
   const [tablesList, setTablesList] = useState([]);

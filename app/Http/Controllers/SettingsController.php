@@ -18,7 +18,7 @@ class SettingsController extends Controller
 
     public function import_db_save(Request $request)
     {
-     
+        
         $request->validate([
             'id' => 'nullable', 
             'dbtype'=>'required',
@@ -27,19 +27,23 @@ class SettingsController extends Controller
             'database' => 'required',
             'username' => 'required',
             'password' => 'required',
+            'sslrequired'=>'required',
             'catalog'=>'nullable',
         ]);
-    
+     
         if ($request->has('id')) {
          
             $db = ImportDB::find($request->id);
             if ($db) {
+         
                 $db->update($request->except('id')); // Update the record with all fields except 'id'
             }
             return response()->json([
                 'success' => ['message' => 'Saved successfully.'],
             ], 200);
         } else {
+      
+       
             ImportDB::create($request->all());
             return to_route('settings.index');
         }

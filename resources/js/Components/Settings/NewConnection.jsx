@@ -2,6 +2,7 @@ import React from "react";
 import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
 import TextInput from "@/Components/TextInput";
+import Checkbox from "@/Components/Checkbox";
 import { Head, Link, useForm } from "@inertiajs/react";
 import { useState } from "react";
 import {
@@ -31,6 +32,7 @@ const NewConnection = ({ openNewConnection, onSetNewConnection }) => {
 
   const onSubmit = (e) => {
     e.preventDefault();
+
     post(route("import.db.store"), {
       onSuccess: () => {
         setMessage("Saved Successfully");
@@ -67,6 +69,7 @@ const NewConnection = ({ openNewConnection, onSetNewConnection }) => {
                   <InputError message={errors.dbtype} className="mt-2" />
                 </div>
                 {data?.dbtype === "starburst" && (
+                  <>
                   <div className="form-field mb-4">
                     <InputLabel value={"Catalog"} className="mb-2" />
                     <TextInput
@@ -77,6 +80,17 @@ const NewConnection = ({ openNewConnection, onSetNewConnection }) => {
                     />
                     <InputError message={errors.host} className="mt-2" />
                   </div>
+                        <div className="form-field mb-4">
+                        <InputLabel value={"SSL Required"} className="mb-2" />
+                        <Checkbox
+                   
+                          placeholder="catalog..."
+                          value={data.sslrequired}
+                          onChange={(e) => setData("sslrequired", e.target.checked)}
+                        />
+                        <InputError message={errors.host} className="mt-2" />
+                      </div>
+                      </>
                 )}
                 <div className="form-field mb-4">
                   <InputLabel value={"Host"} className="mb-2" />
