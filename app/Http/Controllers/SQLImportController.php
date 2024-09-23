@@ -13,29 +13,22 @@ use Response;
 use PDO;
 class SQLImportController extends Controller
 {
-
-
-    
-
     public function index($id)
     {
-                $db = ImportDB::find($id);
 
-         
+        $filePath = storage_path('app/public/trino/trino.jar');
+        
+
+        $db = ImportDB::find($id);
         try {
             if($db->dbtype=='starburst'){
-                $command = 'trino.jar --server '. $db->host.':'. $db->port .' --catalog '.$db->catalog.'  --schema '. $db->database.'  --user '.$db->username.' --password --execute "show tables"';
-                $command3 = 'trino.jar --server '. $db->host.':'. $db->port .' --catalog '.$db->catalog.'  --schema '. $db->database.'  --user '.$db->username.' --password --execute "SELECT table_name, column_name, data_type
+                $command = $filePath.' --server '. $db->host.':'. $db->port .' --catalog '.$db->catalog.'  --schema '. $db->database.'  --user '.$db->username.' --password --execute "show tables"';
+                $command3 = $filePath.' --server '. $db->host.':'. $db->port .' --catalog '.$db->catalog.'  --schema '. $db->database.'  --user '.$db->username.' --password --execute "SELECT table_name, column_name, data_type
                 FROM information_schema.columns
                 WHERE table_schema = \'' . $db->database . '\'";';
-          
                 $password =  $db->password;
-                
-                 
                     $output=$this->get_db_data($command,$password);
                     $output3=$this->get_db_data($command3,$password);
-                
-                    
                 return Inertia::render('SQLImport/Index', [
                     'tablesNames' => $output,
                     'columnsName'=>$output3,
@@ -43,9 +36,6 @@ class SQLImportController extends Controller
                 ]);
             }        
             else{
-     
-
-
             config([
                 'database.connections.import' => [
                     'driver' => $db->dbtype,
@@ -109,9 +99,7 @@ class SQLImportController extends Controller
             'tablesNames' => $tablesNames,
             'columnsName' => $columnsByTable,
             'dbtype'=>'others'
-        ]);
-    
-               
+        ]);     
 }
 
     public function run_sql_code(Request $request)
@@ -133,15 +121,15 @@ class SQLImportController extends Controller
     public function db_connection($id,$sql_code,$table_name)
     {
 
-    
+        $filePath = storage_path('app/public/trino/trino.jar');
         $db = ImportDB::find($id);
       
         if ($db) {
 
             try {
                 if($db->dbtype=='starburst'){
-                    $command = 'trino.jar --server '. $db->host.':'. $db->port .' --catalog '.$db->catalog.'  --schema '. $db->database.'  --user '.$db->username.' --password --execute " '.$sql_code .' limit 1"';
-                    $command3 = 'trino.jar --server '. $db->host.':'. $db->port .' --catalog '.$db->catalog.'  --schema '. $db->database.'  --user '.$db->username.' --password --execute "SELECT  column_name
+                    $command = $filePath.'--server '. $db->host.':'. $db->port .' --catalog '.$db->catalog.'  --schema '. $db->database.'  --user '.$db->username.' --password --execute " '.$sql_code .' limit 1"';
+                    $command3 = $filePath.'--server '. $db->host.':'. $db->port .' --catalog '.$db->catalog.'  --schema '. $db->database.'  --user '.$db->username.' --password --execute "SELECT  column_name
                     FROM information_schema.columns
                     WHERE table_schema = \'' . $db->database . '\'
                     and table_name = \'' . $table_name . '\'";';

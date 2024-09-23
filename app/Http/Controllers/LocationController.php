@@ -129,10 +129,8 @@ class LocationController extends Controller
     }
     public function get_artifacts(Request $request)
     {
-
-
         $filePath = public_path($request->input('q'));
-      
+    
     if (file_exists($filePath)) {
         return response()->download($filePath);
     } else {
