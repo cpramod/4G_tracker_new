@@ -130,15 +130,15 @@ class SQLImportController extends Controller
     public function db_connection($id,$sql_code,$table_name)
     {
 
-        $filePath = storage_path('app/public/trino/trino.jar');
+        $filePath = public_path('/storage/trino/trino.jar');
         $db = ImportDB::find($id);
       
         if ($db) {
 
             try {
                 if($db->dbtype=='starburst'){
-                    $command = $filePath.'--server '. $db->host.':'. $db->port .' --catalog '.$db->catalog.'  --schema '. $db->database.'  --user '.$db->username.' --password --execute " '.$sql_code .' limit 1" --insecure';
-                    $command3 = $filePath.'--server '. $db->host.':'. $db->port .' --catalog '.$db->catalog.'  --schema '. $db->database.'  --user '.$db->username.' --password --execute "SELECT  column_name
+                    $command ='java -jar '.$filePath.' --server '. $db->host.':'. $db->port .' --catalog '.$db->catalog.'  --schema '. $db->database.'  --user '.$db->username.' --password --execute " '.$sql_code .' limit 1" --insecure';
+                    $command3 = 'java -jar '.$filePath.' --server '. $db->host.':'. $db->port .' --catalog '.$db->catalog.'  --schema '. $db->database.'  --user '.$db->username.' --password --execute "SELECT  column_name
                     FROM information_schema.columns
                     WHERE table_schema = \'' . $db->database . '\'
                     and table_name = \'' . $table_name . '\'"; --insecure';
