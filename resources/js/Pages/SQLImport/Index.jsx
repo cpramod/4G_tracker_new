@@ -330,7 +330,7 @@ export default function Index({
               className="border rounded-md border-gray-300 text-base font-medium focus:ring-0"
               rows={3}
               value={query?.query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(e) => setQuery({tablename:removeQuote(e.target.value.split(' ').pop()),query:e.target.value})}
             />
 
             <div className="flex justify-between">
