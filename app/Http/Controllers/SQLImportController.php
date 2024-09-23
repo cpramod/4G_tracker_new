@@ -129,7 +129,6 @@ class SQLImportController extends Controller
 
     public function db_connection($id,$sql_code,$table_name)
     {
-
         $filePath = public_path('/storage/trino/trino.jar');
         $db = ImportDB::find($id);
       
