@@ -64,7 +64,6 @@ export default function Authenticated({ user, children }) {
                                 <List className={`p-0 ${currentRoute === "view.table.item" ? "border-l-4 border-green-700  bg-gray-700/90" : ""}`} key={index}>
                                     <Link href={route('view.table.item', item?.slug)}>
                                     <ListItem className={`py-3 rounded-none text-white`}>
-
                                             <ListItemPrefix className='mr-3'><GitCommitVerticalIcon size={20} /></ListItemPrefix>
                                             <span className='font-semibold text-sm'>{item?.title}</span>
                                         </ListItem>
