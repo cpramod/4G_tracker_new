@@ -5,7 +5,6 @@ import { Trash2Icon } from 'lucide-react';
 import { router, useForm, usePage } from '@inertiajs/react';
 
 export default function AddNewRow({ tableHeader, setAddNewRow }) {
-
     const { entity } = usePage().props
     const { data, setData, post } = useForm({
         newItem: [],

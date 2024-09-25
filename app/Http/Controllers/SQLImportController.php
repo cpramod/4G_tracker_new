@@ -16,14 +16,8 @@ class SQLImportController extends Controller
     public function index($id)
     {
 
-         $filePath = public_path('/storage/trino/trino.jar');
-   
-        //  if (file_exists($filePath)) {
-       
-        //     return response()->download($filePath);
-        // } else {
-        //     abort(404, 'File not found.');
-        // }
+        $filePath = storage_path('/trino/trino.jar');
+
   
         $db = ImportDB::find($id);
         try {
@@ -130,7 +124,7 @@ class SQLImportController extends Controller
     public function db_connection($id,$sql_code,$table_name)
     {
 
-        $filePath = public_path('/storage/trino/trino.jar');
+        $filePath = storage_path('/trino/trino.jar');
         $db = ImportDB::find($id);
       
         if ($db) {

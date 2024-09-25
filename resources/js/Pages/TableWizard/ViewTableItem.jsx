@@ -13,7 +13,7 @@ import Pagination from '@/Components/Pagination'
 import AddNewRow from '@/Components/Table/AddNewRow'
 
 export default function ViewTableItem({ auth, entity }) {
-
+    console.log(entity);
     const { role } = auth
     const [deleteTableDialog, setDeleteTableDialog] = useState(false);
     const [perPage, setPerPage] = useState(10);
